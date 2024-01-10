@@ -17,6 +17,9 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | More Than Equal       | x >=y        |
 | Not Equal             | x !=  y      |
 | Assignment            | x = 5; x = y;|
+| While Loop            | while(condition) |
+| Break loop control    | break        |
+| Continue loop control | continue     |
 
 
 
