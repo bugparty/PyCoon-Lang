@@ -68,3 +68,17 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 |variable_name         | Ident        |
 |10311517              | Num          |
 
+### Comments
+
+Comments can be single line comments starting with `#`. For example:
+
+```
+int x; #This is a variable declaration.
+```
+Comments can also be block comments starting with `/*` and end with `*/`. For example:
+```
+/*This is a
+variable
+declaration.*/
+int x; 
+```
