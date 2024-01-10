@@ -25,7 +25,7 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | Write statements      | print(x);     |
 | Read Statements       | read(x);      |
 | Array Init            | Arr[fixed size y]; Arr[fixed size y] = (x); |
-| Comments              | //Comments or /* comments */ |
+| Comments              | # Comments or /* comments */ |
 | function              | fun(x,y,z,...){return t}|
 
 
