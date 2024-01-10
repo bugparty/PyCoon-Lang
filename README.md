@@ -20,6 +20,13 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | While Loop            | while(condition) |
 | Break loop control    | break        |
 | Continue loop control | continue     |
+| If else loop          | if(condition){} else{} |
+| Write statements      | print(x);     |
+| Read Statements       | read(x);      |
+| Array Init            | Arr[fixed size y]; Arr[fixed size y] = (x); |
+| Comments              | //Comments or /* comments */ |
+| function              | fun(x,y,z,...){return t}|
+
 
 
 
