@@ -4,6 +4,11 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu] (https://github.com/
 ## Language Features
 
 | Language Feature      | Code Example |
+| Variable Declaration  | int x;       |
+| Addition              | x + y        |
+| Subtraction           | x - y        |
+| Multiply              | x * y        |
+| Divide                | x / y        |
 
 
 ### Table of Symbols
