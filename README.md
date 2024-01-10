@@ -20,5 +20,5 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 
 ### Table of Symbols
 
-|Symbol                | Token Name   |
+| Symbol                | Token Name   |
 
