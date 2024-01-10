@@ -1,5 +1,5 @@
 # Orion Programming Language
-Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu] (https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
+Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
 
 ## Language Features
 
