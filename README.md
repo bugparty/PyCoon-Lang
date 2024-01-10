@@ -10,6 +10,12 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | Subtraction           | x - y        |
 | Multiply              | x * y        |
 | Divide                | x / y        |
+| Modulus               | x % y        |
+| Less Than             | x < y        |
+| Less Than Equal       | x <= y       |
+| More Than             | x > y        |
+| More Than Equal       | x >=y        |
+
 
 
 ### Table of Symbols
