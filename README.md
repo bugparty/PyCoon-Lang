@@ -15,10 +15,46 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | Less Than Equal       | x <= y       |
 | More Than             | x > y        |
 | More Than Equal       | x >=y        |
+| Not Equal             | x !=  y      |
+| Assignment            | x = 5; x = y;|
+
 
 
 
 ### Table of Symbols
 
-| Symbol                | Token Name   |
+|Symbol                | Token Name   |
+|----------------------|--------------|
+|fun                  | Func         |
+|return                | Return       |
+|int                   | Int          |
+|print                 | Print        |
+|read                  | Read         |
+|while                 | While        |
+|if                    | If           |
+|else                  | Else         |
+|break                 | Break        |
+|continue              | Continue     |
+|(                     | LeftParen    |
+|)                     | RightParen   |
+|{                     | LeftCurly    |
+|}                     | RightCurly   |
+|[                     | LeftBracket  |
+|]                     | RightBracket |
+|,                     | Comma        |
+|;                     | Semicolon    |
+|+                     | Plus         |
+|-                     | Subtract     |
+|*                     | Multiply     |
+|/                     | Divide       |
+|%                     | Modulus      |
+|=                     | Assign       |
+|<                     | Less         |
+|<=                    | LessEqual    |
+|>                     | Greater      |
+|>=                    | GreaterEqual |
+|==                    | Equality     |
+|!=                    | NotEqual     |
+|variable_name         | Ident        |
+|10311517              | Num          |
 
