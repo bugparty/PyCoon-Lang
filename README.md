@@ -16,6 +16,7 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 | More Than             | x > y        |
 | More Than Equal       | x >=y        |
 | Not Equal             | x !=  y      |
+| Assignment            | x = 5; x = y;|
 | Logical And           | x>1 and y<2  |
 | Logical Or            | x>1 or y<2   |
 | While Loop            | while(condition) |
