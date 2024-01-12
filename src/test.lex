@@ -23,7 +23,7 @@ printf( "Keyword: %s\n", yytext );
 {ARITHMETIC}{1} {
 printf("Arithmetic Op :%s\n",yytext);
 }
->=|<= {
+{COMPARISON} {
 printf("Arithmetic Comparator :%s\n",yytext);
 }
 
