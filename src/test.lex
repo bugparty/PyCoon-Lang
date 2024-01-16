@@ -10,19 +10,24 @@
 /*define your symbols here*/
 DIGIT          [0-9]
 ID       [a-z][a-z0-9]*
+
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
+
 
 
 %%
 {DIGIT}+	{
     printf("IntergerNum: %s\n", yytext);
 }
+\/\*.*\*\/ {
+    printf("Comment :%s\n", yytext);
+}
 if|else|for|while|and|or|fun        {
 printf( "Keyword: %s\n", yytext );
 }
-{ARITHMETIC}{1} {
+\+|-|\*|\/ {
 printf("Arithmetic Op :%s\n",yytext);
 }
 

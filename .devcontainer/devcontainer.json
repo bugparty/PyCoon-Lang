@@ -1,7 +1,8 @@
 {
-  
-    "image": "mcr.microsoft.com/devcontainers/cpp:debian12",
-    "features": {
-        "ghcr.io/akhildevelops/devcontainer-features/apt:0": {"PACKAGES":"flex-old"}
-    }
+
+  "image": "mcr.microsoft.com/devcontainers/cpp:debian12",
+  "features": {
+    "ghcr.io/akhildevelops/devcontainer-features/apt:0": {"PACKAGES":"flex-old"}
+  }
 }
+
