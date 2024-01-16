@@ -11,7 +11,9 @@
 DIGIT          [0-9]
 ID       [a-z][a-z0-9]*
 ARITHMETIC [+\-*/]
-COMPARISON [>(?==)|<(?==)|!(!==)|=(?==)|>(?=\s)|<(?=\s)|!|=(?=\s)] 
+COMPARISON [>|<|=][=]{0,1}
+NOTEQUAL [!][=]
+
 
 %%
 {DIGIT}+	{
@@ -23,7 +25,12 @@ printf( "Keyword: %s\n", yytext );
 {ARITHMETIC}{1} {
 printf("Arithmetic Op :%s\n",yytext);
 }
-{COMPARISON}{1} {
+
+{COMPARISON}{1}           {
+printf("Arithmetic Comparator :%s\n",yytext);
+}
+
+{NOTEQUAL}{1}           {
 printf("Arithmetic Comparator :%s\n",yytext);
 }
 
