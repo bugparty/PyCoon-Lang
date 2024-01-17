@@ -12,8 +12,8 @@ int white_spaces = 0;
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
-ID       [a-z][a-z0-9_]*
-WRONG_ID [0-9_]+[a-z0-9_]*
+ID       [a-zA-z][a-zA-Z0-9_]*
+WRONG_ID [0-9_]+[a-zA-Z0-9_]*
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
