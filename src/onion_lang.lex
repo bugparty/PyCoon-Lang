@@ -13,7 +13,12 @@ int white_spaces = 0;
 /*define your symbols here*/
 DIGIT          [0-9]
 ID       [a-z][a-z0-9]*
+
 ARITHMETIC [+\-*/]
+COMPARISON [>|<|=][=]{0,1}
+NOTEQUAL [!][=]
+
+
 
 %%
 {DIGIT}+    {
@@ -24,11 +29,12 @@ if|else|for|while|and|or|fun    {
 }
 int|float|double    {
    printf( "number type: %s\n", yytext ); 
+
 }
-{ARITHMETIC}{1} {
+\+|-|\*|\/ {
 printf("Arithmetic Op :%s\n",yytext);
 }
->=|<=|>|<|== {
+>=|<=|>|<|==|!= {
 printf("Arithmetic Comparator :%s\n",yytext);
 }
 = {
