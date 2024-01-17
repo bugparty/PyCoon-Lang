@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "installing gtest"
+wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz -O /tmp/gtest.tar.gz
+mkdir -p /tmp/gtest
+tar xf /tmp/gtest.tar.gz -C /tmp
+pushd /tmp/googletest-release-1.8.0
+cmake -DBUILD_SHARED_LIBS=ON .
+make -j`nproc`
+sudo make install
+popd
+echo "gtest installed"

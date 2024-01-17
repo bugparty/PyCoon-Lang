@@ -1,0 +1,3 @@
+int count;
+float fc;
+double dc;
