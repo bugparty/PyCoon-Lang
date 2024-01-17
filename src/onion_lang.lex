@@ -19,7 +19,7 @@ DIGIT          [0-9]
 ID       [a-zA-z][a-zA-Z0-9_]*
 WRONG_ID [0-9_]+[a-z][a-z0-9]*
 ARITHMETIC [+\-*/]
-COMPARISON [>|<|=][=]{0,1}
+COMPARISON (>=|<=|>|<|==|!=)
 NOTEQUAL [!][=]
 COMMENT #.*\n
 MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
@@ -46,7 +46,7 @@ int|float|double    {
     current_col += strlen(yytext);
     printf("Arithmetic Op :%s\n",yytext);
 }
->=|<=|>|<|==|!= {
+{COMPARISON} {
     current_col += strlen(yytext);
     printf("Arithmetic Comparator :%s\n",yytext);
 }
