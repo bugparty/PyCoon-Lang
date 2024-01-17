@@ -13,7 +13,7 @@ int white_spaces = 0;
 /*define your symbols here*/
 DIGIT          [0-9]
 ID       [a-z][a-z0-9]*
-
+WRONG_ID [0-9]*[a-z0-9]*
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
@@ -48,10 +48,14 @@ printf("Arithmetic Comparator :%s\n",yytext);
 ; {
     printf("Terminator\n");
 }
+{WRONG_ID}+ {
+    printf("WrongIdentifier: %s\n", yytext);
+}
 {ID}{1} {
     printf("Identifier: %s\n", yytext);
 }
 
+<
 {COMMENT} {}
 
 {MTLCOMMENT} {}
