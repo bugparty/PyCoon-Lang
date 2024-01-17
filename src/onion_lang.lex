@@ -21,6 +21,8 @@ WRONG_ID [0-9_]+[a-z][a-z0-9]*
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
+COMMENT #.*\n
+MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 
 
 
@@ -70,6 +72,11 @@ int|float|double    {
    current_col += strlen(yytext);
     printf("Identifier: %s\n", yytext);
 }
+
+<
+{COMMENT} {}
+
+{MTLCOMMENT} {}
 
 . {
     current_col += strlen(yytext);
