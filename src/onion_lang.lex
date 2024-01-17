@@ -23,6 +23,8 @@ COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
 COMMENT #.*\n
 MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
+BINARY [0b]+[0-1]*
+HEX [0x]+[0-9a-eA-E]*
 
 
 
@@ -63,6 +65,12 @@ int|float|double    {
 ; {
     current_col += strlen(yytext);
     printf("Terminator\n");
+}
+{BINARY} {
+    printf("BINARY: %s\n", yytext);
+}
+{HEX} {
+    printf("HEX: %s\n", yytext);
 }
 {ID}{1} {
     printf("Identifier: %s\n", yytext);
