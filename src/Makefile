@@ -1,9 +1,9 @@
-lex: test.lex
-	flex test.lex
+lex: onion_lang.lex
+	flex  onion_lang.lex
 all: lex
-	gcc lex.yy.c -lfl
+	g++ lex.yy.c -lfl
 run: all
 	./a.out
 clean:
-	rm -f *.o lex.yy.c
+	rm -f *.o lex.yy.c lex.yy.cc
 .PHONY: clean

@@ -6,6 +6,8 @@
 /* you can include anything here, will be insert to head */
 #include <stdio.h>
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
