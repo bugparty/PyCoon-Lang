@@ -26,14 +26,14 @@ MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 {DIGIT}+    {
     printf("IntergerNum: %s\n", yytext);
 }
-if|else|for|while|and|or|fun    {
+if|else|for|while|and|or|fun|print|break|read|continue    {
     printf( "Keyword: %s\n", yytext );
 }
 int|float|double    {
    printf( "number type: %s\n", yytext ); 
 
 }
-\+|-|\*|\/ {
+\+|-|\*|\/|% {
 printf("Arithmetic Op :%s\n",yytext);
 }
 >=|<=|>|<|==|!= {
@@ -51,6 +51,14 @@ printf("Arithmetic Comparator :%s\n",yytext);
 {ID}{1} {
     printf("Identifier: %s\n", yytext);
 }
+
+"(" {printf("LEFT PAREN\n");}
+")" {printf("RIGHT PAREN\n");}
+"{" {printf("LEFT CURLEY\n");}
+"}" {printf("RIGHT CURLEY\n");}
+"[" {printf("LEFT BOX BRAC\n");}
+"]" {printf("RIGHT BOX BRAC\n");}
+
 
 {COMMENT} {}
 
