@@ -17,6 +17,8 @@ ID       [a-z][a-z0-9]*
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
 NOTEQUAL [!][=]
+COMMENT #.*\n
+MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 
 
 
@@ -49,6 +51,11 @@ printf("Arithmetic Comparator :%s\n",yytext);
 {ID}{1} {
     printf("Identifier: %s\n", yytext);
 }
+
+{COMMENT} {}
+
+{MTLCOMMENT} {}
+
 . {
     cerr<< "unexptected char found: " << yytext <<endl;
     return -1;
