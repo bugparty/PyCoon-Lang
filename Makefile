@@ -3,8 +3,8 @@ CXX = g++
 CXXFLAGS = -g  -lfl
 PROJECT_ROOT=src
 lex: $(PROJECT_ROOT)/onion_lang.lex
-	flex  $(PROJECT_ROOT)/onion_lang.lex
-	mv $(PROJECT_ROOT)/lex.yy.c $(PROJECT_ROOT)/lex.yy.cc
+	flex  -o$(PROJECT_ROOT)/lex.yy.cc $(PROJECT_ROOT)/onion_lang.lex
+	
 main: lex  
 	$(CXX)  $(CXXFLAGS) $(PROJECT_ROOT)/lex.yy.cc -o onion
   
