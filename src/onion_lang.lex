@@ -12,7 +12,7 @@ int white_spaces = 0;
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
-ID       [a-z][a-z0-9]*
+ID       [a-z][_]*[a-z0-9]*
 WRONG_ID [0-9]*[a-z0-9]*
 ARITHMETIC [+\-*/]
 COMPARISON [>|<|=][=]{0,1}
