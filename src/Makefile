@@ -6,7 +6,7 @@ lex: onion_lang.lex
 	mv lex.yy.c lex.yy.cc
 
 main: lex  
-	g++ lex.yy.cc  -lfl -o onion
+	g++ lex.yy.cc  main.cc -lfl -o onion
   
 all: main
 clean:
