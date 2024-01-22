@@ -1,0 +1,13 @@
+run_test() {
+    filename=$(basename "$1")
+  
+  # Print the file name
+  echo "File name: $filename"
+  ./onion $1
+  echo "End of test: $filename"
+}
+make
+run_test ../doc/language_samples/test_cases/variable01.onion
+run_test ../doc/language_samples/test_cases/variable02.onion
+run_test ../doc/language_samples/test_cases/if01.onion
+run_test  ../doc/language_samples/test_cases/add.onion
