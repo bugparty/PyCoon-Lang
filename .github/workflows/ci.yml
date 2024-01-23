@@ -14,6 +14,6 @@ jobs:
         - name: install flex-old cppunittst
           run: sudo apt install -y libcppunit-dev flex-old
         - name: make
-          run: make
+          run: cd src && make
         - name: run test
           run: cd src && ./ci
