@@ -8,11 +8,13 @@ The Onion Lang lexizier
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
+#include <set>
 using namespace std;
 int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
+set<string> keywords={"or","and"};
 #define ONION_PATTERN current_col += strlen(yytext)
 %}
 /*define your symbols here*/
@@ -23,13 +25,19 @@ ARITHMETIC [+\-*/]
 COMPARISON (>=|<=|>|<|==|!=)
 COMMENT #.*\n
 MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
-BINARY [0b]+[0-1]*
+BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
-
-
+VARIABLE [a-zA-Z][a-zA-Z0-9_]*
+END_OF_VARIABLE  [ \t;\[\]=\+\-\*\/\)]
+END_OF_NUMBER [ \t;\n\]\)]
+WHITE_SPACE_OR_END [ \t;,\n]
+NOT_WHITE_SPACE_OR_END [^ \t;\n]
+WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
+LEFT_BOX_BRAC [\[]
+RIGHT_BOX_BRAC [\]]
 
 %%
-{DIGIT}+    {
+{DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
     printf("IntergerNum: %s\n", yytext);
 }
@@ -42,6 +50,8 @@ int|float|double    {
    printf( "number type: %s\n", yytext ); 
 
 }
+{LEFT_BOX_BRAC} {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
+{RIGHT_BOX_BRAC} {ONION_PATTERN;printf("RIGHT BOX BRAC\n");}
 \+|-|\*|\/|% {
     ONION_PATTERN;
     printf("Arithmetic Op :%s\n",yytext);
@@ -74,9 +84,18 @@ int|float|double    {
     ONION_PATTERN;
     printf("HEX: %s\n", yytext);
 }
-{ID} {
+{VARIABLE}/{END_OF_VARIABLE} {
     ONION_PATTERN;
-    printf("Identifier: %s\n", yytext);
+    if(keywords.find(yytext)!= keywords.end()){
+        REJECT;
+    }else{
+        printf("Variable: %s\n", yytext);
+    }
+    
+}
+{VARIABLE}/{COMPARISON} {
+    ONION_PATTERN;
+    printf("Variable: %s\n", yytext);
 }
 {WRONG_ID} {
     ONION_PATTERN;
@@ -87,17 +106,16 @@ int|float|double    {
 ")" {ONION_PATTERN;printf("RIGHT PAREN\n");}
 "{" {ONION_PATTERN;printf("LEFT CURLEY\n");}
 "}" {ONION_PATTERN;printf("RIGHT CURLEY\n");}
-"[" {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
-"]" {ONION_PATTERN;printf("RIGHT BOX BRAC\n");}
 
-{COMMENT} {ONION_PATTERN;}
 
-{MTLCOMMENT} {ONION_PATTERN;}
+{COMMENT} {ONION_PATTERN;printf("comment\n");}
+
+{MTLCOMMENT} {ONION_PATTERN;printf("comment\n");}
+
 
 . {
     ONION_PATTERN;
-    printf("unexptected symbol found at line %d col %d: %s\n",current_line, current_col, yytext);
-    return -1;
+    printf("unexptected char found at line %d col %d: %s\n",current_line, current_col, yytext);
 }
 %%
 
