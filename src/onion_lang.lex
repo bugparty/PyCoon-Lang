@@ -14,7 +14,7 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-set<string> keywords={"if","else","for","while","and","or","fun","print","break","read","continue" };
+set<string> keywords={"if","else","for","while","and","or","fun","print","break","read","continue","int" };
 #define ONION_PATTERN current_col += strlen(yytext)
 %}
 /*define your symbols here*/
@@ -41,7 +41,7 @@ RIGHT_BOX_BRAC [\]]
     ONION_PATTERN;
     printf("IntergerNum: %s\n", yytext);
 }
-if|else|for|while|and|or|fun|print|break|read|continue    {
+if|else|for|while|and|or|fun|print|break|read|continue|int    {
     ONION_PATTERN;
     printf( "Keyword: %s\n", yytext );
 }
