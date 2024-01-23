@@ -1,3 +1,4 @@
 src/lex.yy.c
+src/lex.yy.cc
 src/a.out
 src/onion
