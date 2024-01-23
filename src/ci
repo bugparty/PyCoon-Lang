@@ -2,12 +2,23 @@ run_test() {
     filename=$(basename "$1")
   
   # Print the file name
-  echo "File name: $filename"
+  echo -e "\e[34mFile name: $filename \e[0m "
+
   ./onion $1
-  echo "End of test: $filename"
+  error=$?
+  if [ "$error" -ne 0 ]; then
+    echo -e "\e[31mError found,stop testing. \e[0m"
+    exit -2
+  else
+    echo -e "\e[32mTest succees in : $filename \e[0m"
+  fi
 }
 make
+run_test ../doc/language_samples/test_cases/wrong_identifier.onion
 run_test ../doc/language_samples/test_cases/variable01.onion
 run_test ../doc/language_samples/test_cases/variable02.onion
 run_test ../doc/language_samples/test_cases/if01.onion
 run_test  ../doc/language_samples/test_cases/add.onion
+run_test  ../doc/language_samples/test_cases/loop.onion
+run_test  ../doc/language_samples/test_cases/loop_with_break.onion
+run_test  ../doc/language_samples/test_cases/math.onion
