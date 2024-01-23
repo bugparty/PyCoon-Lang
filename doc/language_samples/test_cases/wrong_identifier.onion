@@ -1,6 +1,5 @@
 int count;
-float firstvar=1;
-double secondvar=2;
+
 int 123ab;
 int _ab;
 int 1aaa;
