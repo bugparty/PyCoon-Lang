@@ -33,7 +33,7 @@ and input something to test it
 | Read Statements       | read(x);      |
 | Array Init            | Arr[fixed size y]; Arr[fixed size y] = (x); |
 | Comments              | # Comments or /* comments */ |
-| function              | fun(x,y,z,...){return t}|
+| function              | fun fun_name(x,y,z,...){return t}|
 
 
 
