@@ -10,10 +10,10 @@ jobs:
   build-and-test:
       runs-on: ubuntu-latest
       steps:
-      - uses: actions/checkout@v2
-      - name: install flex-old cppunittst
-      run: sudo apt install -y libcppunit-dev flex-old
-      - name: make
-      run: make
-      - name: run test
-      run: cd src && ./ci
+        - uses: actions/checkout@v2
+        - name: install flex-old cppunittst
+          run: sudo apt install -y libcppunit-dev flex-old
+        - name: make
+          run: make
+        - name: run test
+          run: cd src && ./ci
