@@ -10,12 +10,22 @@ The Onion Lang lexizier
 #include <cstring>
 #include <set>
 using namespace std;
+#define ONION_PATTERN current_col += strlen(yytext) 
+#define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext); \
+    if(in_error){ \
+        printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
+        exit(-1);\
+    }
+
 int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
 set<string> keywords={"if","else","for","while","and","or","fun","print","break","read","continue","int"}; 
-#define ONION_PATTERN current_col += strlen(yytext)
+string error_lexeme;
+bool in_error = false;
+int error_begin_row;
+int error_begin_col;
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
@@ -64,18 +74,6 @@ int  {
     ONION_PATTERN;
     printf("Assignment: %s\n",yytext);
 }
-[ \t] {
-    ONION_PATTERN;
-    white_spaces++;
-}
-[\n] {
-    ++current_line;
-    current_col=1;
-}
-; {
-    ONION_PATTERN;
-    printf("Terminator\n");
-}
 {BINARY} {
     ONION_PATTERN;
     printf("BINARY: %s\n", yytext);
@@ -112,12 +110,31 @@ int  {
 {COMMENT} {ONION_PATTERN;printf("comment\n");}
 
 {MTLCOMMENT} {ONION_PATTERN;printf("comment\n");}
-
+[ \t] {
+    ONION_PATTERN_HANDLE_ERROR;
+    white_spaces++;
+    if(in_error){printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());exit(-1);}
+}
+[\n\r] {
+    ONION_PATTERN_HANDLE_ERROR;
+    ++current_line;
+    current_col=1;
+}
+; {
+    ONION_PATTERN;
+    printf("Terminator\n");
+}
 
 . {
+    if(!in_error){
+        error_begin_col = current_col;
+        error_begin_row = current_line;
+        in_error = true;
+    }
     ONION_PATTERN;
-    printf("unexptected char found at line %d col %d: %s\n",current_line, current_col, yytext);
-    exit(-1);
+    
+    
+    error_lexeme += yytext;
 }
 %%
 
