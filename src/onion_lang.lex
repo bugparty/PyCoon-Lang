@@ -116,6 +116,7 @@ int|float|double    {
 . {
     ONION_PATTERN;
     printf("unexptected char found at line %d col %d: %s\n",current_line, current_col, yytext);
+    exit(-1);
 }
 %%
 
