@@ -23,3 +23,4 @@ run_test  ../doc/language_samples/test_cases/loop.onion
 run_test  ../doc/language_samples/test_cases/loop_with_break.onion
 run_test  ../doc/language_samples/test_cases/math.onion
 run_test  ../doc/language_samples/test_cases/fibonacci.onion
+run_test  ../doc/language_samples/test_cases/array.onion
