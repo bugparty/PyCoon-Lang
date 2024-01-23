@@ -14,7 +14,7 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-set<string> keywords={"or","and"};
+set<string> keywords={"or","and","if","else","for","while","and","or","fun","print","break","read","continue" };
 #define ONION_PATTERN current_col += strlen(yytext)
 %}
 /*define your symbols here*/
