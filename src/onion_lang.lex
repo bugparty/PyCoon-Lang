@@ -29,7 +29,7 @@ BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
 VARIABLE [a-zA-Z][a-zA-Z0-9_]*
 END_OF_VARIABLE  [ \t\r\n;\[\]=\+\-\*\/\)\(]
-END_OF_NUMBER [ \t\r\n\]\)\;]
+END_OF_NUMBER [ \t\r\n\]\)\;\,\}]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
 WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
@@ -106,6 +106,7 @@ int  {
 ")" {ONION_PATTERN;printf("RIGHT PAREN\n");}
 "{" {ONION_PATTERN;printf("LEFT CURLEY\n");}
 "}" {ONION_PATTERN;printf("RIGHT CURLEY\n");}
+"," {ONION_PATTERN;printf("COMMA\n");}
 
 
 {COMMENT} {ONION_PATTERN;printf("comment\n");}
