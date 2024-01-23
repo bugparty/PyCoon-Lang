@@ -31,7 +31,7 @@ and input something to test it
 | If else loop          | if(condition){} else{} |
 | Write statements      | print(x);     |
 | Read Statements       | read(x);      |
-| Array Init            | Arr[fixed size y]; Arr[fixed size y] = (x); |
+| Array Init            | Arr[fixed size y]; Arr[fixed size y] = one_init_value;Arr[optional_fixed size n] = {val1,val2,...,valn}; |
 | Comments              | # Comments or /* comments */ |
 | function              | fun fun_name(x,y,z,...){return t}|
 
