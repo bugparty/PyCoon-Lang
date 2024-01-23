@@ -29,7 +29,6 @@ int error_begin_col;
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
-ID       [a-zA-Z][a-zA-Z0-9_]*
 WRONG_ID [0-9_]+[a-zA-Z0-9]+
 ARITHMETIC [+\-*/]
 COMPARISON (>=|<=|>|<|==|!=)
@@ -37,8 +36,8 @@ COMMENT #.*\n
 MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
-VARIABLE [a-zA-Z][a-zA-Z0-9_]*
-END_OF_VARIABLE  [ \t\r\n;\[\]=\+\-\*\/\)\(]
+ID [a-zA-Z][a-zA-Z0-9_]*
+END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(]
 END_OF_NUMBER [ \t\r\n\]\)\;\,\}]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
@@ -57,7 +56,7 @@ if|else|for|while|and|or|fun|print|break|read|continue    {
 }
 int  {
    ONION_PATTERN;
-   printf( "number type: %s\n", yytext ); 
+   printf( "Number type: %s\n", yytext ); 
 
 }
 {LEFT_BOX_BRAC} {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
@@ -82,18 +81,18 @@ int  {
     ONION_PATTERN;
     printf("HEX: %s\n", yytext);
 }
-{VARIABLE}/{END_OF_VARIABLE} {
+{ID}/{END_OF_ID} {
     ONION_PATTERN;
     if(keywords.find(yytext)!= keywords.end()){
         REJECT;
     }else{
-        printf("Variable: %s\n", yytext);
+        printf("Identifier: %s\n", yytext);
     }
     
 }
-{VARIABLE}/{COMPARISON} {
+{ID}/{COMPARISON} {
     ONION_PATTERN;
-    printf("Variable: %s\n", yytext);
+    printf("Identifier: %s\n", yytext);
 }
 {WRONG_ID} {
     ONION_PATTERN;

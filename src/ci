@@ -39,6 +39,7 @@ run_test  ../doc/language_samples/test_cases/loop_with_break.onion
 run_test  ../doc/language_samples/test_cases/math.onion
 run_test  ../doc/language_samples/test_cases/fibonacci.onion
 run_test  ../doc/language_samples/test_cases/array.onion
+run_test  ../doc/language_samples/test_cases/read.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error01.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error02.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error03.onion
