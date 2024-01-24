@@ -1,0 +1,25 @@
+multiplyMatrices(int matA[2][2], int matB[2][2], int result[2][2]) {
+    int i, j, k;
+    for (i = 0; i < 2; i = i + 1) {
+        for (j = 0; j < 2; j = j + 1) {
+            result[i][j] = 0;
+            for (k = 0; k < 2; k = k + 1) {
+                result[i][j] = result[i][j] + matA[i][k] * matB[k][j];
+            }
+        }
+    }
+}
+
+int matA[2][2] = ((1, 2), (3, 4));
+int matB[2][2] = ((2, 0), (1, 2));
+int result[2][2];
+multiplyMatrices(matA, matB, result);
+
+int x, y;
+for (x = 0; x < 2; x = x + 1) {
+    for (y = 0; y < 2; y = y + 1) {
+        print(result[x][y]);
+        print(" ");
+    }
+    print("\n");
+}
