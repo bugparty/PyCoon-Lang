@@ -2,13 +2,19 @@
 Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
 
 ## How to run the tokizer
-`cd src
+
+```
+cd src
 make
-./onion`
+./onion
+```
 and input something to test it
 
 ## Run Example Tests
-`./ci`
+```
+cd src
+./ci
+```
 
 ## Github Actions Test Result
 
