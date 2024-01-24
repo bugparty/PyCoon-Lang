@@ -19,7 +19,5 @@ int x, y;
 for (x = 0; x < 2; x = x + 1) {
     for (y = 0; y < 2; y = y + 1) {
         print(result[x][y]);
-        print(" ");
     }
-    print("\n");
 }
