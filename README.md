@@ -10,7 +10,7 @@ and input something to test it
 ## Run Example Tests
 `./ci`
 
-Github Actions Test Status
+## Github Actions Test Result
 
 ![CI workflow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg)
 
