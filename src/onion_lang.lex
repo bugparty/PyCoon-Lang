@@ -37,7 +37,7 @@ MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
 ID [a-zA-Z][a-zA-Z0-9_]*
-END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(]
+END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(\,]
 END_OF_NUMBER [ \t\r\n\]\)\;\,\}]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]

@@ -40,6 +40,10 @@ run_test  ../doc/language_samples/test_cases/math.onion
 run_test  ../doc/language_samples/test_cases/fibonacci.onion
 run_test  ../doc/language_samples/test_cases/array.onion
 run_test  ../doc/language_samples/test_cases/read.onion
+run_test  ../doc/language_samples/test_cases/add_multiple_variables.onion
+run_test  ../doc/language_samples/test_cases/function.onion
+run_test  ../doc/language_samples/test_cases/function_3_inputs.onion
+run_test  ../doc/language_samples/test_cases/while_loop.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error01.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error02.onion
 expect_fail ../doc/language_samples/test_cases/lexical_error03.onion

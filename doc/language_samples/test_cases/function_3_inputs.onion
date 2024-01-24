@@ -1,0 +1,6 @@
+fun muliply(int a, int b, int c){
+    return a*b*c;
+}
+int c;
+c = muliply(2,5);
+print(c);
