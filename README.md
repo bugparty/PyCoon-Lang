@@ -12,7 +12,7 @@ and input something to test it
 
 ## Github Actions Test Result
 
-![CI workflow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg)
+[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
 
 ### Language Features
 
