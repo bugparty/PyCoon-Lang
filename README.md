@@ -7,6 +7,11 @@ make
 ./onion`
 and input something to test it
 
+## Run Example Tests
+`./ci`
+Github Actions Test Status
+![CI workflow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg)
+
 ### Language Features
 
 | Language Feature      | Code Example |
