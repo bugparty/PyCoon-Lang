@@ -20,6 +20,8 @@ extern FILE* yyin;
 }
 
 $token <int> NUMBER
+$token IDENTIFIER 
+#token VARTYPE
 #token LEFT_PAR RIGHT_PAR
 #left ADDING SUBTRACTING
 #left MULTIPLYING DIVISION MODULE 
