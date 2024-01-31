@@ -10,7 +10,7 @@ extern FILE* yyin;
 
 %}
 
-%define api.value.type union-directive
+%define api.value.type union
 %union{
     int tokenVal;
     string tokenStr; 
