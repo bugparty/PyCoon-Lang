@@ -19,10 +19,17 @@ extern FILE* yyin;
     char *tokenStr; 
 }
 
-$token <int> NUMBER
-$token IDENTIFIER 
-#token VARTYPE
-#token LEFT_PAR RIGHT_PAR
-#left ADDING SUBTRACTING
-#left MULTIPLYING DIVISION MODULE 
+%token <int> NUMBER
+%token IDENTIFIER 
+%token VARTYPE
+%token LEFT_PAR RIGHT_PAR
+%left ADDING SUBTRACTING
+%left MULTIPLYING DIVISION MODULE 
 
+%nterm <int> statements add sub multi div mod
+
+%start statements
+
+%%
+
+statements:
