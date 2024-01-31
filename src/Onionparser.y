@@ -11,8 +11,16 @@ extern FILE* yyin;
 %}
 
 %define api.value.type union
+%define parse.error verbose
+%define parse.lac full
+
 %union{
     int tokenVal;
-    string tokenStr; 
+    char *tokenStr; 
 }
+
+$token <int> NUMBER
+#token LEFT_PAR RIGHT_PAR
+#left ADDING SUBTRACTING
+#left MULTIPLYING DIVISION MODULE 
 
