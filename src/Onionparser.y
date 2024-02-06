@@ -32,7 +32,7 @@ extern FILE* yyin;
 
 %%
 
-statements: statements statement
+statements: statements statement {printf("%expression" ,$2);}
           | %empty
           ;
 
@@ -43,3 +43,15 @@ statement: add
          | mod
          | NUMBER
          ;
+        
+add:    LEFT_PAR statement ADDING statement RIGHT_PAR{$$ = $2 + $4;}
+
+sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR{$$ = $2 - $4;}
+
+multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR{$$ = $2 * $4;}
+
+div: LEFT_PAR statement DIVISION statement RIGHT_PAR{$$ = $2 / $4;}
+
+mod: LEFT_PAR statement MODULE statement RIGHT_PAR{$$ = $2 % $4;}
+
+
