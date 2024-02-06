@@ -26,10 +26,20 @@ extern FILE* yyin;
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
-%nterm <int> statements add sub multi div mod
+%nterm <int> statement add sub multi div mod
 
 %start statements
 
 %%
 
-statements:
+statements: statements statement
+          | %empty
+          ;
+
+statement: add
+         | sub
+         | multi
+         | div
+         | mod
+         | NUMBER
+         ;
