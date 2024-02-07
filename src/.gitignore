@@ -1,0 +1,9 @@
+bison.c
+*.o
+onion_parser.tab.c
+onion_parser.tab.h
+onion
+onion_parser.output
+*.yy.c
+tok.h
+lex.c

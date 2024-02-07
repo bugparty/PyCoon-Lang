@@ -1,15 +1,32 @@
-.DEFAULT_GOAL := all
-CXX = g++
-CXXFLAGS =  -lfl  -Wno-error=register
-lex: onion_lang.lex
-	flex onion_lang.lex
-	mv lex.yy.c lex.yy.cc
+OBJS	= bison.o lex.o main.o
 
-main: lex  
-	g++ lex.yy.cc  main.cc -lfl -Wno-register -o onion
+CC	= g++
+CFLAGS	=-ansi -g -Wall  -pedantic -fpermissive
+
+onion:		$(OBJS)
+		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
+
+lex.o:		lex.c
+		$(CC) $(CFLAGS) -c lex.c -o lex.o
+
+lex.c:		onion_lang.lex 
+		flex onion_lang.lex
+		cp lex.yy.c lex.c
+
+bison.o:	bison.c
+		$(CC) $(CFLAGS) -c bison.c -o bison.o
+
+bison.c:	onion_parser.y
+		bison -d -v onion_parser.y
+		cp onion_parser.tab.c bison.c
+		cmp -s onion_parser.tab.h tok.h || cp onion_parser.tab.h tok.h
+
+main.o:		main.cc
+		$(CC) $(CFLAGS) -c main.cc -o main.o
+
+lex.o yac.o main.o	: heading.h
+lex.o main.o		: tok.h
 run: main
 	./onion
-all: main
 clean:
-	rm -f *.o lex.yy.c lex.yy.cc
-.PHONY: clean
+	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h calc.tab.c calc.tab.h calc.output calc

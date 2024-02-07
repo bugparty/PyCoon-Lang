@@ -1,14 +1,19 @@
-#include <stdio.h>
-#include "flex_externs.hpp"
-int main(int argc,char** argv)
+/* main.cc */
+
+#include "heading.h"
+
+// prototype of bison-generated parser function
+int yyparse();
+
+int main(int argc, char **argv)
 {
+  if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
+  {
+    cerr << argv[0] << ": File " << argv[1] << " cannot be opened.\n";
+    exit( 1 );
+  }
+  
+  yyparse();
 
-    ++argv, --argc;  /* skip over program name */
-    if ( argc > 0 )
-        yyin = fopen( argv[0], "r" );
-    else
-        yyin = stdin;
-
-    yylex();
-    return 0;
+  return 0;
 }
