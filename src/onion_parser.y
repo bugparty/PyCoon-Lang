@@ -46,16 +46,17 @@ function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
 statements: statements statement {printf("%expression" ,$2);}
+          | arithmetic
           | %empty
           ;
 
-statement: add
-         | sub
-         | multi
-         | div
-         | mod
-         | NUMBER
-         ;
+arithmetic: add
+          | sub
+          | multi
+          | div
+          | mod
+          | NUMBER
+          ;
         
 add:    LEFT_PAR statement ADDING statement RIGHT_PAR{$$ = $2 + $4;}
 
