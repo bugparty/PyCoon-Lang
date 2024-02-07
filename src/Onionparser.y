@@ -19,18 +19,32 @@ extern FILE* yyin;
     char *tokenStr; 
 }
 
+%token program
+%token function
+%token arithmetic
 %token <int> NUMBER
 %token IDENTIFIER 
 %token VARTYPE
+%token FUN
+%token INT
 %token LEFT_PAR RIGHT_PAR
+%token LEFT_BRAC RIGHT_BRAC
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
 %nterm <int> statement add sub multi div mod
 
-%start statements
+%start program
 
 %%
+
+program: %empty
+       | program function 
+       ;
+
+function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
+
+
 
 statements: statements statement {printf("%expression" ,$2);}
           | %empty
