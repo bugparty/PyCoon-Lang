@@ -18,13 +18,10 @@
     char *tokenStr; 
 }
 
-%token program
-%token function
-%token arithmetic
+
 %token <int> NUMBER
 %token IDENTIFIER 
 %token VARTYPE
-%token FUN
 %token INT
 %token LEFT_PAR RIGHT_PAR
 %token LEFT_BRAC RIGHT_BRAC
@@ -42,6 +39,7 @@ program: %empty
        ;
 
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
+
 
 
 
