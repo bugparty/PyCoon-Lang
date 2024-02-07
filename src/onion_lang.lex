@@ -21,8 +21,7 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-string keywords_arr[] = {"if","else","for","while","and","or","fun","print","break","read","continue","int"}; 
-set<string> keywords;
+set<string> keywords = {"if","else","for","while","and","or","fun","print","break","read","continue","int"}; 
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
