@@ -10,6 +10,7 @@
 
 %}
 
+%locations
 %define parse.error verbose
 %define parse.lac full
 
@@ -42,7 +43,7 @@ function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
 
-statements: statements statement {printf("%expression" ,$2);}
+statements: statements statement {printf("%lf" ,$2);}
           | %empty
           ;
 
@@ -56,12 +57,31 @@ statement: add
           | NUMBER
           ;
         
-add:    LEFT_PAR statement ADDING statement RIGHT_PAR{$$ = $2 + $4;}
+add:    LEFT_PAR statement ADDING statement RIGHT_PAR{ $$ = $2 + $4;}
 
-sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR{$$ = $2 - $4;}
+sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR{ $$ = $2 - $4;}
 
-multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR{$$ = $2 * $4;}
+multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR{ $$ = $2 * $4;}
 
-div: LEFT_PAR statement DIVISION statement RIGHT_PAR{$$ = $2 / $4;}
+div: LEFT_PAR statement DIVISION statement RIGHT_PAR{ $$ = $2 / $4;}
 
-mod: LEFT_PAR statement MODULE statement RIGHT_PAR{$$ = $2 % $4;}
+mod: LEFT_PAR statement MODULE statement RIGHT_PAR{ $$ = $2 % $4;}
+
+%%
+
+int main()
+{
+    yyparse();
+    return 0;
+
+}
+
+
+
+int yyerror(char *s)
+{
+
+    printf("Error: %s\n", s);
+    return 1;
+
+}
