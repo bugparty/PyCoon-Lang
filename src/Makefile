@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := all
 CXX = g++
-CXXFLAGS =  -lfl  -Wno-register
+CXXFLAGS =  -lfl  -Wno-register -fpermissive
 CC	= g++
-CFLAGS	= -g -Wall -ansi -pedantic
+CFLAGS	= -g -Wall -ansi -pedantic  -fpermissive
 
 OBJS	= bison.o lex.o main.o
 
