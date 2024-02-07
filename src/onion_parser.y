@@ -1,25 +1,29 @@
-%{
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
-#include <string>
-#define YY_NO_UNPUT
-#include "flex_externs.hpp"
-#include "tok.h"
 
+/* Mini Calculator */
+/* calc.y */
+
+%{
+#include "heading.h"
+int yyerror(char *s);
+int yylex(void);
 %}
 
-%locations
+
+
 %define parse.error verbose
 %define parse.lac full
 
 %union{
     int tokenVal;
     char *tokenStr; 
-}
 
-%token <int> NUMBER
+
+};
+
+
+%token arithmetic
+%token <tokenVal> NUMBER
+
 %token IDENTIFIER 
 %token VARTYPE
 %token FUN
@@ -29,59 +33,56 @@
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
-%nterm <int> statement add sub multi div mod
 
-%start program
+%nterm  statement add sub multi div mod statements
+%type <tokenVal> statement add sub multi div mod
+%start function
 
 %%
 
-program: %empty
-       | program function 
-       ;
+
 
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
 
-statements: statements statement {printf("%lf" ,$2);}
+statements: statements statement {printf("%s expression" ,$2);}
           | %empty
           ;
 
-
-
 statement: add
-          | sub
-          | multi
-          | div
-          | mod
-          | NUMBER
-          ;
+         | sub
+         | multi
+         | div
+         | mod
+         | NUMBER
+         ;
         
-add:    LEFT_PAR statement ADDING statement RIGHT_PAR{ $$ = $2 + $4;}
+add:    LEFT_PAR statement ADDING statement RIGHT_PAR {$$ = $2 + $4;}
 
-sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR{ $$ = $2 - $4;}
+sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR {$$ = $2 - $4;}
 
-multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR{ $$ = $2 * $4;}
+multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR {$$ = $2 * $4;}
 
-div: LEFT_PAR statement DIVISION statement RIGHT_PAR{ $$ = $2 / $4;}
+div: LEFT_PAR statement DIVISION statement RIGHT_PAR {$$ = $2 / $4;}
 
-mod: LEFT_PAR statement MODULE statement RIGHT_PAR{ $$ = $2 % $4;}
+mod: LEFT_PAR statement MODULE statement RIGHT_PAR {$$ = $2 % $4;}
 
 %%
 
-int main()
+int yyerror(string s)
 {
-    yyparse();
-    return 0;
-
+  extern int yylineno;	// defined and maintained in lex.c
+  extern char *yytext;	// defined and maintained in lex.c
+  
+  cerr << "ERROR: " << s << " at symbol \"" << yytext;
+  cerr << "\" on line " << yylineno << endl;
+  exit(1);
 }
-
-
 
 int yyerror(char *s)
 {
-
-    printf("Error: %s\n", s);
-    return 1;
-
+  return yyerror(string(s));
 }
+
+

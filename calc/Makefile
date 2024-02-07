@@ -1,36 +1,31 @@
-
 OBJS	= bison.o lex.o main.o
 
 CC	= g++
-CFLAGS	=-ansi -g -Wall  -pedantic -fpermissive
+CFLAGS	= -g -Wall -ansi -pedantic
 
-onion:		$(OBJS)
-		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
+calc:		$(OBJS)
+		$(CC) $(CFLAGS) $(OBJS) -o calc -lfl
 
 lex.o:		lex.c
 		$(CC) $(CFLAGS) -c lex.c -o lex.o
 
-lex.c:		onion_lang.lex 
-		flex onion_lang.lex
+lex.c:		calc.lex 
+		flex calc.lex
 		cp lex.yy.c lex.c
 
 bison.o:	bison.c
 		$(CC) $(CFLAGS) -c bison.c -o bison.o
 
-
-bison.c:	onion_parser.y
-		bison -d -v onion_parser.y
-		cp onion_parser.tab.c bison.c
-		cmp -s onion_parser.tab.h tok.h || cp onion_parser.tab.h tok.h
-
+bison.c:	calc.y
+		bison -d -v calc.y
+		cp calc.tab.c bison.c
+		cmp -s calc.tab.h tok.h || cp calc.tab.h tok.h
 
 main.o:		main.cc
 		$(CC) $(CFLAGS) -c main.cc -o main.o
 
 lex.o yac.o main.o	: heading.h
-
 lex.o main.o		: tok.h
-run: main
-	./onion
+
 clean:
 	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h calc.tab.c calc.tab.h calc.output calc
