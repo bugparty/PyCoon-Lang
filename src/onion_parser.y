@@ -46,7 +46,6 @@ function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
 statements: statements statement {printf("%expression" ,$2);}
-          | arithmetic
           | %empty
           ;
 
