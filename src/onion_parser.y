@@ -18,9 +18,6 @@
     char *tokenStr; 
 }
 
-%token program
-%token function
-%token arithmetic
 %token <int> NUMBER
 %token IDENTIFIER 
 %token VARTYPE
@@ -49,11 +46,9 @@ statements: statements statement {printf("%expression" ,$2);}
           | %empty
           ;
 
-statement: arithmetic
-         ;
 
 
-arithmetic: add
+statement: add
           | sub
           | multi
           | div
@@ -61,12 +56,12 @@ arithmetic: add
           | NUMBER
           ;
         
-add:    LEFT_PAR arithmetic ADDING arithmetic RIGHT_PAR{$$ = $2 + $4;}
+add:    LEFT_PAR statement ADDING statement RIGHT_PAR{$$ = $2 + $4;}
 
-sub:    LEFT_PAR arithmetic SUBTRACTING arithmetic RIGHT_PAR{$$ = $2 - $4;}
+sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR{$$ = $2 - $4;}
 
-multi:  LEFT_PAR arithmetic MULTIPLYING arithmetic RIGHT_PAR{$$ = $2 * $4;}
+multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR{$$ = $2 * $4;}
 
-div: LEFT_PAR arithmetic DIVISION arithmetic RIGHT_PAR{$$ = $2 / $4;}
+div: LEFT_PAR statement DIVISION statement RIGHT_PAR{$$ = $2 / $4;}
 
-mod: LEFT_PAR arithmetic MODULE arithmetic RIGHT_PAR{$$ = $2 % $4;}
+mod: LEFT_PAR statement MODULE statement RIGHT_PAR{$$ = $2 % $4;}
