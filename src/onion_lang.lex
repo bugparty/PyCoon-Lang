@@ -9,6 +9,7 @@ The Onion Lang lexizier
 #include <unistd.h>
 #include <cstring>
 #include <set>
+#include "tok.h"
 using namespace std;
 #define ONION_PATTERN current_col += strlen(yytext) 
 #define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext); \
@@ -48,7 +49,9 @@ RIGHT_BOX_BRAC [\]]
 %%
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
+    yylval.tokenVal = atoi(yytext);
     printf("IntergerNum: %s\n", yytext);
+    return NUMBER;
 }
 if|else|for|while|and|or|fun|print|break|read|continue    {
     ONION_PATTERN;
@@ -61,9 +64,35 @@ int  {
 }
 {LEFT_BOX_BRAC} {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
 {RIGHT_BOX_BRAC} {ONION_PATTERN;printf("RIGHT BOX BRAC\n");}
-\+|-|\*|\/|% {
+"+" {
     ONION_PATTERN;
-    printf("Arithmetic Op :%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    printf("Arithmetic Op +:%s\n",yytext);
+    return ADDING;
+}
+"-" {
+    yylval.tokenStr = yytext; 
+    ONION_PATTERN;
+    printf("Arithmetic Op -:%s\n",yytext);
+    return SUBTRACTING;
+}
+"*" {
+    yylval.tokenStr = yytext; 
+    ONION_PATTERN;
+    printf("Arithmetic Op *:%s\n",yytext);
+    return MULTIPLYING;
+}
+"/" {
+    yylval.tokenStr = yytext; 
+    ONION_PATTERN;
+    printf("Arithmetic Op /:%s\n",yytext);
+    return DIVISION;
+}
+"%" {
+    yylval.tokenStr = yytext; 
+    ONION_PATTERN;
+    printf("Arithmetic Op MOD:%s\n",yytext); 
+    return MODULE;
 }
 {COMPARISON} {
     ONION_PATTERN;
