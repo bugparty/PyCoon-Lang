@@ -109,9 +109,33 @@ int  {
     yylval.tokenStr = yytext; 
     return MODULE;
 }
-{COMPARISON} {
+"<=" { 
     ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return LEQ;
 }
+">=" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return GEQ;
+}
+
+">" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return GE;
+}
+"<" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return LE;
+}
+
+
 = {
     ONION_PATTERN;
     return ASSIGNMENT;

@@ -35,6 +35,7 @@ int yylex(void);
 %token WHILE FOR
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
+%token LEQ GEQ LE GE
 
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt
