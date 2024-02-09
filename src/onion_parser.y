@@ -28,10 +28,11 @@ int yylex(void);
 %token VARTYPE
 %token FUN
 %token INT
-%token LEFT_PAR RIGHT_PAR
+%token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
 %token SEMICOLON COMMA
+%token WHILE FOR
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
@@ -58,7 +59,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTY
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
           ;
-
+while_stmt: WHILE LEFT_PAR expr RIGHT_BRAC LEFT_CURLEY statements  RIGHT_CURLEY
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
