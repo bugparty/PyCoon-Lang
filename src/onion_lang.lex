@@ -17,7 +17,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_PRINTF
     #define ODEBUG( ...) printf( __VA_ARGS__ )
@@ -60,9 +60,15 @@ RIGHT_BOX_BRAC [\]]
     ODEBUG("NUMBER:%d\n", yylval.tokenVal);
     return NUMBER;
 }
-if|else|for|while|and|or|fun|print|break|read|continue    {
+if|else|for|and|or|fun|print|break|read|continue    {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
+}
+while {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    yylval.tokenStr = yytext; 
+    return WHILE;
 }
 int  {
    ONION_PATTERN;
@@ -139,13 +145,20 @@ int  {
     ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
 }
 "(" {ONION_PATTERN;
+    yylval.tokenStr = yytext; 
     return LEFT_PAR;}
-")" {ONION_PATTERN; return RIGHT_PAR;}
+")" {ONION_PATTERN;
+    yylval.tokenStr = yytext; 
+    return RIGHT_PAR;}
 "{" {ONION_PATTERN;ODEBUG("LEFT CURLEY\n");
+    yylval.tokenStr = yytext; 
     return LEFT_CURLEY;}
 "}" {ONION_PATTERN;ODEBUG("RIGHT CURLEY\n");
+    yylval.tokenStr = yytext; 
     return RIGHT_CURLEY;}
-"," {ONION_PATTERN;return COMMA;}
+"," {ONION_PATTERN;
+    yylval.tokenStr = yytext; 
+    return COMMA;}
 
 
 {COMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
