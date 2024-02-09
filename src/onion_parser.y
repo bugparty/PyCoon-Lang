@@ -36,33 +36,42 @@ int yylex(void);
 %left MULTIPLYING DIVISION MODULE 
 
 
-%nterm  statement add sub multi div mod statements quote
+%nterm  statement add sub multi div mod statements quote assignment_stmt
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
-%start expr
+%start statements
 
 %%
+start: expr {cout << "start -> expr\n";}
 
-expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"";}
-    | NUMBER {cout<<"NUMBER -> "<<$1;}
-    | expr ADDING expr {}
-    | %empty
+expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
+    | NUMBER {cout<<"NUMBER -> "<<$1<<endl;}
+    | expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
+    | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
+    | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
+    | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
+    | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
+    | %empty {cout << "expr -> empty"<<endl;}
+    ;
+
+assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT expr"<<endl;}
+          | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
+          | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
+          ;
 
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
 
-statements: statements statement {printf("%s expression" ,$2);}
+statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
+          | statement SEMICOLON
+          | %empty
+          ;
+statement: expr
+          | assignment_stmt
           | %empty
           ;
 
-statement: add
-         | sub
-         | multi
-         | div
-         | mod
-         | NUMBER
-         ;
 
 quote:   LEFT_PAR statements RIGHT_PAR    {printf("quote");}  
 add:     statement ADDING statement {printf("add\n");}

@@ -17,6 +17,13 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
+#define ENABLE_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+
+#if ENABLE_PRINTF
+    #define ODEBUG( ...) printf( __VA_ARGS__ )
+#else
+    #define ODEBUG( ...)
+#endif
 
 int white_spaces = 0;
 //this variable tracks which line in current state
@@ -39,7 +46,7 @@ BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
 ID [a-zA-Z][a-zA-Z0-9_]*
 END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(\,]
-END_OF_NUMBER [ \t\r\n\]\)\;\,\}\+\-\/\*]
+END_OF_NUMBER [ \t\r\n\]\)\;\,\}\%\+\-\/\*]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
 WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
@@ -50,11 +57,12 @@ RIGHT_BOX_BRAC [\]]
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
     yylval.tokenVal = atoi(yytext);
+    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
     return NUMBER;
 }
 if|else|for|while|and|or|fun|print|break|read|continue    {
     ONION_PATTERN;
-    printf( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext );
 }
 int  {
    ONION_PATTERN;
@@ -62,30 +70,37 @@ int  {
    return INT;
 
 }
-{LEFT_BOX_BRAC} {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
-{RIGHT_BOX_BRAC} {ONION_PATTERN;printf("RIGHT BOX BRAC\n");}
+{LEFT_BOX_BRAC} {ONION_PATTERN;ODEBUG("LEFT BOX BRAC\n");}
+{RIGHT_BOX_BRAC} {ONION_PATTERN;ODEBUG("RIGHT BOX BRAC\n");}
 "+" {
-    ONION_PATTERN;
+    ONION_PATTERN; 
     yylval.tokenStr = yytext; 
+    ODEBUG("Arithmetic Op +:%s\n",yytext);
     return ADDING;
 }
 "-" {
-    yylval.tokenStr = yytext; 
     ONION_PATTERN;
+    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
     return SUBTRACTING;
 }
 "*" {
-    yylval.tokenStr = yytext; 
+    
     ONION_PATTERN;
+    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
     return MULTIPLYING;
 }
 "/" {
     ONION_PATTERN;
-    printf("Arithmetic Op /:%s\n",yytext);
+    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
     return DIVISION;
 }
 "%" { 
     ONION_PATTERN;
+    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
     return MODULE;
 }
 {COMPARISON} {
@@ -107,33 +122,37 @@ int  {
     if(keywords.find(yytext)!= keywords.end()){
         REJECT;
     }else{
-        printf("Identifier: %s\n", yytext);
+        ODEBUG("Identifier: %s\n", yytext);
+        yylval.tokenStr = yytext; 
+        return IDENTIFIER;
     }
     
 }
 {ID}/{COMPARISON} {
     ONION_PATTERN;
-    printf("Identifier: %s\n", yytext);
+    ODEBUG("Identifier: %s\n", yytext);
+    yylval.tokenStr = yytext; 
+    return IDENTIFIER;
 }
 {WRONG_ID} {
     ONION_PATTERN;
-    printf("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
+    ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
 }
 "(" {ONION_PATTERN;
     return LEFT_PAR;}
 ")" {ONION_PATTERN; return RIGHT_PAR;}
-"{" {ONION_PATTERN;printf("LEFT CURLEY\n");}
-"}" {ONION_PATTERN;printf("RIGHT CURLEY\n");}
+"{" {ONION_PATTERN;ODEBUG("LEFT CURLEY\n");}
+"}" {ONION_PATTERN;ODEBUG("RIGHT CURLEY\n");}
 "," {ONION_PATTERN;return COMMA;}
 
 
-{COMMENT} {ONION_PATTERN;printf("comment\n");}
+{COMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
 
-{MTLCOMMENT} {ONION_PATTERN;printf("comment\n");}
+{MTLCOMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
 [ \t] {
     ONION_PATTERN_HANDLE_ERROR;
     white_spaces++;
-    if(in_error){printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());exit(-1);}
+    if(in_error){ODEBUG("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());exit(-1);}
 }
 [\n\r] {
     ONION_PATTERN_HANDLE_ERROR;
@@ -142,7 +161,9 @@ int  {
 }
 ; {
     ONION_PATTERN;
-    printf("Terminator\n");
+    ODEBUG("Terminator\n");
+    yylval.tokenStr = yytext; 
+    return SEMICOLON;
 }
 
 . {
@@ -152,7 +173,6 @@ int  {
         in_error = true;
     }
     ONION_PATTERN;
-    
     
     error_lexeme += yytext;
 }

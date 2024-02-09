@@ -4,7 +4,7 @@ run_test() {
   # Print the file name
   echo -e "\e[34mFile name: $filename \e[0m "
 
-  cat $1 | ./onion
+  ./onion $1
   error=$?
   if [ "$error" -ne 0 ]; then
     echo -e "\e[31mError found,stop testing. \e[0m"
@@ -19,7 +19,7 @@ expect_fail() {
   # Print the file name
   echo -e "\e[34mFile name: $filename \e[0m "
 
-  cat $1 | ./onion
+  ./onion $1
   error=$?
   if [ "$error" -eq 0 ]; then
     echo -e "\e[31mError found,stop testing. \e[0m"
@@ -29,6 +29,6 @@ expect_fail() {
   fi
 }
 make
-for PASSINGFILE in ../doc/language_samples/parser/*; do run_test $PASSINGFILE; done;
+for PASSINGFILE in ../doc/language_samples/test_cases/passing/*; do run_test $PASSINGFILE; done;
 
-# for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;
+for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;

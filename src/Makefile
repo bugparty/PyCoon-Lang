@@ -30,7 +30,7 @@ main.o:		main.cc
 lex.o yac.o main.o	: heading.h
 
 lex.o main.o		: tok.h
-run: main
+run: onion
 	./onion
 clean:
 	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h calc.tab.c calc.tab.h calc.output calc
