@@ -33,6 +33,9 @@ int yylex(void);
 %token ASSIGNMENT
 %token SEMICOLON COMMA
 %token IF ELSE WHILE FOR
+%token BREAK CONTINUE
+%token LOGICAL_ADD LOGICAL_OR
+%token READ PRINT
 
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
@@ -40,6 +43,7 @@ int yylex(void);
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm greaterEqual greater smaller smallerEqual equal
+%nterm loop_block for_stmt for_first_stmt
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
@@ -65,8 +69,21 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTY
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           ;
-while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY statements  RIGHT_CURLEY
-function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
+for_first_stmt: assignment_stmt
+          | %empty
+          ;
+
+while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
+          ;
+for_stmt: FOR LEFT_PAR for_first_stmt SEMICOLON expr SEMICOLON expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR expr SEMICOLON expr SEMICOLON RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+          ;
+function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
+          ;
+
+loop_block: loop_block statement SEMICOLON {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
+          | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
+          | %empty
+          ;
 
 condition: statement GE statement
           |statement GEQ statement
@@ -76,6 +93,7 @@ condition: statement GE statement
           ;
 
 block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
+        | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         ;
 
 

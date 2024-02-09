@@ -17,7 +17,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_PRINTF
     #define ODEBUG( ...) printf( __VA_ARGS__ )
@@ -61,10 +61,46 @@ RIGHT_BOX_BRAC [\]]
     return NUMBER;
 }
 
-and|or|fun|print|break|read|continue    {
+print|read   {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
 
+}
+read {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return READ;
+}
+print {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return PRINT;
+}
+fun {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return FUN;
+}
+break {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return BREAK;
+}
+continue {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return CONTINUE;
+}
+
+and {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return LOGICAL_ADD;
+}
+or {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return LOGICAL_OR;
 }
 if {
     ONION_PATTERN;
