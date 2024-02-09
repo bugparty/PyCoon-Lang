@@ -154,6 +154,14 @@ int  {
     yylval.tokenStr = yytext; 
     return LE;
 }
+"=="
+{
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return EQ;
+
+}
 = {
     ONION_PATTERN;
     return ASSIGNMENT;

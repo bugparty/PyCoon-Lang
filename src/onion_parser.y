@@ -36,10 +36,11 @@ int yylex(void);
 
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
-%token LEQ GEQ LE GE
+%token LEQ GEQ LE GE EQ
 
+%nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
+%nterm greaterEqual greater smaller smallerEqual equal
 
-%nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
 %start statements
@@ -56,6 +57,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
     | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
+    | ifElse_stmt
     ;
 
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT expr"<<endl;}
@@ -66,9 +68,19 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTY
 while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY statements  RIGHT_CURLEY
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
+condition: statement GE statement
+          |statement GEQ statement
+          |statement LE statement
+          |statement LEQ statement
+          |statement EQ statement
+          ;
 
 block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         ;
+
+
+ifElse_stmt: IF LEFT_PAR condition RIGHT_PAR LEFT_BOX_BRAC expr RIGHT_BOX_BRAC ELSE LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
+
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
           | statements block_stmt
           | statement SEMICOLON
