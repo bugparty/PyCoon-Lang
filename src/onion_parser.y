@@ -79,7 +79,7 @@ block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         ;
 
 
-ifElse_stmt: IF LEFT_PAR condition RIGHT_PAR LEFT_BOX_BRAC expr RIGHT_BOX_BRAC ELSE LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
+ifElse_stmt: IF LEFT_PAR condition RIGHT_PAR LEFT_BRAC expr RIGHT_BRAC ELSE LEFT_BRAC expr RIGHT_BRAC
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
           | statements block_stmt
