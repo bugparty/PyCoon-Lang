@@ -24,23 +24,29 @@ int yylex(void);
 %token arithmetic
 %token <tokenVal> NUMBER
 
-%token IDENTIFIER 
+%token <tokenStr> IDENTIFIER 
 %token VARTYPE
 %token FUN
 %token INT
 %token LEFT_PAR RIGHT_PAR
 %token LEFT_BRAC RIGHT_BRAC
+%token ASSIGNMENT
+%token SEMICOLON COMMA
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
 
-%nterm  statement add sub multi div mod statements
+%nterm  statement add sub multi div mod statements quote
 %type <tokenVal> statement add sub multi div mod
-%start function
+%type <tokenStr> expr
+%start expr
 
 %%
 
-
+expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"";}
+    | NUMBER {cout<<"NUMBER -> "<<$1;}
+    | expr ADDING expr {}
+    | %empty
 
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
@@ -57,8 +63,9 @@ statement: add
          | mod
          | NUMBER
          ;
-        
-add:    LEFT_PAR statement ADDING statement RIGHT_PAR {$$ = $2 + $4;}
+
+quote:   LEFT_PAR statements RIGHT_PAR    {printf("quote");}  
+add:     statement ADDING statement {printf("add\n");}
 
 sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR {$$ = $2 - $4;}
 

@@ -39,7 +39,7 @@ BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
 ID [a-zA-Z][a-zA-Z0-9_]*
 END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(\,]
-END_OF_NUMBER [ \t\r\n\]\)\;\,\}]
+END_OF_NUMBER [ \t\r\n\]\)\;\,\}\+\-\/\*]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
 WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
@@ -50,7 +50,6 @@ RIGHT_BOX_BRAC [\]]
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
     yylval.tokenVal = atoi(yytext);
-    printf("IntergerNum: %s\n", yytext);
     return NUMBER;
 }
 if|else|for|while|and|or|fun|print|break|read|continue    {
@@ -59,7 +58,8 @@ if|else|for|while|and|or|fun|print|break|read|continue    {
 }
 int  {
    ONION_PATTERN;
-   printf( "Number type: %s\n", yytext ); 
+   yylval.tokenStr = yytext; 
+   return INT;
 
 }
 {LEFT_BOX_BRAC} {ONION_PATTERN;printf("LEFT BOX BRAC\n");}
@@ -67,48 +67,40 @@ int  {
 "+" {
     ONION_PATTERN;
     yylval.tokenStr = yytext; 
-    printf("Arithmetic Op +:%s\n",yytext);
     return ADDING;
 }
 "-" {
     yylval.tokenStr = yytext; 
     ONION_PATTERN;
-    printf("Arithmetic Op -:%s\n",yytext);
     return SUBTRACTING;
 }
 "*" {
     yylval.tokenStr = yytext; 
     ONION_PATTERN;
-    printf("Arithmetic Op *:%s\n",yytext);
     return MULTIPLYING;
 }
 "/" {
-    yylval.tokenStr = yytext; 
     ONION_PATTERN;
     printf("Arithmetic Op /:%s\n",yytext);
     return DIVISION;
 }
-"%" {
-    yylval.tokenStr = yytext; 
+"%" { 
     ONION_PATTERN;
-    printf("Arithmetic Op MOD:%s\n",yytext); 
     return MODULE;
 }
 {COMPARISON} {
     ONION_PATTERN;
-    printf("Arithmetic Comparator :%s\n",yytext);
 }
 = {
     ONION_PATTERN;
-    printf("Assignment: %s\n",yytext);
+    return ASSIGNMENT;
+
 }
 {BINARY} {
     ONION_PATTERN;
-    printf("BINARY: %s\n", yytext);
 }
 {HEX} {
     ONION_PATTERN;
-    printf("HEX: %s\n", yytext);
 }
 {ID}/{END_OF_ID} {
     ONION_PATTERN;
@@ -128,11 +120,11 @@ int  {
     printf("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
 }
 "(" {ONION_PATTERN;
-    printf("LEFT PAREN\n");}
-")" {ONION_PATTERN;printf("RIGHT PAREN\n");}
+    return LEFT_PAR;}
+")" {ONION_PATTERN; return RIGHT_PAR;}
 "{" {ONION_PATTERN;printf("LEFT CURLEY\n");}
 "}" {ONION_PATTERN;printf("RIGHT CURLEY\n");}
-"," {ONION_PATTERN;printf("COMMA\n");}
+"," {ONION_PATTERN;return COMMA;}
 
 
 {COMMENT} {ONION_PATTERN;printf("comment\n");}
