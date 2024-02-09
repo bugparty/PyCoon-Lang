@@ -28,15 +28,16 @@ int yylex(void);
 %token VARTYPE
 %token FUN
 %token INT
-%token LEFT_PAR RIGHT_PAR
+%token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
 %token SEMICOLON COMMA
+%token WHILE FOR
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 
 
-%nterm  statement add sub multi div mod statements quote assignment_stmt
+%nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
 %start statements
@@ -45,7 +46,8 @@ int yylex(void);
 start: expr {cout << "start -> expr\n";}
 
 expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
-    | NUMBER {cout<<"NUMBER -> "<<$1<<endl;}
+    | NUMBER {cout<<"expr -> NUMBER -> "<<$1<<endl;}
+    | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
     | expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
     | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
     | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
@@ -57,18 +59,21 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
+          | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           ;
-
+while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY statements  RIGHT_CURLEY
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC
 
 
-
+block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
+        ;
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
+          | statements block_stmt
           | statement SEMICOLON
           | %empty
           ;
 statement: expr
-          | assignment_stmt
+          | assignment_stmt 
           | %empty
           ;
 
