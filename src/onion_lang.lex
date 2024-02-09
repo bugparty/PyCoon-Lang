@@ -60,16 +60,36 @@ RIGHT_BOX_BRAC [\]]
     ODEBUG("NUMBER:%d\n", yylval.tokenVal);
     return NUMBER;
 }
-if|else|for|and|or|fun|print|break|read|continue    {
+
+and|or|fun|print|break|read|continue    {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
+
 }
+if {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return IF;
+}
+else {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return ELSE;
+}
+
 while {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
     yylval.tokenStr = yytext; 
     return WHILE;
 }
+for {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    yylval.tokenStr = yytext; 
+    return FOR;
+}
+
 int  {
    ONION_PATTERN;
    yylval.tokenStr = yytext; 
@@ -109,8 +129,36 @@ int  {
     yylval.tokenStr = yytext; 
     return MODULE;
 }
-{COMPARISON} {
+"<=" { 
     ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return LEQ;
+}
+">=" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return GEQ;
+}
+
+">" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return GE;
+}
+"<" { 
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return LE;
+}
+"==" {
+    ONION_PATTERN;
+    ODEBUG("COMPARISON Op +:%s\n",yytext);
+    yylval.tokenStr = yytext; 
+    return EQ;
 }
 = {
     ONION_PATTERN;
