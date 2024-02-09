@@ -64,6 +64,7 @@ RIGHT_BOX_BRAC [\]]
 and|or|fun|print|break|read|continue    {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
+
 }
 if {
     ONION_PATTERN;
@@ -88,6 +89,7 @@ for {
     yylval.tokenStr = yytext; 
     return FOR;
 }
+
 int  {
    ONION_PATTERN;
    yylval.tokenStr = yytext; 
