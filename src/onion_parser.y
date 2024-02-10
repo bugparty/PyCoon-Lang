@@ -32,7 +32,7 @@ int yylex(void);
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
 %token SEMICOLON COMMA
-%token IF ELSE WHILE FOR
+%token IF ELSE WHILE FOR ELIF
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
 %token READ PRINT
@@ -99,8 +99,21 @@ block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         ;
 
+elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY
+          ;
+multi_elif_stmt: multi_elif_stmt elif_stmt
+          | elif_stmt
+          | %empty
+          ;
 
-ifElse_stmt: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY ELSE LEFT_CURLEY code_block RIGHT_CURLEY
+else_stmt: ELSE LEFT_CURLEY code_block RIGHT_CURLEY
+          | %empty
+          ;
+        
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY
+          ;
+
+ifElse_stmt: if_stmt multi_elif_stmt else_stmt;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
           | statements block_stmt
@@ -108,6 +121,7 @@ statements: statements  statement SEMICOLON  {cout << "statements -> statements 
           | statement SEMICOLON
           | %empty
           ;
+
 statement: expr
           | assignment_stmt 
           | %empty

@@ -29,7 +29,8 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-set<string> keywords = {"if","else","for","while","and","or","fun","print","break","read","continue","int"}; 
+set<string> keywords = {"if","else","for","while","and","or","fun","print","break","read","continue","int",
+"elif"}; 
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
@@ -106,6 +107,11 @@ if {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
     return IF;
+}
+elif {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    return ELIF;
 }
 else {
     ONION_PATTERN;
