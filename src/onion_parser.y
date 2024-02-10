@@ -60,10 +60,16 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
     | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
     | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
+    | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
-    | ifElse_stmt
     ;
 
+condition_expr : expr GE expr
+              |expr GEQ expr
+              |expr LE expr
+              |expr LEQ expr
+              |expr EQ expr
+              ;
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
@@ -84,23 +90,21 @@ loop_block: loop_block statement SEMICOLON {cout << "loop_block -> loop_block st
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
           | %empty
           ;
-
-condition: statement GE statement
-          |statement GEQ statement
-          |statement LE statement
-          |statement LEQ statement
-          |statement EQ statement
+code_block: code_block statement SEMICOLON
+          | %empty
           ;
+
 
 block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         ;
 
 
-ifElse_stmt: IF LEFT_PAR condition RIGHT_PAR LEFT_CURLEY expr RIGHT_CURLEY ELSE LEFT_CURLEY expr RIGHT_CURLEY
+ifElse_stmt: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY ELSE LEFT_CURLEY code_block RIGHT_CURLEY
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
           | statements block_stmt
+          | statements ifElse_stmt
           | statement SEMICOLON
           | %empty
           ;
