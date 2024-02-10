@@ -110,17 +110,6 @@ statement: expr
           ;
 
 
-quote:   LEFT_PAR statements RIGHT_PAR    {printf("quote");}  
-add:     statement ADDING statement {printf("add\n");}
-
-sub:    LEFT_PAR statement SUBTRACTING statement RIGHT_PAR {$$ = $2 - $4;}
-
-multi:  LEFT_PAR statement MULTIPLYING statement RIGHT_PAR {$$ = $2 * $4;}
-
-div: LEFT_PAR statement DIVISION statement RIGHT_PAR {$$ = $2 / $4;}
-
-mod: LEFT_PAR statement MODULE statement RIGHT_PAR {$$ = $2 % $4;}
-
 %%
 
 int yyerror(string s)
