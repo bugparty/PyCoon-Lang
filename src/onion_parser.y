@@ -50,32 +50,35 @@ int yylex(void);
 %start statements
 
 %%
-start: expr {cout << "start -> expr\n";}
 
 expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | NUMBER {cout<<"expr -> NUMBER -> "<<$1<<endl;}
     | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
-    | expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
-    | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
-    | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
-    | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
-    | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
+    | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
 
-condition_expr : expr GE expr
-              |expr GEQ expr
-              |expr LE expr
-              |expr LEQ expr
-              |expr EQ expr
+arithmetic_expr : | expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
+    | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
+    | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
+    | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
+    | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
+    ;
+
+condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
+              |expr GEQ expr {cout << "condition_expr -> expr GEQ expr"<<endl;}
+              |expr LE expr {cout << "condition_expr -> expr LE expr"<<endl;}
+              |expr LEQ expr {cout << "condition_expr -> expr LEQ expr"<<endl;}
+              |expr EQ expr {cout << "condition_expr -> expr EQ expr"<<endl;}
               ;
+
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           ;
-for_first_stmt: assignment_stmt
+for_first_stmt: assignment_stmt {cout << "for_first_stmt -> assignment_stmt"<<endl;}
           | %empty
           ;
 
@@ -90,7 +93,7 @@ loop_block: loop_block statement SEMICOLON {cout << "loop_block -> loop_block st
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
           | %empty
           ;
-code_block: code_block statement SEMICOLON
+code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
           | %empty
           ;
 
@@ -99,7 +102,7 @@ block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         ;
 
-elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY
+elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
           ;
 multi_elif_stmt: multi_elif_stmt elif_stmt
           | elif_stmt
@@ -122,7 +125,7 @@ statements: statements  statement SEMICOLON  {cout << "statements -> statements 
           | %empty
           ;
 
-statement: expr
+statement: expr {cout << "statement -> expr" <<endl;}
           | assignment_stmt 
           | %empty
           ;
