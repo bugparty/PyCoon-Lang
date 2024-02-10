@@ -42,6 +42,7 @@ cd src
 | Break loop control    | break        |
 | Continue loop control | continue     |
 | If else loop          | if(condition){} else{} |
+| If elif else loop     | if(condition){} elif(cond2) elif(cond3) ... else{} |
 | Write statements      | print(x);     |
 | Read Statements       | read(x);      |
 | Array Init            | Arr[fixed size y]; Arr[fixed size y] = one_init_value;Arr[optional_fixed size n] = {val1,val2,...,valn}; |
