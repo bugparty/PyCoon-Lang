@@ -1,6 +1,10 @@
 # Orion Programming Language
 Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
 
+## CI Test Result
+
+[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
+
 ## How to run the tokizer
 
 ```
@@ -16,9 +20,7 @@ cd src
 ./ci
 ```
 
-## Github Actions Test Result
 
-[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
 
 ### Language Features
 
