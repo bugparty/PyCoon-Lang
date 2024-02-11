@@ -78,21 +78,20 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt: VARTY
           | INT IDENTIFIER {cout << "assignment_stmt: VARTYPE IDENTIFIER"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           ;
-for_first_stmt: assignment_stmt {cout << "for_first_stmt -> assignment_stmt"<<endl;}
-          | %empty
-          ;
 
 while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
           ;
-for_stmt: FOR LEFT_PAR for_first_stmt SEMICOLON expr SEMICOLON expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR expr SEMICOLON expr SEMICOLON RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR expr SEMICOLON expr SEMICOLON RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
           ;
 function : FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
           ;
 
-loop_block: loop_block statement SEMICOLON {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
+loop_block: loop_block code_block {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
           | %empty
           ;
+
+
 code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
           | code_block control_flow_stmt { cout << "code_block -> code_block control_flow_stmt "<<endl;}
           | %empty
@@ -112,12 +111,13 @@ multi_elif_stmt: multi_elif_stmt elif_stmt
           | %empty
           ;
 
-else_stmt: ELSE LEFT_CURLEY code_block RIGHT_CURLEY
+else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
           | %empty
           ;
         
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY
           ;
+
 
 ifElse_stmt: if_stmt multi_elif_stmt else_stmt;
 
