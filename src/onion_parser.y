@@ -94,16 +94,19 @@ loop_block: loop_block statement SEMICOLON {cout << "loop_block -> loop_block st
           | %empty
           ;
 code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
+          | code_block control_flow_stmt { cout << "code_block -> code_block control_flow_stmt "<<endl;}
           | %empty
           ;
 
 
-block_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
+control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
+        | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
 
 elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
           ;
+
 multi_elif_stmt: multi_elif_stmt elif_stmt
           | elif_stmt
           | %empty
@@ -119,8 +122,7 @@ if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY
 ifElse_stmt: if_stmt multi_elif_stmt else_stmt;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
-          | statements block_stmt
-          | statements ifElse_stmt
+          | statements control_flow_stmt
           | statement SEMICOLON
           | %empty
           ;
