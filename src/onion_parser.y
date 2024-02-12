@@ -40,13 +40,13 @@ int yylex(void);
 
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
-%token LEQ GEQ LE GE EQ
+%token LEQ GEQ LE GE EQ NEQ
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm greaterEqual greater smaller smallerEqual equal
 %nterm loop_block for_stmt for_first_stmt
 %nterm number_array function_arguments variable_declartion function_code_block
-%nterm array_access_expr
+%nterm array_access_expr logical_op
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
@@ -70,8 +70,11 @@ arithmetic_op: MULTIPLYING
             | ADDING
             | SUBTRACTING
             | MODULE
+            | logical_op
             ;
-
+logical_op: LOGICAL_ADD
+          | LOGICAL_OR
+          ;
 arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;}
     ;
 
@@ -80,6 +83,7 @@ condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
               |expr LE expr {cout << "condition_expr -> expr LE expr"<<endl;}
               |expr LEQ expr {cout << "condition_expr -> expr LEQ expr"<<endl;}
               |expr EQ expr {cout << "condition_expr -> expr EQ expr"<<endl;}
+              |expr NEQ expr {cout << "condition_expr -> expr NEQ expr"<<endl;}
               ;
 number_array : number_array COMMA NUMBER  {cout << "number_array -> number_array COMMA NUMBER"<<endl;}
               | NUMBER {cout << "number_array ->  NUMBER"<<endl;}
