@@ -1,4 +1,4 @@
-name: onion lexizer CI
+name: onion CI
 
 on:
   push:
