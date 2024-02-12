@@ -1,7 +1,7 @@
 int i=0;
 int j=0;
-loop(i<10){
-    loop(j<10){
+while(i<10){
+    while(j<10){
         print(i+j);
         j=j+1;
     }
