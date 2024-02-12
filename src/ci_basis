@@ -1,0 +1,53 @@
+declare -a failed_tests
+declare -a passing_tests
+run_test() {
+    filename=$(basename "$1")
+  
+  # Print the file name
+  echo -e "\e[34mFile name: $filename \e[0m "
+
+  cat $1 | ./onion
+  error=$?
+  if [ "$error" -ne 0 ]; then
+    echo -e "\e[31mError found,stop testing. \e[0m"
+    failed_tests+=("$filename")
+  else
+    echo -e "\e[32mTest succees in : $filename \e[0m"
+    passing_tests+=("$filename")
+  fi
+}
+expect_fail() {
+    filename=$(basename "$1")
+  
+  # Print the file name
+  echo -e "\e[34mFile name: $filename \e[0m "
+
+  cat $1 | ./onion
+  error=$?
+  if [ "$error" -eq 0 ]; then
+    echo -e "\e[31mError found,stop testing. \e[0m"
+    failed_tests+=("$filename")
+  else
+    echo -e "\e[32mTest succees in : $filename \e[0m"
+    passing_tests+=("$filename")
+  fi
+}
+make
+for PASSINGFILE in ../doc/language_samples/parser/*; do run_test $PASSINGFILE; done;
+# for PASSINGFILE in ../doc/language_samples/test_cases/passing/*; do run_test $PASSINGFILE; done;
+# for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;
+
+echo ""
+echo -e "\e[33mSummary:\e[0m"
+echo "Total tests run: $(( ${#failed_tests[@]} + ${#passing_tests[@]} ))"
+echo "Tests passed: $(( ${#passing_tests[@]} ))"
+echo "Tests failed: $(( ${#failed_tests[@]} ))"
+
+if [ ${#failed_tests[@]} -gt 0 ]; then
+    echo -e "\e[31mFailed tests:\e[0m"
+    # for failed_test in "${failed_tests[@]}"; do
+    #     echo "$failed_test"
+    # done
+    echo "${failed_tests[*]}" 
+    exit -2
+fi
