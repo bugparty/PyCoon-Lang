@@ -17,7 +17,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_PRINTF
     #define ODEBUG( ...) printf( __VA_ARGS__ )
@@ -30,7 +30,7 @@ int white_spaces = 0;
 int current_line = 1;
 int current_col = 1;
 set<string> keywords = {"if","else","for","while","and","or","fun","print","break","read","continue","int",
-"elif"}; 
+"elif","return"}; 
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
@@ -62,15 +62,16 @@ RIGHT_BOX_BRAC [\]]
     return NUMBER;
 }
 
-return   {
+return {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
+    yylval.tokenStr = yytext; 
     return RETURN;
-
 }
 read {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
+    yylval.tokenStr = yytext; 
     return READ;
 }
 print {

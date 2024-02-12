@@ -61,7 +61,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
 
-arithmetic_expr : | expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
+arithmetic_expr :  expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
     | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
     | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
     | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
@@ -99,10 +99,10 @@ function_arguments : function_arguments COMMA variable_declartion
                   | variable_declartion
                   | %empty
                   ;
-function_declartion : FUN IDENTIFIER LEFT_PAR variable_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
+function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
           ;
 
-function_code_block: function_code_block statement SEMICOLON 
+function_code_block: function_code_block  statement SEMICOLON
           | function_code_block control_flow_stmt
           | function_code_block RETURN expr SEMICOLON
           | %empty

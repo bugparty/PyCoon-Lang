@@ -45,8 +45,9 @@ echo "Tests failed: $(( ${#failed_tests[@]} ))"
 
 if [ ${#failed_tests[@]} -gt 0 ]; then
     echo -e "\e[31mFailed tests:\e[0m"
-    for failed_test in "${failed_tests[@]}"; do
-        echo "$failed_test"
-    done
+    # for failed_test in "${failed_tests[@]}"; do
+    #     echo "$failed_test"
+    # done
+    echo "${failed_tests[*]}" 
     exit -2
 fi
