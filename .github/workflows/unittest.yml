@@ -1,0 +1,17 @@
+name: onion unitests
+
+on:
+  push:
+      branches: [ main ]
+  pull_request:
+      branches: [ main ]
+
+jobs:
+  full-test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: install flex-old 
+          run: sudo apt install -y  flex-old
+        - name: run test
+          run: cd src && ./ci
