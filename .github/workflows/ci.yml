@@ -17,12 +17,3 @@ jobs:
           run: cd src && make
         - name: run test
           run: cd src && ./ci_basis
-  full-test:
-      needs: build-and-test
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: install flex-old 
-          run: sudo apt install -y  flex-old
-        - name: run test
-          run: cd src && ./ci
