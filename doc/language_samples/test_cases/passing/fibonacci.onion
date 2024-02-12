@@ -1,7 +1,7 @@
 fun fib(int n){
     if(n==0)
     {
-        return fib(n)
+        return fib(n);
     }
     else
     {

@@ -58,6 +58,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
+    | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
 arithmetic_op: MULTIPLYING
@@ -133,6 +134,7 @@ else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
 
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
                   | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
+                  | arithmetic_expr {cout << "function_argument -> arithmetic_exprs"<<endl;}
                   | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
                   ;
 function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
