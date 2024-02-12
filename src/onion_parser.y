@@ -46,6 +46,7 @@ int yylex(void);
 %nterm greaterEqual greater smaller smallerEqual equal
 %nterm loop_block for_stmt for_first_stmt
 %nterm number_array function_arguments variable_declartion function_code_block
+%nterm array_access_expr
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
@@ -58,8 +59,11 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
+    | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
+array_access_expr: IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
+            ;
 arithmetic_op: MULTIPLYING
             | DIVISION
             | ADDING
@@ -82,9 +86,11 @@ number_array : number_array COMMA NUMBER  {cout << "number_array -> number_array
               ;
 variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;}
           ;
+array_assignment_stmt: array_access_expr ASSIGNMENT expr  {cout << "array_assignment_stmt -> array_access_expr ASSIGNMENT expr"<<endl;}
+                    ;
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
-          
+          | array_assignment_stmt
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
