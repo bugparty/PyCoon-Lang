@@ -5,6 +5,8 @@ Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/f
 
 [![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
 
+[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/unittest.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
+
 ## How to run the tokizer
 
 ```
