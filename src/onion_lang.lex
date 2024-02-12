@@ -29,7 +29,7 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-set<string> keywords = {"if","else","for","while","and","or","fun","print","break","read","continue","int",
+set<string> keywords = {"if","else","for","while","and","or","fun","break","continue","int",
 "elif","return"}; 
 string error_lexeme;
 bool in_error = false;
@@ -67,17 +67,6 @@ return {
     ODEBUG( "Keyword: %s\n", yytext );
     yylval.tokenStr = yytext; 
     return RETURN;
-}
-read {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
-    yylval.tokenStr = yytext; 
-    return READ;
-}
-print {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
-    return PRINT;
 }
 fun {
     ONION_PATTERN;
