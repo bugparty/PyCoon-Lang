@@ -109,17 +109,17 @@ function_code_block: function_code_block  statement SEMICOLON
           | function_code_block RETURN expr SEMICOLON
           | %empty
           ;
-function_argument: IDENTIFIER
-                  | NUMBER
-                  | function_call_stmt
+function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
+                  | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
+                  | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
                   ;
-function_arguments  : function_arguments COMMA function_argument
-                  | function_argument
+function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
+                  | function_argument {cout << "function_arguments -> function_argument "<<endl;}
                   | %empty
                   ;
 
-function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR
-                  | IDENTIFIER LEFT_PAR RIGHT_PAR
+function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR"<<endl;}
+                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR"<<endl;}
                   ;
 
 loop_block: loop_block code_block {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
