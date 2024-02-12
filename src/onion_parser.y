@@ -60,12 +60,14 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
+arithmetic_op: MULTIPLYING
+            | DIVISION
+            | ADDING
+            | SUBTRACTING
+            | MODULE
+            ;
 
-arithmetic_expr :  expr MULTIPLYING expr {cout << "expr -> expr MULTIPLYING expr"<<endl;}
-    | expr DIVISION expr {cout << "expr -> expr DIVISION expr"<<endl;}
-    | expr ADDING expr {cout << "expr -> expr ADDING expr"<<endl;}
-    | expr SUBTRACTING expr {cout << "expr -> expr SUBTRACTING expr"<<endl;}
-    | expr MODULE expr {cout << "expr -> expr MODULE expr"<<endl;}
+arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;}
     ;
 
 condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
@@ -95,11 +97,11 @@ while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {
           ;
 for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR expr SEMICOLON expr SEMICOLON RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
           ;
-function_arguments : function_arguments COMMA variable_declartion
+function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion
                   | variable_declartion
                   | %empty
                   ;
-function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
+function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
           ;
 
 function_code_block: function_code_block  statement SEMICOLON
@@ -107,6 +109,18 @@ function_code_block: function_code_block  statement SEMICOLON
           | function_code_block RETURN expr SEMICOLON
           | %empty
           ;
+function_argument: IDENTIFIER
+                  | NUMBER
+                  | function_call_stmt
+                  ;
+function_arguments  : function_arguments COMMA function_argument
+                  | function_argument
+                  | %empty
+                  ;
+
+function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR
+                  | IDENTIFIER LEFT_PAR RIGHT_PAR
+                  ;
 
 loop_block: loop_block code_block {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
@@ -154,6 +168,7 @@ statements: statements  statement SEMICOLON  {cout << "statements -> statements 
 statement: expr {cout << "statement -> expr" <<endl;}
           | assignment_stmt expr {cout << "statement -> assignment_stmt" <<endl;}
           | variable_declartion
+          | function_call_stmt
           | %empty
           ;
 
