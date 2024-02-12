@@ -1,4 +1,4 @@
-name: onion CI
+name: onion unitests
 
 on:
   push:
@@ -7,13 +7,11 @@ on:
       branches: [ main ]
 
 jobs:
-  build-and-test:
+  full-test:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
         - name: install flex-old 
-          run: sudo apt install -y flex-old
-        - name: make
-          run: cd src && make
+          run: sudo apt install -y  flex-old
         - name: run test
-          run: cd src && ./ci_basis
+          run: cd src && ./ci

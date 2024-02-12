@@ -60,6 +60,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
+    | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
 array_access_expr: IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
@@ -111,12 +112,35 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
           ;
 
 function_code_block: function_code_block  statement SEMICOLON
-          | function_code_block control_flow_stmt
+          | function_code_block control_flow_stmt_function
           | function_code_block RETURN expr SEMICOLON
           | %empty
           ;
+
+control_flow_stmt_function:  while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
+        | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
+        | ifElse_stmt_function {cout << "block_stmt -> ifElse_stmt" <<endl;}
+        ;
+
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function
+                    | %empty
+                    ;
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY
+                 |IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY
+
+multi_elif_stmt_function: multi_elif_stmt_function else_stmt_function
+                        |else_stmt_function
+                        |%empty
+
+else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
+          | ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY
+          | %empty
+          ;
+
+
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
                   | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
+                  | arithmetic_expr {cout << "function_argument -> arithmetic_exprs"<<endl;}
                   | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
                   ;
 function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
