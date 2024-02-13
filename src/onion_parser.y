@@ -38,8 +38,10 @@ int yylex(void);
 %token READ PRINT
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 
+%left LOGICAL_ADD LOGICAL_OR
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
+%left LEFT_PAR RIGHT_PAR
 %token LEQ GEQ LE GE EQ NEQ
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
@@ -54,7 +56,7 @@ int yylex(void);
 
 %%
 
-expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
+expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | NUMBER {cout<<"expr -> NUMBER -> "<<$1<<endl;}
     | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
@@ -64,6 +66,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
 
+quote_op: LEFT_PAR expr RIGHT_PAR expr
 arithmetic_op: MULTIPLYING
             | DIVISION
             | ADDING
@@ -155,7 +158,24 @@ else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
           | ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY
           | %empty
           ;
+elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
+          ;
 
+multi_elif_stmt: multi_elif_stmt elif_stmt
+          | elif_stmt
+          | %empty
+          ;
+
+else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
+          | %empty
+          ;
+        
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY" <<endl;}
+          ;
+
+
+ifElse_stmt: if_stmt multi_elif_stmt else_stmt {cout<<"ifElse_stmt -> if_stmt multi_elif_stmt else_stmt"<<endl;}
+          ;
 
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
                   | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
@@ -190,24 +210,7 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
 
-elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
-          ;
 
-multi_elif_stmt: multi_elif_stmt elif_stmt
-          | elif_stmt
-          | %empty
-          ;
-
-else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
-          | %empty
-          ;
-        
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY" <<endl;}
-          ;
-
-
-ifElse_stmt: if_stmt multi_elif_stmt else_stmt {cout<<"ifElse_stmt -> if_stmt multi_elif_stmt else_stmt"<<endl;}
-          ;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
           | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
