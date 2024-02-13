@@ -63,7 +63,7 @@ expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
     | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
-    | %empty {cout << "expr -> empty"<<endl;}
+    | %empty
     ;
 
 quote_op: LEFT_PAR expr RIGHT_PAR expr
@@ -91,82 +91,82 @@ number_array : number_array COMMA NUMBER  {cout << "number_array -> number_array
               | NUMBER {cout << "number_array ->  NUMBER"<<endl;}
               |%empty
               ;
-multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY
-                          | LEFT_CURLEY number_array RIGHT_CURLEY
+multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
+                          | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
 single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;}
           ;
-variable_declartion: array_declartion_stmt
-                  | single_variable_declartion
+variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
+                  | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}
                   ;
-array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
-                    | array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
+array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
+                    | array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
                     ;
-array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
-            | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
+array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
+            | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
             ;
 
-array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY
+array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {cout << "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY"<<endl;}
                     ;
 array_assignment_stmt: array_access_expr ASSIGNMENT expr  {cout << "array_assignment_stmt -> array_access_expr ASSIGNMENT expr"<<endl;}
-                    | array_block_assignment_stmt
+                    | array_block_assignment_stmt {cout << "array_assignment_stmt -> array_block_assignment_stmt"<<endl;}
                     ;
-assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
+assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
-          | array_assignment_stmt
+          | array_assignment_stmt {cout << "assignment_stmt -> array_assignment_stmt"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           ;
     
 
 while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
           ;
-for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR expr SEMICOLON expr SEMICOLON RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
           ;
-function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion
-                  | variable_declartion
+function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion {cout << "function_arguments_declartion -> function_arguments_declartion COMMA variable_declartion"<<endl;}
+                  | variable_declartion {cout << "function_arguments_declartion -> variable_declartion"<<endl;}
                   | %empty
                   ;
-function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN LEFT_PAR INT IDENTIFIER RIGHT_PAR LEFT_BRAC statements RIGHT_BRAC"<<endl;}
+function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY"<<endl;}
           ;
 
-function_code_block: function_code_block  statement SEMICOLON
-          | function_code_block control_flow_stmt_function
-          | function_code_block RETURN expr SEMICOLON
+function_code_block: function_code_block  statement SEMICOLON {cout << "function_code_block -> function_code_block  statement SEMICOLON"<<endl;}
+          | function_code_block control_flow_stmt_function {cout << "function_code_block -> function_code_block control_flow_stmt_function"<<endl;}
+          | function_code_block RETURN expr SEMICOLON {cout << "function_code_block -> function_code_block RETURN expr SEMICOLON"<<endl;}
           | %empty
           ;
 
 control_flow_stmt_function:  while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
-        | ifElse_stmt_function {cout << "block_stmt -> ifElse_stmt" <<endl;}
+        | ifElse_stmt_function {cout << "block_stmt -> ifElse_stmt_function" <<endl;}
         ;
 
-ifElse_stmt_function: if_stmt_function multi_elif_stmt_function
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function {cout << "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function"<<endl;}
                     | %empty
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY
-                 |IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+                 |IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY"<<endl;}
 
-multi_elif_stmt_function: multi_elif_stmt_function else_stmt_function
-                        |else_stmt_function
+multi_elif_stmt_function: multi_elif_stmt_function else_stmt_function {cout << "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function"<<endl;}
+                        |else_stmt_function {cout << "multi_elif_stmt_function -> else_stmt_function"<<endl;}
                         |%empty
 
-else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
-          | ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY
+else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+          | ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY"<<endl;}
           | %empty
           ;
 elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
           ;
 
-multi_elif_stmt: multi_elif_stmt elif_stmt
-          | elif_stmt
+multi_elif_stmt: multi_elif_stmt elif_stmt {cout << "multi_elif_stmt -> multi_elif_stmt elif_stmt"<<endl;}
+          | elif_stmt {cout << "multi_elif_stmt -> elif_stmt"<<endl;}
           | %empty
           ;
 
-else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
+else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "else_stmt -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
           | %empty
           ;
         
@@ -179,9 +179,9 @@ ifElse_stmt: if_stmt multi_elif_stmt else_stmt {cout<<"ifElse_stmt -> if_stmt mu
 
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
                   | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
-                  | arithmetic_expr {cout << "function_argument -> arithmetic_exprs"<<endl;}
-                  | condition_expr
-                  | array_access_expr
+                  | arithmetic_expr {cout << "function_argument -> arithmetic_expr"<<endl;}
+                  | condition_expr {cout << "function_argument -> condition_expr"<<endl;}
+                  | array_access_expr {cout << "function_argument -> array_access_expr"<<endl;}
                   | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
                   ;
 function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
@@ -193,7 +193,7 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {cout << "
                   | IDENTIFIER LEFT_PAR RIGHT_PAR  {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR"<<endl;}
                   ;
 
-loop_block: loop_block code_block {cout << "loop_block -> loop_block statement SEMICOLON" <<endl;}
+loop_block: loop_block code_block {cout << "loop_block -> loop_block code_block" <<endl;}
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
           | %empty
           ;
@@ -212,17 +212,17 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
 
 
 
-statements: statements  statement SEMICOLON  {cout << "statements -> statements SEMICOLON statement SEMICOLON" <<endl;}
+statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
           | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
-          | statement SEMICOLON {cout << "statements -> statements SEMICOLON" <<endl;}
+          | statement SEMICOLON {cout << "statements -> statement SEMICOLON" <<endl;}
           | statements function_declartion {cout << "statements -> statements function_declartion" <<endl;}
           | %empty
           ;
 
 statement: expr {cout << "statement -> expr" <<endl;}
-          | assignment_stmt expr {cout << "statement -> assignment_stmt" <<endl;}
-          | variable_declartion
-          | function_call_stmt
+          | assignment_stmt expr {cout << "statement -> assignment_stmt expr" <<endl;}
+          | variable_declartion {cout << "statement -> variable_declartion" <<endl;}
+          | function_call_stmt {cout << "statement -> function_call_stmt" <<endl;}
           | %empty
           ;
 
