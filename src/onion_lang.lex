@@ -61,7 +61,20 @@ RIGHT_BOX_BRAC [\]]
     ODEBUG("NUMBER:%d\n", yylval.tokenVal);
     return NUMBER;
 }
-
+{BINARY} {
+    ONION_PATTERN;
+    string s(yytext);
+    yylval.tokenVal = stoul(s.substr(2),0,2);
+    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    return BINARY_NUMBER;
+}
+{HEX} {
+    ONION_PATTERN;
+    string s(yytext);
+    yylval.tokenVal = stoul(s.substr(2),0,16);
+    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    return HEX_NUMBER;
+}
 return {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
@@ -212,12 +225,7 @@ int  {
     return ASSIGNMENT;
 
 }
-{BINARY} {
-    ONION_PATTERN;
-}
-{HEX} {
-    ONION_PATTERN;
-}
+
 {ID}/{END_OF_ID} {
     ONION_PATTERN;
     if(keywords.find(yytext)!= keywords.end()){

@@ -23,7 +23,8 @@ int yylex(void);
 
 %token arithmetic
 %token <tokenVal> NUMBER
-
+%token <tokenVal> BINARY_NUMBER
+%token <tokenVal> HEX_NUMBER
 %token <tokenStr> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN
@@ -49,16 +50,19 @@ int yylex(void);
 %nterm loop_block for_stmt for_first_stmt
 %nterm number_array function_arguments variable_declartion function_code_block
 %nterm array_access_expr logical_op
-%nterm loop_block_function
+%nterm loop_block_function number
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
 %start statements
 
 %%
-
+number: NUMBER {cout<<"number -> NUMBER -> "<<$1 << endl;}
+      | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
+      | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
+      ;
 expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
-    | NUMBER {cout<<"expr -> NUMBER -> "<<$1<<endl;}
+    | number {cout<<"expr -> number "<<endl;}
     | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
@@ -88,8 +92,8 @@ condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
               |expr EQ expr {cout << "condition_expr -> expr EQ expr"<<endl;}
               |expr NEQ expr {cout << "condition_expr -> expr NEQ expr"<<endl;}
               ;
-number_array : number_array COMMA NUMBER  {cout << "number_array -> number_array COMMA NUMBER"<<endl;}
-              | NUMBER {cout << "number_array ->  NUMBER"<<endl;}
+number_array : number_array COMMA number  {cout << "number_array -> number_array COMMA number"<<endl;}
+              | number {cout << "number_array ->  number"<<endl;}
               |%empty
               ;
 multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
@@ -100,8 +104,8 @@ single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT 
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
                   | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}
                   ;
-array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
-                    | array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
+array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
+                    | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
                     ;
 array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
             | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
@@ -116,9 +120,9 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | array_assignment_stmt {cout << "assignment_stmt -> array_assignment_stmt"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC"<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           ;
     
@@ -180,7 +184,7 @@ ifElse_stmt: if_stmt multi_elif_stmt else_stmt {cout<<"ifElse_stmt -> if_stmt mu
           ;
 
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
-                  | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
+                  | number {cout << "function_argument -> number"<<endl;}
                   | arithmetic_expr {cout << "function_argument -> arithmetic_expr"<<endl;}
                   | condition_expr {cout << "function_argument -> condition_expr"<<endl;}
                   | array_access_expr {cout << "function_argument -> array_access_expr"<<endl;}
