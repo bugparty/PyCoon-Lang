@@ -49,6 +49,7 @@ int yylex(void);
 %nterm loop_block for_stmt for_first_stmt
 %nterm number_array function_arguments variable_declartion function_code_block
 %nterm array_access_expr logical_op
+%nterm loop_block_function
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
@@ -144,18 +145,19 @@ control_flow_stmt_function:  while_stmt {cout << "block_stmt -> while_stmt" <<en
         | ifElse_stmt_function {cout << "block_stmt -> ifElse_stmt_function" <<endl;}
         ;
 
-ifElse_stmt_function: if_stmt_function multi_elif_stmt_function {cout << "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function"<<endl;}
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {cout << "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function"<<endl;}
                     | %empty
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
-                 |IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY"<<endl;}
-
-multi_elif_stmt_function: multi_elif_stmt_function else_stmt_function {cout << "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function"<<endl;}
-                        |else_stmt_function {cout << "multi_elif_stmt_function -> else_stmt_function"<<endl;}
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY"<<endl;}
+                 ;
+elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
+          ;
+multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {cout << "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function"<<endl;}
+                        |elif_stmt_function {cout << "multi_elif_stmt_function -> else_stmt_function"<<endl;}
                         |%empty
+                        ;
 
-else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
-          | ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RETURN expr SEMICOLON RIGHT_CURLEY"<<endl;}
+else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
           | %empty
           ;
 elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
@@ -193,6 +195,12 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {cout << "
                   | IDENTIFIER LEFT_PAR RIGHT_PAR  {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR"<<endl;}
                   ;
 
+loop_block_function: loop_block_function code_block {cout << "loop_block_function -> loop_block code_block" <<endl;}
+                  | loop_block_function BREAK SEMICOLON {cout << "loop_block_function -> loop_block BREAK SEMICOLON" <<endl;}
+                  | loop_block_function RETURN expr {cout << "loop_block_function -> loop_block_function RETURN expr" <<endl;}
+                  | %empty
+                  ;
+
 loop_block: loop_block code_block {cout << "loop_block -> loop_block code_block" <<endl;}
           | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
           | %empty
@@ -201,6 +209,7 @@ loop_block: loop_block code_block {cout << "loop_block -> loop_block code_block"
 
 code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
           | code_block control_flow_stmt { cout << "code_block -> code_block control_flow_stmt "<<endl;}
+          | code_block RETURN expr { cout << "code_block -> code_block RETURN expr"<<endl;}
           | %empty
           ;
 
