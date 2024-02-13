@@ -17,7 +17,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_PRINTF
     #define ODEBUG( ...) printf( __VA_ARGS__ )
