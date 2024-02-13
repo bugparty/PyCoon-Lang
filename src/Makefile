@@ -33,4 +33,4 @@ lex.o main.o		: tok.h
 run: onion
 	./onion
 clean:
-	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h calc.tab.c calc.tab.h calc.output calc
+	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h onion_parser.tab.c onion_parser.tab.h onion onion_parser.output
