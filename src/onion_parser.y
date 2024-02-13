@@ -63,8 +63,7 @@ expr: LEFT_PAR expr RIGHT_PAR expr {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
     | %empty {cout << "expr -> empty"<<endl;}
     ;
-array_access_expr: IDENTIFIER LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
-            ;
+
 arithmetic_op: MULTIPLYING
             | DIVISION
             | ADDING
@@ -89,9 +88,25 @@ number_array : number_array COMMA NUMBER  {cout << "number_array -> number_array
               | NUMBER {cout << "number_array ->  NUMBER"<<endl;}
               |%empty
               ;
-variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;}
+multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY
+                          | LEFT_CURLEY number_array RIGHT_CURLEY
+                          ;
+single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;}
           ;
+variable_declartion: array_declartion_stmt
+                  | single_variable_declartion
+                  ;
+array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
+                    | array_declartion_stmt  LEFT_BOX_BRAC NUMBER RIGHT_BOX_BRAC
+                    ;
+array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
+            | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC
+            ;
+
+array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY
+                    ;
 array_assignment_stmt: array_access_expr ASSIGNMENT expr  {cout << "array_assignment_stmt -> array_access_expr ASSIGNMENT expr"<<endl;}
+                    | array_block_assignment_stmt
                     ;
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
@@ -145,6 +160,8 @@ else_stmt_function: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY
 function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
                   | NUMBER {cout << "function_argument -> NUMBER"<<endl;}
                   | arithmetic_expr {cout << "function_argument -> arithmetic_exprs"<<endl;}
+                  | condition_expr
+                  | array_access_expr
                   | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
                   ;
 function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
