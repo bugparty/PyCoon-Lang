@@ -7,3 +7,4 @@ onion_parser.output
 *.yy.c
 tok.h
 lex.c
+lex.cc
