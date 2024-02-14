@@ -232,7 +232,10 @@ int  {
         REJECT;
     }else{
         ODEBUG("Identifier: %s\n", yytext);
-        yylval.tokenStr = yytext; 
+        int len  = strlen(yytext);
+        len+=1;
+        char *str= malloc(len);
+        yylval.tokenStr = strcpy(str, yytext); 
         return IDENTIFIER;
     }
     

@@ -30,6 +30,9 @@ main.o:		main.cc
 lex.o yac.o main.o	: heading.h
 
 lex.o main.o		: tok.h
+mil_run:
+	wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run
+	chmod +x mil_run
 run: onion
 	./onion
 clean:
