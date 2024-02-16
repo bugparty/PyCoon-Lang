@@ -1,22 +1,97 @@
-function fibonacci;
-beginparams
-	k : integer;
-endparams
-beginlocals
-endlocals
-beginbody
-	if k <= 1 then return 1; endif;
-	return fibonacci(k - 1) + fibonacci(k - 2);
-endbody
-
-function main;
-beginparams
-endparams
-beginlocals
-	n : integer;
-	fib_n : integer;
-endlocals
-beginbody
-	fib_n := fibonacci(5);
-	write fib_n;
-endbody
+func main
+. n
+.[] a, 1000
+. i
+. j
+. x
+. sqrt_n
+.< n
+= x, n
+: beginloop0
+. _temp0
+/ _temp0, n, x
+. _temp1
+> _temp1, x, _temp0
+?:= loopbody0, _temp1
+:= endloop0
+: loopbody0
+. _temp2
+/ _temp2, n, x
+. _temp3
++ _temp3, x, _temp2
+. _temp4
+/ _temp4, _temp3, 2
+= x, _temp4
+:= beginloop0
+: endloop0
+= sqrt_n, x
+= i, 2
+: beginloop1
+. _temp5
+<= _temp5, i, n
+?:= loopbody1, _temp5
+:= endloop1
+: loopbody1
+[]= a, i, 0
+. _temp6
++ _temp6, i, 1
+= i, _temp6
+:= beginloop1
+: endloop1
+= i, 2
+: beginloop2
+. _temp7
+<= _temp7, i, sqrt_n
+?:= loopbody2, _temp7
+:= endloop2
+: loopbody2
+. _temp8
+=[] _temp8, a, i
+. _temp9
+== _temp9, _temp8, 0
+?:= if_true0, _temp9
+:= endif0
+: if_true0
+. _temp10
++ _temp10, i, i
+= j, _temp10
+: beginloop3
+. _temp11
+<= _temp11, j, n
+?:= loopbody3, _temp11
+:= endloop3
+: loopbody3
+[]= a, j, 1
+. _temp12
++ _temp12, j, i
+= j, _temp12
+:= beginloop3
+: endloop3
+: endif0
+. _temp13
++ _temp13, i, 1
+= i, _temp13
+:= beginloop2
+: endloop2
+= i, 2
+: beginloop4
+. _temp14
+<= _temp14, i, n
+?:= loopbody4, _temp14
+:= endloop4
+: loopbody4
+. _temp15
+=[] _temp15, a, i
+. _temp16
+== _temp16, _temp15, 0
+?:= if_true1, _temp16
+:= endif1
+: if_true1
+.> i
+: endif1
+. _temp17
++ _temp17, i, 1
+= i, _temp17
+:= beginloop4
+: endloop4
+endfunc
