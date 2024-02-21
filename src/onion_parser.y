@@ -63,7 +63,8 @@ number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
       | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
       | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
       ;
-identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;}
+identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;
+                    $$= $1;}
       ;
 expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | number {cout<<"expr -> number "<<endl;}
