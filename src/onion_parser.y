@@ -25,7 +25,7 @@ int yylex(void);
 %token <codeNode> NUMBER
 %token <tokenVal> BINARY_NUMBER
 %token <tokenVal> HEX_NUMBER
-%token <tokenStr> IDENTIFIER 
+%token <codeNode> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN
 %token INT
@@ -102,8 +102,8 @@ multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
 single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;
-           struct CodeNode *node = new CodeNode;
-           node->str = std::string(". ") + $2.val;
+           struct CodeNode *node = new CodeNode(0xffff0001);
+           node->IRCode = std::string(". ") + *($2->val.str);
            $$ = node; 
            }
           ;
