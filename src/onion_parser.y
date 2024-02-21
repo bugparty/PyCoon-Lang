@@ -36,7 +36,6 @@ int yylex(void);
 %token IF ELSE WHILE FOR ELIF
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
-%token READ PRINT
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 
 %left LOGICAL_ADD LOGICAL_OR
@@ -55,7 +54,8 @@ int yylex(void);
 
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr
-%type <codeNode> single_variable_declartion;
+%type <codeNode> single_variable_declartion
+%type <codeNode> identifier;
 %start functions
 
 %%
