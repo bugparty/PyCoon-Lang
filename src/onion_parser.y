@@ -4,6 +4,7 @@
 
 %{
 #include "heading.h"
+#include "code_node.hpp"
 int yyerror(char *s);
 int yylex(void);
 %}
@@ -16,8 +17,7 @@ int yylex(void);
 %union{
     int tokenVal;
     char *tokenStr; 
-
-
+    struct CodeNode* node;
 };
 
 
