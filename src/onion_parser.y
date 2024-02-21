@@ -105,8 +105,8 @@ multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
 single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
-           struct CodeNode *node = new CodeNode(0xffff0001);
-           node->IRCode = std::string(". ") + *($2->val.str);
+           CodeNode *node = new CodeNode(0xffff0001);
+           node->IRCode = std::string(". ") + ($2->sourceCode);
            $$ = node; 
            }
           ;
