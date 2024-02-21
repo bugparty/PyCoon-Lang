@@ -57,6 +57,7 @@ int yylex(void);
 %type <codeNode> single_variable_declartion
 %type <codeNode> identifier
 %type <codeNode> read_stmt print_stmt
+%type <codeNode> array_declartion_stmt
 %start functions
 
 %%
@@ -114,7 +115,13 @@ single_variable_declartion: INT identifier {cout << "variable_declartion -> INT 
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
                   | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}
                   ;
-array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
+array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;
+                      CodeNode *identifier = $2;
+                      CodeNode *numberNode = number;
+                      CodeNode *newNode = new CodeNode;
+                      newNode->IRCode = std::string(".[] ")+identifier->sourceCode+ std::string(", ")+number->sourceCode;
+                      $$ = newNode;
+}
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
                     ;
 array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
