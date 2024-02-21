@@ -15,6 +15,7 @@ struct CodeNode{
     std::string sourceCode;
     OnionVal val;
     int type;
+    int subType;
     std::vector<CodeNode*> children;
     CodeNode(int type):type(type){}
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){

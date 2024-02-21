@@ -58,6 +58,8 @@ int yylex(void);
 %type <codeNode> identifier;
 %type <codeNode> quote_op
 %type <codeNode> read_stmt print_stmt
+%type <codeNode> arithmetic_op arithmetic_expr
+
 %start functions
 
 %%
@@ -95,7 +97,16 @@ arithmetic_op: MULTIPLYING
 logical_op: LOGICAL_ADD
           | LOGICAL_OR
           ;
-arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;}
+arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;
+                switch($2->type){
+                        case ADDING:
+                                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
+                                addNode->subType = ADDING;
+                                addNode->addChild($1);
+                                addNode->addChild($3);
+                                $$=addNode;
+                                break;
+                }}
     ;
 
 condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
