@@ -58,6 +58,7 @@ int yylex(void);
 %type <codeNode> identifier
 %type <codeNode> read_stmt print_stmt
 %type <codeNode> array_declartion_stmt
+%type <codeNode> number
 %start functions
 
 %%
@@ -117,9 +118,9 @@ variable_declartion: array_declartion_stmt {cout << "variable_declartion -> arra
                   ;
 array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;
                       CodeNode *identifier = $2;
-                      CodeNode *numberNode = number;
-                      CodeNode *newNode = new CodeNode;
-                      newNode->IRCode = std::string(".[] ")+identifier->sourceCode+ std::string(", ")+number->sourceCode;
+                      CodeNode *numberNode = $4;
+                      CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
+                      newNode->IRCode = std::string(".[] ")+identifier->sourceCode+ std::string(", ")+numberNode->sourceCode;
                       $$ = newNode;
 }
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
