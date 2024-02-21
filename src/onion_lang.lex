@@ -10,6 +10,7 @@ The Onion Lang lexizier
 #include <cstring>
 #include <set>
 #include "tok.h"
+#include "code_node.hpp"
 using namespace std;
 #define ONION_PATTERN current_col += strlen(yytext) 
 #define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext); \
@@ -57,8 +58,9 @@ RIGHT_BOX_BRAC [\]]
 %%
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
-    yylval.tokenVal = atoi(yytext);
     ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    CodeNode* node = new CodeNode(yytext, NUMBER);
+    yylval.codeNode = node;
     return NUMBER;
 }
 {BINARY} {

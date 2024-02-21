@@ -4,6 +4,7 @@
 
 %{
 #include "heading.h"
+#include "code_node.hpp"
 int yyerror(char *s);
 int yylex(void);
 %}
@@ -16,13 +17,12 @@ int yylex(void);
 %union{
     int tokenVal;
     char *tokenStr; 
-
-
+    struct CodeNode* codeNode;
 };
 
 
 %token arithmetic
-%token <tokenVal> NUMBER
+%token <codeNode> NUMBER
 %token <tokenVal> BINARY_NUMBER
 %token <tokenVal> HEX_NUMBER
 %token <tokenStr> IDENTIFIER 
@@ -58,7 +58,7 @@ int yylex(void);
 %start functions
 
 %%
-number: NUMBER {cout<<"number -> NUMBER -> "<<$1 << endl;}
+number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
       | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
       | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
       ;
