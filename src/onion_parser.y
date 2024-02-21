@@ -51,10 +51,11 @@ int yylex(void);
 %nterm number_array function_arguments variable_declartion function_code_block
 %nterm array_access_expr logical_op
 %nterm loop_block_function number
+%nterm function_declartion
 
 %type <tokenVal> statement add sub multi div mod
 %type <tokenStr> expr
-%start statements
+%start functions
 
 %%
 number: NUMBER {cout<<"number -> NUMBER -> "<<$1 << endl;}
@@ -210,20 +211,16 @@ loop_block: loop_block code_block {cout << "loop_block -> loop_block code_block"
           | %empty
           ;
 
-
 code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
           | code_block control_flow_stmt { cout << "code_block -> code_block control_flow_stmt "<<endl;}
           | code_block RETURN expr { cout << "code_block -> code_block RETURN expr"<<endl;}
           | %empty
           ;
 
-
 control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
-
-
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
           | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
@@ -239,6 +236,9 @@ statement: expr {cout << "statement -> expr" <<endl;}
           | %empty
           ;
 
+functions: functions function_declartion
+        | %empty
+        ;
 
 %%
 
