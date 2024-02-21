@@ -140,7 +140,9 @@ for {
 
 int  {
    ONION_PATTERN;
-   yylval.tokenStr = yytext; 
+   ODEBUG("INT:%d\n");
+   CodeNode* node = new CodeNode(yytext, INT);
+   yylval.codeNode = node;
    return INT;
 
 }
@@ -238,6 +240,10 @@ int  {
         len+=1;
         char *str= malloc(len);
         yylval.tokenStr = strcpy(str, yytext); 
+        
+
+        CodeNode* node = new CodeNode(yytext, IDENTIFIER);
+        yylval.codeNode = node;
         return IDENTIFIER;
     }
     
@@ -246,6 +252,12 @@ int  {
     ONION_PATTERN;
     ODEBUG("Identifier: %s\n", yytext);
     yylval.tokenStr = yytext; 
+
+    CodeNode* node = new CodeNode(yytext, IDENTIFIER);
+    yylval.codeNode = node;
+    return IDENTIFIER;
+
+
     return IDENTIFIER;
 }
 {WRONG_ID} {

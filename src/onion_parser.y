@@ -28,7 +28,7 @@ int yylex(void);
 %token <codeNode> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN
-%token INT
+%token <codeNode> INT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
