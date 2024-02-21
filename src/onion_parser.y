@@ -27,7 +27,7 @@ int yylex(void);
 %token <tokenVal> HEX_NUMBER
 %token <codeNode> IDENTIFIER 
 %token VARTYPE
-%token FUN RETURN
+%token FUN RETURN READ PRINT
 %token <codeNode> INT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
@@ -54,7 +54,7 @@ int yylex(void);
 %nterm function_declartion
 
 %type <tokenVal> statement add sub multi div mod
-%type <tokenStr> expr
+%type <codeNode> expr
 %type <codeNode> single_variable_declartion;
 %start functions
 
@@ -63,9 +63,11 @@ number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
       | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
       | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
       ;
-expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
+identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;}
+      ;
+expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | number {cout<<"expr -> number "<<endl;}
-    | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
+    | identifier {cout<<"expr -> identifier -> "<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
@@ -101,7 +103,7 @@ number_array : number_array COMMA number  {cout << "number_array -> number_array
 multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
-single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;
+single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
            struct CodeNode *node = new CodeNode(0xffff0001);
            node->IRCode = std::string(". ") + *($2->val.str);
            $$ = node; 
@@ -226,6 +228,11 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
+read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;}
+        ;
+print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"<<endl; }
+        | PRINT LEFT_PAR identifier RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; }
+        ;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
           | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
@@ -238,6 +245,8 @@ statement: expr {cout << "statement -> expr" <<endl;}
           | assignment_stmt expr {cout << "statement -> assignment_stmt expr" <<endl;}
           | variable_declartion {cout << "statement -> variable_declartion" <<endl;}
           | function_call_stmt {cout << "statement -> function_call_stmt" <<endl;}
+          | read_stmt
+          | print_stmt
           | %empty
           ;
 
