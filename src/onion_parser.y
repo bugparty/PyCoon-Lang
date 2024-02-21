@@ -106,6 +106,7 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 addNode->addChild($1);
                                 addNode->addChild($3);
                                 $$=addNode;
+                                addNode->IRCode = ". temp1\n+temp1,"+ $1->IRCode + ","+$3->IRCode;
                                 break;
                 }}
     ;
