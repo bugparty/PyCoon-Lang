@@ -173,33 +173,38 @@ int  {
     return RIGHT_BOX_BRAC;}
 "+" {
     ONION_PATTERN; 
-    yylval.tokenStr = yytext; 
     ODEBUG("Arithmetic Op +:%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, ADDING);
+    yylval.codeNode = node;
     return ADDING;
 }
 "-" {
     ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, SUBTRACTING);
+    yylval.codeNode = node;
     return SUBTRACTING;
 }
 "*" {
     
     ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, MULTIPLYING);
+    yylval.codeNode = node;
     return MULTIPLYING;
 }
 "/" {
     ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, DIVISION);
+    yylval.codeNode = node;
     return DIVISION;
 }
 "%" { 
     ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, MODULE);
+    yylval.codeNode = node;
     return MODULE;
 }
 "<=" { 
