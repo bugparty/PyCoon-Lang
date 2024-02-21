@@ -234,10 +234,8 @@ int  {
         REJECT;
     }else{
         ODEBUG("Identifier: %s\n", yytext);
-        int len  = strlen(yytext);
-        len+=1;
-        char *str= malloc(len);
-        yylval.tokenStr = strcpy(str, yytext); 
+        CodeNode* node = new CodeNode(yytext, IDENTIFIER);
+        yylval.codeNode = node;
         return IDENTIFIER;
     }
     
@@ -245,7 +243,8 @@ int  {
 {ID}/{COMPARISON} {
     ONION_PATTERN;
     ODEBUG("Identifier: %s\n", yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, IDENTIFIER);
+    yylval.codeNode = node;
     return IDENTIFIER;
 }
 {WRONG_ID} {

@@ -25,7 +25,7 @@ int yylex(void);
 %token <codeNode> NUMBER
 %token <tokenVal> BINARY_NUMBER
 %token <tokenVal> HEX_NUMBER
-%token <tokenStr> IDENTIFIER 
+%token <codeNode> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN
 %token INT
@@ -54,7 +54,7 @@ int yylex(void);
 %nterm function_declartion
 
 %type <tokenVal> statement add sub multi div mod
-%type <tokenStr> expr
+%type <codeNode> expr
 %start functions
 
 %%
@@ -62,9 +62,11 @@ number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
       | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
       | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
       ;
-expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
+identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;}
+      ;
+expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | number {cout<<"expr -> number "<<endl;}
-    | IDENTIFIER {cout<<"expr -> IDENTIFIER -> "<<$1<<endl;}
+    | identifier {cout<<"expr -> identifier -> "<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
     | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
@@ -100,7 +102,7 @@ number_array : number_array COMMA number  {cout << "number_array -> number_array
 multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
-single_variable_declartion: INT IDENTIFIER {cout << "variable_declartion -> INT IDENTIFIER"<<endl;}
+single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;}
           ;
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
                   | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}
