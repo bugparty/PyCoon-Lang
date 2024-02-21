@@ -28,7 +28,7 @@ int yylex(void);
 %token <codeNode> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN READ PRINT
-%token INT
+%token <codeNode> INT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
@@ -55,6 +55,7 @@ int yylex(void);
 
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr
+%type <codeNode> single_variable_declartion;
 %start functions
 
 %%
@@ -102,7 +103,11 @@ number_array : number_array COMMA number  {cout << "number_array -> number_array
 multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
-single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;}
+single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
+           struct CodeNode *node = new CodeNode(0xffff0001);
+           node->IRCode = std::string(". ") + *($2->val.str);
+           $$ = node; 
+           }
           ;
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
                   | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}

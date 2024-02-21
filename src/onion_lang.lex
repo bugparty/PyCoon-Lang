@@ -155,7 +155,9 @@ for {
 
 int  {
    ONION_PATTERN;
-   yylval.tokenStr = yytext; 
+   ODEBUG("INT:%d\n");
+   CodeNode* node = new CodeNode(yytext, INT);
+   yylval.codeNode = node;
    return INT;
 
 }
@@ -249,6 +251,7 @@ int  {
         REJECT;
     }else{
         ODEBUG("Identifier: %s\n", yytext);
+        
         CodeNode* node = new CodeNode(yytext, IDENTIFIER);
         yylval.codeNode = node;
         return IDENTIFIER;

@@ -14,9 +14,9 @@ struct CodeNode{
     std::string IRCode;
     std::string sourceCode;
     OnionVal val;
-    yytoken_kind_t type;
+    int type;
     std::vector<CodeNode*> sliblings;
-    
+    CodeNode(int type):type(type){}
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
         switch(type){
             case NUMBER:
