@@ -239,7 +239,7 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         ;
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;
-          CodeNode *node = new CodeNode(0xffff0001);
+          CodeNode *node = new CodeNode(YYSYMBOL_read_stmt);
           node->IRCode = std::string(".< ") + ($1->sourceCode);
           $$ = node; 
         }
@@ -252,7 +252,7 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
         }
         | PRINT LEFT_PAR identifier RIGHT_PAR {
           cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; 
-          CodeNode *node = new CodeNode(0xffff0001);
+          CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
           node->IRCode = std::string(".> ") + ($3->sourceCode);
           $$ = node; 
         }
