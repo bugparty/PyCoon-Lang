@@ -27,7 +27,7 @@ int yylex(void);
 %token <tokenVal> HEX_NUMBER
 %token <codeNode> IDENTIFIER 
 %token VARTYPE
-%token FUN RETURN
+%token FUN RETURN READ PRINT
 %token INT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
@@ -223,6 +223,11 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
+read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;}
+        ;
+print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"<<endl; }
+        | PRINT LEFT_PAR identifier RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; }
+        ;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
           | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
@@ -235,6 +240,8 @@ statement: expr {cout << "statement -> expr" <<endl;}
           | assignment_stmt expr {cout << "statement -> assignment_stmt expr" <<endl;}
           | variable_declartion {cout << "statement -> variable_declartion" <<endl;}
           | function_call_stmt {cout << "statement -> function_call_stmt" <<endl;}
+          | read_stmt
+          | print_stmt
           | %empty
           ;
 

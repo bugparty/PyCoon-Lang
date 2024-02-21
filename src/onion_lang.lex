@@ -31,7 +31,7 @@ int white_spaces = 0;
 int current_line = 1;
 int current_col = 1;
 set<string> keywords = {"if","else","for","while","and","or","fun","break","continue","int",
-"elif","return"}; 
+"elif","return","read","print"}; 
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
@@ -80,8 +80,23 @@ RIGHT_BOX_BRAC [\]]
 return {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext );
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, RETURN);
+    yylval.codeNode = node;
     return RETURN;
+}
+read {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    CodeNode* node = new CodeNode(yytext, READ);
+    yylval.codeNode = node;
+    return READ;
+}
+print {
+    ONION_PATTERN;
+    ODEBUG( "Keyword: %s\n", yytext );
+    CodeNode* node = new CodeNode(yytext, PRINT);
+    yylval.codeNode = node;
+    return PRINT;
 }
 fun {
     ONION_PATTERN;
