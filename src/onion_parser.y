@@ -56,6 +56,7 @@ int yylex(void);
 %type <codeNode> expr
 %type <codeNode> single_variable_declartion
 %type <codeNode> identifier;
+%type <codeNode> quote_op
 %start functions
 
 %%
@@ -76,7 +77,13 @@ expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | %empty
     ;
 
-quote_op: LEFT_PAR expr RIGHT_PAR expr
+quote_op: LEFT_PAR expr RIGHT_PAR expr {
+        cout << "quote_op-> LEFT_PAR expr RIGHT_PAR expr" <<endl;
+        CodeNode* quoteOpNode = new CodeNode(YYSYMBOL_quote_op);
+        quoteOpNode->addChild($2);
+        quoteOpNode->addChild($4);
+        $$ = quoteOpNode;
+}
 arithmetic_op: MULTIPLYING
             | DIVISION
             | ADDING
@@ -105,9 +112,9 @@ multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
 single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
-           CodeNode *node = new CodeNode(0xffff0001);
+           CodeNode *node = new CodeNode(YYSYMBOL_single_variable_declartion);
            node->IRCode = std::string(". ") + ($2->sourceCode);
-           $$ = node; 
+           $$ = node;
            }
           ;
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}

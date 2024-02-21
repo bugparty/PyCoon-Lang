@@ -15,7 +15,7 @@ struct CodeNode{
     std::string sourceCode;
     OnionVal val;
     int type;
-    std::vector<CodeNode*> sliblings;
+    std::vector<CodeNode*> children;
     CodeNode(int type):type(type){}
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
         switch(type){
@@ -26,5 +26,8 @@ struct CodeNode{
     }
     void parseInt(){
          val.i = stoi(sourceCode);
+    }
+    void addChild(CodeNode* child){
+        children.push_back(child);
     }
 };
