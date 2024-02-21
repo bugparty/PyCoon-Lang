@@ -99,15 +99,24 @@ logical_op: LOGICAL_ADD
           | LOGICAL_OR
           ;
 arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;
+                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
                 switch($2->type){
                         case ADDING:
-                                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
                                 addNode->subType = ADDING;
-                                addNode->addChild($1);
-                                addNode->addChild($3);
-                                $$=addNode;
-                                addNode->IRCode = ". temp1\n+temp1,"+ $1->IRCode + ","+$3->IRCode;
                                 break;
+                        case DIVISION:
+                                addNode->subType = DIVISION;
+                                break;
+                        case SUBTRACTING:
+                                addNode->subType = SUBTRACTING;
+                                break;
+                        case MODULE:
+                                addNode->subType = MODULE;
+                                break;
+                        addNode->addChild($1);
+                        addNode->addChild($3);
+                        $$=addNode;
+                        addNode->IRCode = ". temp1\n+temp1,"+ $1->IRCode + ","+$3->IRCode;
                 }}
     ;
 
