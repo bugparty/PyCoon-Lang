@@ -55,7 +55,8 @@ int yylex(void);
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr
 %type <codeNode> single_variable_declartion
-%type <codeNode> identifier;
+%type <codeNode> identifier
+%type <codeNode> read_stmt print_stmt
 %start functions
 
 %%
@@ -229,10 +230,25 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
         | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
         | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
         ;
-read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;}
+read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
+          cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;
+          CodeNode *node = new CodeNode(0xffff0001);
+          node->IRCode = std::string(".< ") + ($1->sourceCode);
+          $$ = node; 
+        }
         ;
-print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"<<endl; }
-        | PRINT LEFT_PAR identifier RIGHT_PAR {cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; }
+print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
+          cout <<"print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"<<endl; 
+          //CodeNode *node = new CodeNode(0xffff0001);
+          //node->IRCode = std::string(".> ") + ($2->sourceCode);
+          //$$ = node; 
+        }
+        | PRINT LEFT_PAR identifier RIGHT_PAR {
+          cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; 
+          CodeNode *node = new CodeNode(0xffff0001);
+          node->IRCode = std::string(".> ") + ($3->sourceCode);
+          $$ = node; 
+        }
         ;
 
 statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
