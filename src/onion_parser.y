@@ -61,6 +61,7 @@ int yylex(void);
 %type <codeNode> arithmetic_op arithmetic_expr
 %type <codeNode> array_declartion_stmt
 %type <codeNode> number
+%type <codeNode> array_access_expr assignment_stmt
 %start functions
 
 %%
@@ -165,7 +166,15 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout
 }
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
                     ;
-array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
+array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;
+                      CodeNode *identifier = $1;
+                      /*CodeNode *expr = $4; */ 
+                      CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_expr);
+                      /*newNode->IRCode = identifier->sourceCode + std::string(", ") + expr->sourceCode */
+                      /*$$ = newNode;  */
+                      //Warning: this will be implemented when expr is ready. 
+                      //expr->sourceCode must return either identifier name or number 
+                      } 
             | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
             ;
 
@@ -179,7 +188,18 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT
           | array_assignment_stmt {cout << "assignment_stmt -> array_assignment_stmt"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
+                cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;
+                 CodeNode *identifier = $2;
+                 CodeNode *numberNode = $4;
+                /*CodeNode *exprNode = $4; */ 
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+
+                /*newNode->IRCode = std::string("[]= ") +identifier->sourceCode + std::string(", ") + number->sourceCode + std::string(", ") +exprNode->sourceCode*/
+                /*$$ = newNode;  */
+                //Warning: this will be implemented when expr is ready. 
+                //expr->sourceCode must return either identifier name or number 
+                }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           ;
