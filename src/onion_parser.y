@@ -193,12 +193,19 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout
                     ;
 array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;
                       CodeNode *identifier = $1;
-                      /*CodeNode *expr = $4; */ 
+                      CodeNode *expr = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_expr);
-                      /*newNode->IRCode = identifier->sourceCode + std::string(", ") + expr->sourceCode */
-                      /*$$ = newNode;  */
+                      newNode->addChild(expr);
+                      newNode->addChild(identifier);
+
+                      stringstream ss;
+                      ss<<identifier->sourceCode<<std::string(", ")<<expr->sourceCode;
+
+                      newNode->IRCode = ss.str();
+                      newNode->printIR();
+                      $$ = newNode;
                       //Warning: this will be implemented when expr is ready. 
-                      //expr->sourceCode must return either identifier name or number 
+
                       } 
             | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
             ;
