@@ -54,7 +54,7 @@ int yylex(void);
 %nterm function_declartion
 
 %type <tokenVal> statement add sub multi div mod
-%type <codeNode> expr  arithmetic_expr condition_expr array_access_expr
+%type <codeNode> expr  arithmetic_expr condition_expr
 %type <codeNode> single_variable_declartion
 %type <codeNode> identifier;
 %type <codeNode> quote_op arithmetic_op condition_op
