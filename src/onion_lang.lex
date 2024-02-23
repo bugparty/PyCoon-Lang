@@ -210,42 +210,50 @@ int  {
 "<=" { 
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, LEQ);
+    yylval.codeNode = node;
     return LEQ;
 }
 ">=" { 
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, GEQ);
+    yylval.codeNode = node;
     return GEQ;
 }
 
 ">" { 
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, GE);
+    yylval.codeNode = node;
     return GE;
 }
 "<" { 
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, LE);
+    yylval.codeNode = node;
     return LE;
 }
 "==" {
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, EQ);
+    yylval.codeNode = node;
     return EQ;
 }
 "!=" {
     ONION_PATTERN;
     ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    CodeNode* node = new CodeNode(yytext, NEQ);
+    yylval.codeNode = node;
     return NEQ;
 }
 = {
     ONION_PATTERN;
+    CodeNode* node = new CodeNode(yytext, ASSIGNMENT);
+    yylval.codeNode = node;
     return ASSIGNMENT;
 
 }
