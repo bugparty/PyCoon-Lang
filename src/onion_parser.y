@@ -54,15 +54,18 @@ int yylex(void);
 %nterm function_declartion
 
 %type <tokenVal> statement add sub multi div mod
-%type <codeNode> expr
+%type <codeNode> expr  arithmetic_expr condition_expr
 %type <codeNode> single_variable_declartion
 %type <codeNode> identifier;
-%type <codeNode> quote_op
+%type <codeNode> quote_op arithmetic_op condition_op
 %type <codeNode> read_stmt print_stmt
-%type <codeNode> arithmetic_op arithmetic_expr
 %type <codeNode> array_declartion_stmt
 %type <codeNode> number
+
 %type <codeNode> array_access_expr assignment_stmt array_access_stmt
+%type <codeNode> function_call_stmt function_declartion function_arguments_declartion
+
+
 %start functions
 
 %%
@@ -73,7 +76,7 @@ number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
 identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;
                     $$= $1;}
       ;
-expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
+expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
     | number {cout<<"expr -> number "<<endl;}
     | identifier {cout<<"expr -> identifier -> "<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
@@ -83,16 +86,9 @@ expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | %empty
     ;
 
-quote_op: LEFT_PAR expr RIGHT_PAR expr {
+quote_op: LEFT_PAR expr RIGHT_PAR {
         cout << "quote_op-> LEFT_PAR expr RIGHT_PAR expr" <<endl;
-        CodeNode* quoteOpNode = new CodeNode(YYSYMBOL_quote_op);
-        quoteOpNode->addChild($2);
-        quoteOpNode->addChild($4);
-        stringstream ss;
-        ss<< $2->IRCode << $4->IRCode;
-        quoteOpNode->IRCode = ss.str();
-        quoteOpNode->printIR();
-        $$ = quoteOpNode;
+        $$ = $2;
 }
 arithmetic_op: MULTIPLYING {cout << "arithmetic_op-> MULTIPLYING"<<endl;}
             | DIVISION     {cout << "arithmetic_op-> DIVISION"<<endl;}
@@ -106,20 +102,25 @@ logical_op: LOGICAL_ADD
           ;
 arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;
                 CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
-                string ariOP;
+                string ariOP="WTF!!!!";
                 switch($2->type){
                         case ADDING:
                                 addNode->subType = ADDING;
                                 ariOP = "+";
                                 break;
-                        case DIVISION:
-                                addNode->subType = DIVISION;
-                                ariOP = "/";
-                                break;
                         case SUBTRACTING:
                                 addNode->subType = SUBTRACTING;
                                 ariOP = "-";
                                 break;
+                        case DIVISION:
+                                addNode->subType = DIVISION;
+                                ariOP = "/";
+                                break;
+                        case MULTIPLYING:
+                                addNode->subType = DIVISION;
+                                ariOP = "*";
+                                break;
+                        
                         case MODULE:
                                 addNode->subType = MODULE;
                                 ariOP = "\%";
@@ -132,27 +133,43 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 addNode->subType = LOGICAL_OR;
                                 ariOP = "||";
                                 break;
+                        default:
+                           cout << "unknown type "+$2->type<<endl;
+                           yyerror("unknown type "+$2->type);
                 }
                         addNode->addChild($1);
                         addNode->addChild($3);
                         $$=addNode;
-                        
                         string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", "<<$1->val.str <<", "<<$3->val.str<<endl;
+
+                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
+                        if($1->type == NUMBER){
+                                ss << $1->val.i;
+                        }else if ($1->type == YYSYMBOL_arithmetic_op){
+                                ss << *($1->val.str);
+                        }
+                        ss <<", ";
+                        if($3->type == NUMBER){
+                                ss << $3->val.i;
+                        }else if ($3->type == YYSYMBOL_arithmetic_op){
+                                ss << *($3->val.str);
+                        }
+                        ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                 }
     ;
-
-condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
-              |expr GEQ expr {cout << "condition_expr -> expr GEQ expr"<<endl;}
-              |expr LE expr {cout << "condition_expr -> expr LE expr"<<endl;}
-              |expr LEQ expr {cout << "condition_expr -> expr LEQ expr"<<endl;}
-              |expr EQ expr {cout << "condition_expr -> expr EQ expr"<<endl;}
-              |expr NEQ expr {cout << "condition_expr -> expr NEQ expr"<<endl;}
+condition_op: GE
+           | GEQ
+           | LE
+           | LEQ
+           | EQ
+           | NEQ
+           ;
+condition_expr : expr condition_op expr {cout << "condition_expr -> expr condition_op expr"<<endl;}
               ;
 number_array : number_array COMMA number  {cout << "number_array -> number_array COMMA number"<<endl;}
               | number {cout << "number_array ->  number"<<endl;}

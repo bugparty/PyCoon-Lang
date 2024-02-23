@@ -19,7 +19,7 @@ struct CodeNode{
     int type;
     int subType;
     std::vector<CodeNode*> children;
-    CodeNode(int type):type(type){}
+    CodeNode(int type):type(type),subType(0){}
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
         switch(type){
             case NUMBER:
@@ -34,6 +34,10 @@ struct CodeNode{
     }
     void addChild(CodeNode* child){
         children.push_back(child);
+    }
+    void debug(){
+        std::cout << "type:" << type <<" subtype: " << subType;
+        printIR();
     }
     void printIR(){
         std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
