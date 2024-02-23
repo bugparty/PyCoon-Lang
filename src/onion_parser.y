@@ -238,7 +238,7 @@ array_access_stmt: expr ASSIGNMENT array_access_expr  {
         newNode->addChild(arrayNode);
         newNode->addChild(exprNode);
         stringstream ss;
-        ss<<"=[]"<< expr->IRCode<<", "<<array_access_expr->IRCode;
+        ss<<"=[]"<< exprNode->IRCode<<", "<<arrayNode->IRCode;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
