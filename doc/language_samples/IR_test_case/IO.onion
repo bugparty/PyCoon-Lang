@@ -1,7 +1,7 @@
 fun main(){
-    int a;
-    int b[5];
-    a=1+2*3+(4+5);
+    int arr[5];
+    a = b[5];
+    b[5] = 3;
     int n;
     n = read();
     print(n);
