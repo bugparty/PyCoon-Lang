@@ -104,14 +104,19 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 addNode->subType = ADDING;
                                 ariOP = "+";
                                 break;
-                        case DIVISION:
-                                addNode->subType = DIVISION;
-                                ariOP = "/";
-                                break;
                         case SUBTRACTING:
                                 addNode->subType = SUBTRACTING;
                                 ariOP = "-";
                                 break;
+                        case DIVISION:
+                                addNode->subType = DIVISION;
+                                ariOP = "/";
+                                break;
+                        case MULTIPLYING:
+                                addNode->subType = DIVISION;
+                                ariOP = "*";
+                                break;
+                        
                         case MODULE:
                                 addNode->subType = MODULE;
                                 ariOP = "\%";
@@ -125,6 +130,7 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 ariOP = "||";
                                 break;
                         default:
+                           cout << "unknown type "+$2->type<<endl;
                            yyerror("unknown type "+$2->type);
                 }
                         addNode->addChild($1);
