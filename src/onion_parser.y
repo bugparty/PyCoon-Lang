@@ -52,6 +52,7 @@ int yylex(void);
 %nterm array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
+%nterm condition_op
 
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr  arithmetic_expr condition_expr
@@ -162,10 +163,10 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                         addNode->printIR();
                 }
     ;
-condition_op: GE
-           | GEQ
-           | LE
-           | LEQ
+condition_op: GE {cout << "condition_op-> GE"<<endl;}
+           | GEQ {cout << "condition_op-> GEQ"<<endl;}
+           | LE {cout << "condition_op-> LE"<<endl;}
+           | LEQ{cout << "condition_op-> LEQ"<<endl;}
            | EQ
            | NEQ
            ;
@@ -200,7 +201,7 @@ condition_expr : expr condition_op expr {cout << "condition_expr -> expr conditi
                                 break;
                         default:
                            cout << "unknown type "+$2->type<<endl;
-                           yyerror("unknown type "+$2->type);
+                           //yyerror("unknown type "+$2->type);
                 }
                         addNode->addChild($1);
                         addNode->addChild($3);
