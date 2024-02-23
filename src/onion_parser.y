@@ -227,7 +227,7 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_
 
 array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {cout << "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY"<<endl;}
                     ;
-array_access_stmt: expr ASSIGNMENT array_access_expr  {
+array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
 
         cout << "array_access_stmt -> expr ASSIGNMENT array_access_expr"<<endl;
         CodeNode *arrayNode = $3;
@@ -252,11 +252,11 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
+          | IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;
-                 CodeNode *identifier = $2;
-                 CodeNode *numberNode = $4;
-                 CodeNode *exprNode = $7;  
+                 CodeNode *identifier = $1;
+                 CodeNode *numberNode = $3;
+                 CodeNode *exprNode = $6;  
                  CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
                 
@@ -396,6 +396,7 @@ statement: expr {cout << "statement -> expr" <<endl;}
           | assignment_stmt expr {cout << "statement -> assignment_stmt expr" <<endl;}
           | variable_declartion {cout << "statement -> variable_declartion" <<endl;}
           | function_call_stmt {cout << "statement -> function_call_stmt" <<endl;}
+          | array_access_stmt
           | read_stmt
           | print_stmt
           | %empty
