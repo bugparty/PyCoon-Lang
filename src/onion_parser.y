@@ -184,16 +184,14 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout
                       ss<<std::string(".[] ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode;
                       newNode->IRCode = ss.str();
                       newNode->printIR();
-
-
-                     
                       $$ = newNode;
+
 }
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
                     ;
 array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;
                       CodeNode *identifier = $1;
-                      CodeNode *expr = $4;
+                      CodeNode *expr = $3;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_expr);
                       newNode->addChild(expr);
                       newNode->addChild(identifier);
@@ -204,7 +202,7 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_
                       newNode->IRCode = ss.str();
                       newNode->printIR();
                       $$ = newNode;
-                      //Warning: this will be implemented when expr is ready. 
+
 
                       } 
             | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
@@ -224,13 +222,15 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT
                 cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;
                  CodeNode *identifier = $2;
                  CodeNode *numberNode = $4;
-                /*CodeNode *exprNode = $4; */ 
-                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
-
-                /*newNode->IRCode = std::string("[]= ") +identifier->sourceCode + std::string(", ") + number->sourceCode + std::string(", ") +exprNode->sourceCode*/
-                /*$$ = newNode;  */
-                //Warning: this will be implemented when expr is ready. 
-                //expr->sourceCode must return either identifier name or number 
+                 CodeNode *exprNode = $7;  
+                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                stringstream ss;
+                
+                ss<< std::string("[]= ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode;
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+      
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
