@@ -48,7 +48,7 @@ BINARY [0b]+[0-1]+
 HEX [0x]+[0-9a-eA-E]*
 ID [a-zA-Z][a-zA-Z0-9_]*
 END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(\,]
-END_OF_NUMBER [ \t\r\n\]\)\;\,\}\%\+\-\/\*]
+END_OF_NUMBER [ \t\r\n\]\)\;\,\}\%\+\-\/\*\>\<\=\!]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
 WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
@@ -58,8 +58,9 @@ RIGHT_BOX_BRAC [\]]
 %%
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
-    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    
     CodeNode* node = new CodeNode(yytext, NUMBER);
+    ODEBUG("NUMBER:%d\n", node->val.i);
     yylval.codeNode = node;
     return NUMBER;
 }
@@ -155,7 +156,7 @@ for {
 
 int  {
    ONION_PATTERN;
-   ODEBUG("INT:%d\n");
+   ODEBUG("INT TYPE\n");
    CodeNode* node = new CodeNode(yytext, INT);
    yylval.codeNode = node;
    return INT;
@@ -188,64 +189,72 @@ int  {
 "*" {
     
     ONION_PATTERN;
-    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    ODEBUG("Arithmetic Op :%s\n",yytext);
     CodeNode* node = new CodeNode(yytext, MULTIPLYING);
     yylval.codeNode = node;
     return MULTIPLYING;
 }
 "/" {
     ONION_PATTERN;
-    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    ODEBUG("Arithmetic Op :%s\n",yytext);
     CodeNode* node = new CodeNode(yytext, DIVISION);
     yylval.codeNode = node;
     return DIVISION;
 }
 "%" { 
     ONION_PATTERN;
-    ODEBUG("Arithmetic Op +:%s\n",yytext);
+    ODEBUG("Arithmetic Op :%s\n",yytext);
     CodeNode* node = new CodeNode(yytext, MODULE);
     yylval.codeNode = node;
     return MODULE;
 }
 "<=" { 
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, LEQ);
+    yylval.codeNode = node;
     return LEQ;
 }
 ">=" { 
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, GEQ);
+    yylval.codeNode = node;
     return GEQ;
 }
 
 ">" { 
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, GE);
+    yylval.codeNode = node;
     return GE;
 }
 "<" { 
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, LE);
+    yylval.codeNode = node;
     return LE;
 }
 "==" {
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, EQ);
+    yylval.codeNode = node;
     return EQ;
 }
 "!=" {
     ONION_PATTERN;
-    ODEBUG("COMPARISON Op +:%s\n",yytext);
-    yylval.tokenStr = yytext; 
+    ODEBUG("COMPARISON Op :%s\n",yytext);
+    CodeNode* node = new CodeNode(yytext, NEQ);
+    yylval.codeNode = node;
     return NEQ;
 }
 = {
     ONION_PATTERN;
+    CodeNode* node = new CodeNode(yytext, ASSIGNMENT);
+    yylval.codeNode = node;
     return ASSIGNMENT;
 
 }

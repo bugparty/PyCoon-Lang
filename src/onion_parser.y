@@ -52,6 +52,7 @@ int yylex(void);
 %nterm array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
+%nterm condition_op
 
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr  arithmetic_expr condition_expr
@@ -162,14 +163,71 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                         addNode->printIR();
                 }
     ;
-condition_op: GE
-           | GEQ
-           | LE
-           | LEQ
+condition_op: GE {cout << "condition_op-> GE"<<endl;}
+           | GEQ {cout << "condition_op-> GEQ"<<endl;}
+           | LE {cout << "condition_op-> LE"<<endl;}
+           | LEQ{cout << "condition_op-> LEQ"<<endl;}
            | EQ
            | NEQ
            ;
-condition_expr : expr condition_op expr {cout << "condition_expr -> expr condition_op expr"<<endl;}
+condition_expr : expr condition_op expr {cout << "condition_expr -> expr condition_op expr"<<endl;
+                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
+                string ariOP="WTF!!!!";
+                switch($2->type){
+                        case GE:
+                                addNode->subType = ADDING;
+                                ariOP = ">";
+                                break;
+                        case GEQ:
+                                addNode->subType = SUBTRACTING;
+                                ariOP = ">=";
+                                break;
+                        case LE:
+                                addNode->subType = DIVISION;
+                                ariOP = "<";
+                                break;
+                        case LEQ:
+                                addNode->subType = DIVISION;
+                                ariOP = "<=";
+                                break;
+                        
+                        case EQ:
+                                addNode->subType = MODULE;
+                                ariOP = "==";
+                                break;
+                        case NEQ:
+                                addNode->subType = LOGICAL_ADD;
+                                ariOP = "!=";
+                                break;
+                        default:
+                           cout << "unknown type "+$2->type<<endl;
+                           //yyerror("unknown type "+$2->type);
+                }
+                        addNode->addChild($1);
+                        addNode->addChild($3);
+                        $$=addNode;
+                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        stringstream ss;
+                        ss<< $1->IRCode <<$3->IRCode;
+
+                        ss << ". " << tempVar<<endl;
+                        ss<< ariOP<< " "<<tempVar<<", ";
+                        if($1->type == NUMBER){
+                                ss << $1->val.i;
+                        }else if ($1->type == YYSYMBOL_arithmetic_op){
+                                ss << *($1->val.str);
+                        }
+                        ss <<", ";
+                        if($3->type == NUMBER){
+                                ss << $3->val.i;
+                        }else if ($3->type == YYSYMBOL_arithmetic_op){
+                                ss << *($3->val.str);
+                        }
+                        ss << endl;
+                        addNode->IRCode = ss.str();
+                        addNode->val.str = new string(tempVar);
+                        addNode->printIR();
+                }
               ;
 number_array : number_array COMMA number  {cout << "number_array -> number_array COMMA number"<<endl;}
               | number {cout << "number_array ->  number"<<endl;}
