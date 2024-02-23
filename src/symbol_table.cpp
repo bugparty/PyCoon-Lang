@@ -25,3 +25,11 @@ std::string SymbolManager::allocate_temp(enum SymbolType type){
  SymbolManager& SymbolManager::getInstance(){
     return instance;
 }
+Symbol* SymbolManager::addFunction(const std::string& name, std::vector<Symbol*> arguments){
+    Symbol* old = this->find(name);
+    if(old!=nullptr) return nullptr;
+    Symbol * sym = new Symbol(name,SymbolType::SYM_FUNCTION);
+    sym->val.funVal = new std::vector<Symbol*>(arguments);
+    symbols[name]=sym;
+    return sym;
+}
