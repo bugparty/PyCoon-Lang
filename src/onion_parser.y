@@ -57,7 +57,7 @@ int yylex(void);
 %type <codeNode> expr  arithmetic_expr condition_expr array_access_expr
 %type <codeNode> single_variable_declartion
 %type <codeNode> identifier;
-%type <codeNode> quote_op arithmetic_op
+%type <codeNode> quote_op arithmetic_op condition_op
 %type <codeNode> read_stmt print_stmt
 %type <codeNode> array_declartion_stmt
 %type <codeNode> number
@@ -158,13 +158,14 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                         addNode->printIR();
                 }
     ;
-
-condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
-              |expr GEQ expr {cout << "condition_expr -> expr GEQ expr"<<endl;}
-              |expr LE expr {cout << "condition_expr -> expr LE expr"<<endl;}
-              |expr LEQ expr {cout << "condition_expr -> expr LEQ expr"<<endl;}
-              |expr EQ expr {cout << "condition_expr -> expr EQ expr"<<endl;}
-              |expr NEQ expr {cout << "condition_expr -> expr NEQ expr"<<endl;}
+condition_op: GE
+           | GEQ
+           | LE
+           | LEQ
+           | EQ
+           | NEQ
+           ;
+condition_expr : expr condition_op expr {cout << "condition_expr -> expr condition_op expr"<<endl;}
               ;
 number_array : number_array COMMA number  {cout << "number_array -> number_array COMMA number"<<endl;}
               | number {cout << "number_array ->  number"<<endl;}
