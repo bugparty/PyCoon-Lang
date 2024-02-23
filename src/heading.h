@@ -8,7 +8,8 @@ using namespace std;
 #include <stdio.h>
 #include <string>
 #include <cstdlib>
-
+#include "code_node.hpp"
+#include "symbol_table.hpp"
 /* Function type. */
 typedef double (func_t) (double);
 

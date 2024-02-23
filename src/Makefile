@@ -1,8 +1,8 @@
 
-OBJS	= bison.o lex.o main.o
+OBJS	= bison.o lex.o main.o symbol_table.o
 
 CC	= g++
-CFLAGS	=-ansi -std=c++17 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function
+CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function
 
 onion:		$(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
@@ -30,6 +30,15 @@ main.o:		main.cc
 lex.o yac.o main.o	: heading.h
 
 lex.o main.o		: tok.h
+
+symbol_table.o: symbol_table.cpp symbol_table.hpp
+		$(CC) $(CFLAGS) -c symbol_table.cpp -o symbol_table.o
+
+symbol_table_tests.o: symbol_table_tests.cpp
+		$(CC) $(CFLAGS) -c symbol_table_tests.cpp -o symbol_table_tests.o
+		
+symbol_tests: symbol_table.o symbol_table_tests.o
+		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o -o symbol_tests
 mil_run:
 	wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run
 	chmod +x mil_run

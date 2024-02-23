@@ -23,6 +23,8 @@ struct CodeNode{
             case NUMBER:
                 parseInt();
                 break;
+            default:
+                break;
         }
     }
     void parseInt(){
