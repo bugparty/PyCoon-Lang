@@ -62,7 +62,7 @@ int yylex(void);
 %type <codeNode> arithmetic_op arithmetic_expr
 %type <codeNode> array_declartion_stmt
 %type <codeNode> number
-%type <codeNode> array_access_expr assignment_stmt
+%type <codeNode> array_access_expr assignment_stmt array_access_stmt
 %start functions
 
 %%
@@ -78,7 +78,7 @@ expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl; }
     | identifier {cout<<"expr -> identifier -> "<<endl;}
     | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
     | condition_expr {cout << "expr -> condition_expr"<<endl;}
-    | array_access_expr {cout << "expr -> array_access_expr"<<endl;}
+    | array_access_stmt {cout << "expr -> array_access_stmt"<<endl;}
     | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
     | %empty
     ;
@@ -210,12 +210,29 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_
 
 array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {cout << "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY"<<endl;}
                     ;
-array_assignment_stmt: array_access_expr ASSIGNMENT expr  {cout << "array_assignment_stmt -> array_access_expr ASSIGNMENT expr"<<endl;}
-                    | array_block_assignment_stmt {cout << "array_assignment_stmt -> array_block_assignment_stmt"<<endl;}
-                    ;
+array_access_stmt: expr ASSIGNMENT array_access_expr  {
+
+        cout << "array_access_stmt -> expr ASSIGNMENT array_access_expr"<<endl;
+        CodeNode *arrayNode = $3;
+        CodeNode *exprNode = $1;
+        
+        CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_stmt);
+
+        newNode->addChild(arrayNode);
+        newNode->addChild(exprNode);
+        stringstream ss;
+        ss<<"=[]"<< expr->IRCode<<", "<<array_access_expr->IRCode;
+
+        newNode->IRCode = ss.str();
+        newNode->printIR();
+        $$ = newNode;
+
+
+
+        }
+                    
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr"<<endl;}
           | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
-          | array_assignment_stmt {cout << "assignment_stmt -> array_assignment_stmt"<<endl;}
           | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
