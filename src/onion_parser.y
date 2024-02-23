@@ -183,7 +183,7 @@ single_variable_declartion: INT identifier {cout << "variable_declartion -> INT 
            stringstream ss;
            ss<<std::string(". ") + ($2->sourceCode);
            variableDeclarationNode->addChild($2);
-           variableDeclarationNode->IRCode = ss.str();
+           variableDeclarationNode->IRCode = ss.str() + std::string("\n");
            variableDeclarationNode->printIR();
            $$ = variableDeclarationNode;
            }
@@ -248,10 +248,62 @@ array_access_stmt: expr ASSIGNMENT array_access_expr  {
 
         }
                     
-assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr"<<endl;}
-          | INT IDENTIFIER ASSIGNMENT IDENTIFIER {cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER"<<endl;}
-          | IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;}
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
+assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
+                cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr" << endl;
+                CodeNode *identifierLeft = $2;
+                stringstream ss;
+                ss << "= " << identifierLeft->sourceCode << ", ";
+
+                switch($4->type){
+                        case IDENTIFIER:
+                                ss << $4->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $4->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << $4->val.str;
+                                break;
+                        default:
+                                cout << "Invalid expr";
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << "\n";
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+                }
+          | IDENTIFIER ASSIGNMENT expr {
+                cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;
+                CodeNode *identifierLeft = $1;
+                stringstream ss;
+                ss << "= " << identifierLeft->sourceCode << ", ";
+
+                switch($3->type){
+                        case IDENTIFIER:
+                                ss << $3->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $3->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << $3->val.str;
+                                break;
+                        default:
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << "\n";
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+                }
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
+                cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;
+                }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;
                  CodeNode *identifier = $2;
@@ -266,7 +318,9 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {cout << "assignment_stmt -> INT
                 $$ = newNode;
       
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {
+                cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;
+                }
           | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
           ;
     
@@ -367,7 +421,8 @@ control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;
           CodeNode *node = new CodeNode(YYSYMBOL_read_stmt);
-          node->IRCode = std::string(".< ") + ($1->sourceCode);
+          node->IRCode = std::string(".< ") + ($1->sourceCode) + std::string("\n");
+          node->printIR();
           $$ = node; 
         }
         ;
