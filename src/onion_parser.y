@@ -162,9 +162,13 @@ multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
                           ;
 single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
-           CodeNode *node = new CodeNode(YYSYMBOL_single_variable_declartion);
-           node->IRCode = std::string(". ") + ($2->sourceCode);
-           $$ = node;
+           CodeNode *variableDeclarationNode = new CodeNode(YYSYMBOL_single_variable_declartion);
+           stringstream ss;
+           ss<<std::string(". ") + ($2->sourceCode);
+           variableDeclarationNode->addChild($2);
+           variableDeclarationNode->IRCode = ss.str();
+           variableDeclarationNode->printIR();
+           $$ = variableDeclarationNode;
            }
           ;
 variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
@@ -174,7 +178,15 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout
                       CodeNode *identifier = $2;
                       CodeNode *numberNode = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
-                      newNode->IRCode = std::string(".[] ")+identifier->sourceCode+ std::string(", ")+numberNode->sourceCode;
+                      stringstream ss;
+                      newNode->addChild(identifier);
+                      newNode->addChild(numberNode);
+                      ss<<std::string(".[] ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode;
+                      newNode->IRCode = ss.str();
+                      newNode->printIR();
+
+
+                     
                       $$ = newNode;
 }
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
