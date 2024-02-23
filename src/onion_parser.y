@@ -5,6 +5,7 @@
 %{
 #include "heading.h"
 #include "code_node.hpp"
+#include <sstream>
 int yyerror(char *s);
 int yylex(void);
 %}
@@ -86,14 +87,18 @@ quote_op: LEFT_PAR expr RIGHT_PAR expr {
         CodeNode* quoteOpNode = new CodeNode(YYSYMBOL_quote_op);
         quoteOpNode->addChild($2);
         quoteOpNode->addChild($4);
+        stringstream ss;
+        ss<< $2->IRCode << $4->IRCode;
+        quoteOpNode->IRCode = ss.str();
+        quoteOpNode->printIR();
         $$ = quoteOpNode;
 }
-arithmetic_op: MULTIPLYING
-            | DIVISION
-            | ADDING
-            | SUBTRACTING
-            | MODULE
-            | logical_op
+arithmetic_op: MULTIPLYING {cout << "arithmetic_op-> MULTIPLYING"<<endl;}
+            | DIVISION     {cout << "arithmetic_op-> DIVISION"<<endl;}
+            | ADDING       {cout << "arithmetic_op-> ADDING"<<endl;}
+            | SUBTRACTING  {cout << "arithmetic_op-> SUBTRACTING"<<endl;}
+            | MODULE       {cout << "arithmetic_op-> MODULE"<<endl;}
+            | logical_op   {cout << "arithmetic_op-> logical_op"<<endl;}
             ;
 logical_op: LOGICAL_ADD
           | LOGICAL_OR
@@ -116,7 +121,7 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 break;
                         case MODULE:
                                 addNode->subType = MODULE;
-                                ariOP = "%";
+                                ariOP = "\%";
                                 break;
                         case LOGICAL_ADD:
                                 addNode->subType = LOGICAL_ADD;
@@ -126,11 +131,19 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 addNode->subType = LOGICAL_OR;
                                 ariOP = "||";
                                 break;
+                }
                         addNode->addChild($1);
                         addNode->addChild($3);
                         $$=addNode;
-                        addNode->IRCode = ". temp1\n" + ariOP + " temp1, "+ $1->IRCode + ", "+$3->IRCode;
-                }}
+                        
+                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        stringstream ss;
+                        ss<< $1->IRCode <<$3->IRCode;
+                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", "<<$1->val.str <<", "<<$3->val.str<<endl;
+                        addNode->IRCode = ss.str();
+                        addNode->val.str = new string(tempVar);
+                        addNode->printIR();
+                }
     ;
 
 condition_expr : expr GE expr {cout << "condition_expr -> expr GE expr"<<endl;}
@@ -315,7 +328,7 @@ statement: expr {cout << "statement -> expr" <<endl;}
           | %empty
           ;
 
-functions: functions function_declartion
+functions: functions function_declartion {cout << "functions-> functions function_declartion"<<endl;}
         | %empty
         ;
 

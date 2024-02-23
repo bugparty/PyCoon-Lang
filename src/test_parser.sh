@@ -9,4 +9,4 @@ make
 # cat ../doc/language_samples/parser/06Ifelse.onion | ./onion
 # cat ../doc/language_samples/parser/11IfElse2.onion | ./onion
 # cat ../doc/language_samples/parser/12ifElse_additional_testing.onion | ./onion
-cat ../doc/language_samples/parser/22function.onion | ./onion
+cat ../doc/language_samples/IR_test_case/2expr.onion | ./onion
