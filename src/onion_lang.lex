@@ -59,7 +59,6 @@ RIGHT_BOX_BRAC [\]]
 %%
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
-    
     CodeNode* node = new CodeNode(yytext, NUMBER);
     ODEBUG("NUMBER:%d\n", node->val.i);
     yylval.codeNode = node;
@@ -67,16 +66,16 @@ RIGHT_BOX_BRAC [\]]
 }
 {BINARY} {
     ONION_PATTERN;
-    string s(yytext);
-    yylval.tokenVal = stoul(s.substr(2),0,2);
-    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    CodeNode* node = new CodeNode(yytext, BINARY_NUMBER);
+    yylval.codeNode = node;
+    ODEBUG("BINARY_NUMBER:%d\n", node->val.i);
     return BINARY_NUMBER;
 }
 {HEX} {
     ONION_PATTERN;
-    string s(yytext);
-    yylval.tokenVal = stoul(s.substr(2),0,16);
-    ODEBUG("NUMBER:%d\n", yylval.tokenVal);
+    CodeNode* node = new CodeNode(yytext, HEX_NUMBER);
+    yylval.codeNode = node;
+    ODEBUG("HEX_NUMBER:%d\n", node->val.i);
     return HEX_NUMBER;
 }
 return {

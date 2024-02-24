@@ -21,16 +21,21 @@ struct CodeNode{
     std::vector<CodeNode*> children;
     CodeNode(int type):type(type),subType(0){}
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
+        std::string s = std::string(sourceCode);
         switch(type){
             case NUMBER:
-                parseInt();
+                val.i = std::stoi(sourceCode);
+                break;
+            case BINARY_NUMBER:
+                
+                val.i = stoul(s.substr(2),0,2);
+                break;
+            case HEX_NUMBER:
+                val.i = stoul(s.substr(2),0,16);
                 break;
             default:
                 break;
         }
-    }
-    void parseInt(){
-         val.i = stoi(sourceCode);
     }
     void addChild(CodeNode* child){
         children.push_back(child);

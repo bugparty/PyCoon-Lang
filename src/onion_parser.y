@@ -6,6 +6,7 @@
 #include "heading.h"
 #include "code_node.hpp"
 #include <sstream>
+#include <cassert>
 int yyerror(char *s);
 int yylex(void);
 #define ENABLE_BISON_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
@@ -86,7 +87,7 @@ number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );}
       | BINARY_NUMBER  {ODEBUG("number -> BINARY_NUMBER -> %d",$1 );}
       | HEX_NUMBER  {ODEBUG("number -> HEX_NUMBER -> %d",$1 );}
       ;
-identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode);
+identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c_str());
                     $$= $1;}
       ;
 expr: quote_op {ODEBUG("LEFT_PAR expr RIGHT_PAR expr");}
@@ -347,6 +348,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 }
           | IDENTIFIER ASSIGNMENT expr {
                 ODEBUG( "assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
+                assert($1!=nullptr && $3!=nullptr);
                 CodeNode *identifierLeft = $1;
                 stringstream ss;
                 ss << "= " << identifierLeft->sourceCode << ", ";
