@@ -32,7 +32,7 @@ expect_fail() {
     passing_tests+=("$filename")
   fi
 }
-make
+make -j`nproc`
 for PASSINGFILE in ../doc/language_samples/IR_test_case/*; do run_test $PASSINGFILE; done;
 
 # for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;
