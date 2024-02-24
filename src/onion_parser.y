@@ -332,7 +332,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                                 ss << $4->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
-                                ss << $4->val.str;
+                                ss << *($4->val.str);
                                 break;
                         default:
                                 cout << "Invalid expr";
@@ -340,7 +340,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 }
 
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
-                ss << "\n";
+                ss << endl;
                 newNode->IRCode = ss.str();
                 newNode->printIR();
                 $$ = newNode;
@@ -359,14 +359,14 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                                 ss << $3->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
-                                ss << $3->val.str;
+                                ss << *($3->val.str);
                                 break;
                         default:
                                 break;
                 }
 
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
-                ss << "\n";
+                ss << endl;
                 newNode->IRCode = ss.str();
                 newNode->printIR();
                 $$ = newNode;
