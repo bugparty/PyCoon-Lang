@@ -38,12 +38,16 @@ int yylex(void);
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
+%token LEQ GEQ LE GE EQ NEQ
 
+%right ASSIGNMENT
 %left LOGICAL_ADD LOGICAL_OR
+%left LEQ GEQ LE GE EQ NEQ
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 %left LEFT_PAR RIGHT_PAR
-%token LEQ GEQ LE GE EQ NEQ
+
+
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm greaterEqual greater smaller smallerEqual equal
