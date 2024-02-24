@@ -18,10 +18,11 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_LEX_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
 
-#if ENABLE_PRINTF
-    #define ODEBUG( ...) printf( __VA_ARGS__ )
+#if ENABLE_LEX_PRINTF
+    #define ODEBUG( ...) \
+    do{printf("YYLEX: ");printf( __VA_ARGS__ );}while(0)
 #else
     #define ODEBUG( ...)
 #endif

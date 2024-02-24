@@ -18,7 +18,7 @@ SymbolManager SymbolManager::instance;
  }
 std::string SymbolManager::allocate_temp(enum SymbolType type){
     std::stringstream ss;
-    ss << "temp" << tempCounter++;
+    ss << "_temp" << tempCounter++;
     addSymbol(ss.str(), type);
     return ss.str();
 }
