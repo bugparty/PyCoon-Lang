@@ -13,7 +13,7 @@ int yylex(void);
 
 #if ENABLE_BISON_PRINTF
     #define ODEBUG( ...) \
-    do{printf("BISON: ");printf( __VA_ARGS__ );puts("");}while(0)
+    do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s, lineno:%d\n",__FILE__,__LINE__);}while(0)
 #else
     #define ODEBUG( ...)
 #endif
@@ -61,7 +61,7 @@ int yylex(void);
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm greaterEqual greater smaller smallerEqual equal
 %nterm loop_block for_stmt for_first_stmt
-%nterm number_array function_arguments variable_declartion function_code_block
+%nterm number_tuple function_arguments variable_declartion function_code_block
 %nterm array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
@@ -242,12 +242,12 @@ condition_expr : expr condition_op expr {ODEBUG( "condition_expr -> expr conditi
                         addNode->printIR();
                 }
               ;
-number_array : number_array COMMA number  {ODEBUG( "number_array -> number_array COMMA number");}
-              | number {ODEBUG( "number_array ->  number");}
+number_tuple : number_tuple COMMA number  {ODEBUG( "number_tuple -> number_tuple COMMA number");}
+              | number {ODEBUG( "number_tuple ->  number");}
               |%empty
               ;
-multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY");}
-                          | LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY");}
+multi_demension_number_tuple:  multi_demension_number_tuple COMMA  LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG( "multi_demension_number_tuple -> multi_demension_number_tuple COMMA  LEFT_CURLEY number_tuple RIGHT_CURLEY");}
+                          | LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG( "multi_demension_number_tuple -> LEFT_CURLEY number_tuple RIGHT_CURLEY");}
                           ;
 single_variable_declartion: INT identifier {ODEBUG( "variable_declartion -> INT identifier");
            CodeNode *variableDeclarationNode = new CodeNode(YYSYMBOL_single_variable_declartion);
@@ -283,10 +283,12 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG( "array_
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_expr);
                       newNode->addChild(expr);
                       newNode->addChild(identifier);
-
+                      
                       stringstream ss;
-                      ss<<identifier->sourceCode<<std::string(", ")<<expr->sourceCode<<"\n";
-
+                      auto& ctx = SymbolManager::getInstance();
+                      auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
+                      ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
+                      newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
                       newNode->printIR();
                       $$ = newNode;
@@ -296,7 +298,7 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG( "array_
             | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG( "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC");}
             ;
 
-array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {ODEBUG( "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY");}
+array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_tuple  RIGHT_CURLEY {ODEBUG( "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_tuple  RIGHT_CURLEY");}
                     ;
 array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
 
@@ -309,7 +311,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
         newNode->addChild(arrayNode);
         newNode->addChild(exprNode);
         stringstream ss;
-        ss<<"=[]"<< exprNode->IRCode<<", "<<arrayNode->IRCode;
+        ss<<"="<< exprNode->IRCode<<", "<<*(arrayNode->val.str)<<endl;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
@@ -346,6 +348,35 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 newNode->printIR();
                 $$ = newNode;
                 }
+          | array_access_expr ASSIGNMENT expr {
+                ODEBUG( "assignment_stmt -> array_access_expr ASSIGNMENT expr ");
+                assert($1!=nullptr && $3!=nullptr);
+                CodeNode *array_access_expr = $1;
+                stringstream ss;
+                ss << "= " << *(array_access_expr->val.str) << ", ";
+
+                switch($3->type){
+                        case IDENTIFIER:
+                                ss << $3->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $3->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                        case YYSYMBOL_array_access_expr:
+                                ss << *($3->val.str);
+                                break;
+                        default:
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << endl;
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+                
+          }
           | IDENTIFIER ASSIGNMENT expr {
                 ODEBUG( "assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 assert($1!=nullptr && $3!=nullptr);
@@ -390,8 +421,9 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 $$ = newNode;
       
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY");}
-          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY");}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
+          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
+          
           ;
     
 
