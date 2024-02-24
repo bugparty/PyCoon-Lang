@@ -253,7 +253,7 @@ single_variable_declartion: INT identifier {ODEBUG( "variable_declartion -> INT 
            stringstream ss;
            ss<<std::string(". ") + ($2->sourceCode)<<("\n");
            variableDeclarationNode->addChild($2);
-           variableDeclarationNode->IRCode = ss.str();
+           variableDeclarationNode->IRCode = ss.str() + std::string("\n");
            variableDeclarationNode->printIR();
            $$ = variableDeclarationNode;
            }
@@ -318,15 +318,68 @@ array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
 
         }
                     
-assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {ODEBUG( "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");}
-          | INT IDENTIFIER ASSIGNMENT IDENTIFIER {ODEBUG( "assignment_stmt -> INT IDENTIFIER ASSIGNMENT IDENTIFIER");}
-          | IDENTIFIER ASSIGNMENT expr {ODEBUG( "assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");}
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG( "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");}
-          | IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
+assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
+                ODEBUG( "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
+                CodeNode *identifierLeft = $2;
+                stringstream ss;
+                ss << "= " << identifierLeft->sourceCode << ", ";
+
+                switch($4->type){
+                        case IDENTIFIER:
+                                ss << $4->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $4->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << $4->val.str;
+                                break;
+                        default:
+                                cout << "Invalid expr";
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << "\n";
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+                }
+          | IDENTIFIER ASSIGNMENT expr {
+                ODEBUG( "assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
+                CodeNode *identifierLeft = $1;
+                stringstream ss;
+                ss << "= " << identifierLeft->sourceCode << ", ";
+
+                switch($3->type){
+                        case IDENTIFIER:
+                                ss << $3->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $3->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << $3->val.str;
+                                break;
+                        default:
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << "\n";
+                newNode->IRCode = ss.str();
+                newNode->printIR();
+                $$ = newNode;
+                }
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
+                ODEBUG( "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
+                }
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
-                 CodeNode *identifier = $1;
-                 CodeNode *numberNode = $3;
-                 CodeNode *exprNode = $6;  
+                 CodeNode *identifier = $2;
+                 CodeNode *numberNode = $4;
+                 CodeNode *exprNode = $7;  
+
                  CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
                 ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
@@ -436,7 +489,8 @@ control_flow_stmt: while_stmt {ODEBUG( "block_stmt -> while_stmt" );}
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           ODEBUG( "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR");
           CodeNode *node = new CodeNode(YYSYMBOL_read_stmt);
-          node->IRCode = std::string(".< ") + ($1->sourceCode);
+          node->IRCode = std::string(".< ") + ($1->sourceCode) + std::string("\n");
+          node->printIR();
           $$ = node; 
         }
         ;
