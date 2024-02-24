@@ -16,9 +16,7 @@ struct Symbol{
     Symbol(std::string name,enum SymbolType type):name(name),type(type){}
     union {
         int iVal;
-        union {
-            int ret;
-        }fVal;
+        std::vector<Symbol*>* funVal;
     }val;
 };
 class SymbolManager{
@@ -33,8 +31,8 @@ class SymbolManager{
     //find a existing symbol,if not exist,return null
     Symbol* find(const std::string& name);
      Symbol* addSymbol(const std::string&  name, enum SymbolType type);
+    Symbol* addFunction(const std::string& name, std::vector<Symbol*> arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
     static SymbolManager& getInstance();
-    
 };

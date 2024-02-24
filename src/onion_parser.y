@@ -8,6 +8,14 @@
 #include <sstream>
 int yyerror(char *s);
 int yylex(void);
+#define ENABLE_BISON_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+
+#if ENABLE_BISON_PRINTF
+    #define ODEBUG( ...) \
+    do{printf("BISON: ");printf( __VA_ARGS__ );puts("");}while(0)
+#else
+    #define ODEBUG( ...)
+#endif
 %}
 
 
@@ -38,12 +46,16 @@ int yylex(void);
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
+%token LEQ GEQ LE GE EQ NEQ
 
+%right ASSIGNMENT
 %left LOGICAL_ADD LOGICAL_OR
+%left LEQ GEQ LE GE EQ NEQ
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 %left LEFT_PAR RIGHT_PAR
-%token LEQ GEQ LE GE EQ NEQ
+
+
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm greaterEqual greater smaller smallerEqual equal
@@ -52,6 +64,7 @@ int yylex(void);
 %nterm array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
+%nterm condition_op
 
 %type <tokenVal> statement add sub multi div mod
 %type <codeNode> expr  arithmetic_expr condition_expr
@@ -69,38 +82,38 @@ int yylex(void);
 %start functions
 
 %%
-number: NUMBER {cout<<"number -> NUMBER -> "<<$1->val.i << endl;}
-      | BINARY_NUMBER  {cout<<"number -> BINARY_NUMBER -> "<<$1 << endl;}
-      | HEX_NUMBER  {cout<<"number -> HEX_NUMBER -> "<<$1 << endl;}
+number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );}
+      | BINARY_NUMBER  {ODEBUG("number -> BINARY_NUMBER -> %d",$1 );}
+      | HEX_NUMBER  {ODEBUG("number -> HEX_NUMBER -> %d",$1 );}
       ;
-identifier: IDENTIFIER {cout<<"identifier -> IDENTIFIER -> "<<$1->sourceCode<<endl;
+identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode);
                     $$= $1;}
       ;
-expr: quote_op {cout<<"LEFT_PAR expr RIGHT_PAR expr"<<endl;}
-    | number {cout<<"expr -> number "<<endl;}
-    | identifier {cout<<"expr -> identifier -> "<<endl;}
-    | arithmetic_expr {cout<<"expr -> arithmetic_expr"<<endl;}
-    | condition_expr {cout << "expr -> condition_expr"<<endl;}
-    | array_access_stmt {cout << "expr -> array_access_stmt"<<endl;}
-    | function_call_stmt {cout << "expr -> function_call_stmt"<<endl;}
+expr: quote_op {ODEBUG("LEFT_PAR expr RIGHT_PAR expr");}
+    | number {ODEBUG("expr -> number ");}
+    | identifier {ODEBUG("expr -> identifier -> ");}
+    | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");}
+    | condition_expr {ODEBUG( "expr -> condition_expr");}
+    | array_access_stmt {ODEBUG( "expr -> array_access_stmt");}
+    | function_call_stmt {ODEBUG( "expr -> function_call_stmt");}
     | %empty
     ;
 
 quote_op: LEFT_PAR expr RIGHT_PAR {
-        cout << "quote_op-> LEFT_PAR expr RIGHT_PAR expr" <<endl;
+        ODEBUG( "quote_op-> LEFT_PAR expr RIGHT_PAR expr" );
         $$ = $2;
 }
-arithmetic_op: MULTIPLYING {cout << "arithmetic_op-> MULTIPLYING"<<endl;}
-            | DIVISION     {cout << "arithmetic_op-> DIVISION"<<endl;}
-            | ADDING       {cout << "arithmetic_op-> ADDING"<<endl;}
-            | SUBTRACTING  {cout << "arithmetic_op-> SUBTRACTING"<<endl;}
-            | MODULE       {cout << "arithmetic_op-> MODULE"<<endl;}
-            | logical_op   {cout << "arithmetic_op-> logical_op"<<endl;}
+arithmetic_op: MULTIPLYING {ODEBUG( "arithmetic_op-> MULTIPLYING");}
+            | DIVISION     {ODEBUG( "arithmetic_op-> DIVISION");}
+            | ADDING       {ODEBUG( "arithmetic_op-> ADDING");}
+            | SUBTRACTING  {ODEBUG( "arithmetic_op-> SUBTRACTING");}
+            | MODULE       {ODEBUG( "arithmetic_op-> MODULE");}
+            | logical_op   {ODEBUG( "arithmetic_op-> logical_op");}
             ;
 logical_op: LOGICAL_ADD
           | LOGICAL_OR
           ;
-arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op expr"<<endl;
+arithmetic_expr :  expr arithmetic_op expr {ODEBUG( "expr -> expr arithmetic_op expr");
                 CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
                 string ariOP="WTF!!!!";
                 switch($2->type){
@@ -134,7 +147,7 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                                 ariOP = "||";
                                 break;
                         default:
-                           cout << "unknown type "+$2->type<<endl;
+                           ODEBUG( "unknown type "+$2->type);
                            yyerror("unknown type "+$2->type);
                 }
                         addNode->addChild($1);
@@ -162,51 +175,108 @@ arithmetic_expr :  expr arithmetic_op expr {cout << "expr -> expr arithmetic_op 
                         addNode->printIR();
                 }
     ;
-condition_op: GE
-           | GEQ
-           | LE
-           | LEQ
+condition_op: GE {ODEBUG( "condition_op-> GE");}
+           | GEQ {ODEBUG( "condition_op-> GEQ");}
+           | LE {ODEBUG( "condition_op-> LE");}
+           | LEQ{ODEBUG( "condition_op-> LEQ");}
            | EQ
            | NEQ
            ;
-condition_expr : expr condition_op expr {cout << "condition_expr -> expr condition_op expr"<<endl;}
+condition_expr : expr condition_op expr {ODEBUG( "condition_expr -> expr condition_op expr");
+                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
+                string ariOP="WTF!!!!";
+                switch($2->type){
+                        case GE:
+                                addNode->subType = ADDING;
+                                ariOP = ">";
+                                break;
+                        case GEQ:
+                                addNode->subType = SUBTRACTING;
+                                ariOP = ">=";
+                                break;
+                        case LE:
+                                addNode->subType = DIVISION;
+                                ariOP = "<";
+                                break;
+                        case LEQ:
+                                addNode->subType = DIVISION;
+                                ariOP = "<=";
+                                break;
+                        
+                        case EQ:
+                                addNode->subType = MODULE;
+                                ariOP = "==";
+                                break;
+                        case NEQ:
+                                addNode->subType = LOGICAL_ADD;
+                                ariOP = "!=";
+                                break;
+                        default:
+                           ODEBUG( "unknown type %d",$2->type);
+                           //yyerror("unknown type "+$2->type);
+                }
+                        addNode->addChild($1);
+                        addNode->addChild($3);
+                        $$=addNode;
+                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        stringstream ss;
+                        ss<< $1->IRCode <<$3->IRCode;
+
+                        ss << ". " << tempVar<<endl;
+                        ss<< ariOP<< " "<<tempVar<<", ";
+                        if($1->type == NUMBER){
+                                ss << $1->val.i;
+                        }else if ($1->type == YYSYMBOL_arithmetic_op){
+                                ss << *($1->val.str);
+                        }
+                        ss <<", ";
+                        if($3->type == NUMBER){
+                                ss << $3->val.i;
+                        }else if ($3->type == YYSYMBOL_arithmetic_op){
+                                ss << *($3->val.str);
+                        }
+                        ss << endl;
+                        addNode->IRCode = ss.str();
+                        addNode->val.str = new string(tempVar);
+                        addNode->printIR();
+                }
               ;
-number_array : number_array COMMA number  {cout << "number_array -> number_array COMMA number"<<endl;}
-              | number {cout << "number_array ->  number"<<endl;}
+number_array : number_array COMMA number  {ODEBUG( "number_array -> number_array COMMA number");}
+              | number {ODEBUG( "number_array ->  number");}
               |%empty
               ;
-multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
-                          | LEFT_CURLEY number_array RIGHT_CURLEY {cout << "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
+multi_demension_number_array:  multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "multi_demension_number_array -> multi_demension_number_array COMMA  LEFT_CURLEY number_array RIGHT_CURLEY");}
+                          | LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "multi_demension_number_array -> LEFT_CURLEY number_array RIGHT_CURLEY");}
                           ;
-single_variable_declartion: INT identifier {cout << "variable_declartion -> INT identifier"<<endl;
+single_variable_declartion: INT identifier {ODEBUG( "variable_declartion -> INT identifier");
            CodeNode *variableDeclarationNode = new CodeNode(YYSYMBOL_single_variable_declartion);
            stringstream ss;
-           ss<<std::string(". ") + ($2->sourceCode);
+           ss<<std::string(". ") + ($2->sourceCode)<<("\n");
            variableDeclarationNode->addChild($2);
            variableDeclarationNode->IRCode = ss.str() + std::string("\n");
            variableDeclarationNode->printIR();
            $$ = variableDeclarationNode;
            }
           ;
-variable_declartion: array_declartion_stmt {cout << "variable_declartion -> array_declartion_stmt"<<endl;}
-                  | single_variable_declartion {cout << "variable_declartion -> single_variable_declartion"<<endl;}
+variable_declartion: array_declartion_stmt {ODEBUG( "variable_declartion -> array_declartion_stmt");}
+                  | single_variable_declartion {ODEBUG( "variable_declartion -> single_variable_declartion");}
                   ;
-array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;
+array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG( "array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                       CodeNode *identifier = $2;
                       CodeNode *numberNode = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
                       stringstream ss;
                       newNode->addChild(identifier);
                       newNode->addChild(numberNode);
-                      ss<<std::string(".[] ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode;
+                      ss<<std::string(".[] ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode<<"\n";
                       newNode->IRCode = ss.str();
                       newNode->printIR();
                       $$ = newNode;
 
 }
-                    | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {cout << "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;}
+                    | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG( "array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC");}
                     ;
-array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;
+array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG( "array_access_expr -> IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC");
                       CodeNode *identifier = $1;
                       CodeNode *expr = $3;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_access_expr);
@@ -214,7 +284,7 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_
                       newNode->addChild(identifier);
 
                       stringstream ss;
-                      ss<<identifier->sourceCode<<std::string(", ")<<expr->sourceCode;
+                      ss<<identifier->sourceCode<<std::string(", ")<<expr->sourceCode<<"\n";
 
                       newNode->IRCode = ss.str();
                       newNode->printIR();
@@ -222,14 +292,14 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_
 
 
                       } 
-            | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {cout << "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC"<<endl;}
+            | array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG( "array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC");}
             ;
 
-array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {cout << "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY"<<endl;}
+array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY {ODEBUG( "array_block_assignment_stmt -> array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_demension_number_array  RIGHT_CURLEY");}
                     ;
-array_access_stmt: expr ASSIGNMENT array_access_expr  {
+array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
 
-        cout << "array_access_stmt -> expr ASSIGNMENT array_access_expr"<<endl;
+        ODEBUG( "array_access_stmt -> expr ASSIGNMENT array_access_expr");
         CodeNode *arrayNode = $3;
         CodeNode *exprNode = $1;
         
@@ -249,7 +319,7 @@ array_access_stmt: expr ASSIGNMENT array_access_expr  {
         }
                     
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
-                cout << "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr" << endl;
+                ODEBUG( "assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $2;
                 stringstream ss;
                 ss << "= " << identifierLeft->sourceCode << ", ";
@@ -276,7 +346,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 $$ = newNode;
                 }
           | IDENTIFIER ASSIGNMENT expr {
-                cout << "assignment_stmt -> IDENTIFIER ASSIGNMENT expr "<<endl;
+                ODEBUG( "assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 CodeNode *identifierLeft = $1;
                 stringstream ss;
                 ss << "= " << identifierLeft->sourceCode << ", ";
@@ -302,124 +372,122 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 $$ = newNode;
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
-                cout << "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC"<<endl;
+                ODEBUG( "assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
-                cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr"<<endl;
+                ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
                  CodeNode *identifier = $2;
                  CodeNode *numberNode = $4;
                  CodeNode *exprNode = $7;  
+
                  CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
-                
-                ss<< std::string("[]= ")<<identifier->sourceCode<<std::string(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode;
+                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
                 newNode->IRCode = ss.str();
                 newNode->printIR();
                 $$ = newNode;
       
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {
-                cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;
-                }
-          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {cout << "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY"<<endl;}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY");}
+          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY {ODEBUG( "assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_array RIGHT_CURLEY");}
           ;
     
 
-while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
+while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {ODEBUG( "while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {cout << "for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY"<<endl;}
+for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {ODEBUG( "for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion {cout << "function_arguments_declartion -> function_arguments_declartion COMMA variable_declartion"<<endl;}
-                  | variable_declartion {cout << "function_arguments_declartion -> variable_declartion"<<endl;}
+function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion {ODEBUG( "function_arguments_declartion -> function_arguments_declartion COMMA variable_declartion");}
+                  | variable_declartion {ODEBUG( "function_arguments_declartion -> variable_declartion");}
                   | %empty
                   ;
-function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {cout << "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY"<<endl;}
+function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {ODEBUG( "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY");}
           ;
 
-function_code_block: function_code_block  statement SEMICOLON {cout << "function_code_block -> function_code_block  statement SEMICOLON"<<endl;}
-          | function_code_block control_flow_stmt_function {cout << "function_code_block -> function_code_block control_flow_stmt_function"<<endl;}
-          | function_code_block RETURN expr SEMICOLON {cout << "function_code_block -> function_code_block RETURN expr SEMICOLON"<<endl;}
+function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function_code_block -> function_code_block  statement SEMICOLON");}
+          | function_code_block control_flow_stmt_function {ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");}
+          | function_code_block RETURN expr SEMICOLON {ODEBUG( "function_code_block -> function_code_block RETURN expr SEMICOLON");}
           | %empty
           ;
 
-control_flow_stmt_function:  while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
-        | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
-        | ifElse_stmt_function {cout << "block_stmt -> ifElse_stmt_function" <<endl;}
+control_flow_stmt_function:  while_stmt {ODEBUG( "block_stmt -> while_stmt" );}
+        | for_stmt {ODEBUG( "block_stmt -> for_stmt" );}
+        | ifElse_stmt_function {ODEBUG( "block_stmt -> ifElse_stmt_function" );}
         ;
 
-ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {cout << "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function"<<endl;}
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG( "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
                     | %empty
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY"<<endl;}
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");}
                  ;
-elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
+elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" );}
           ;
-multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {cout << "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function"<<endl;}
-                        |elif_stmt_function {cout << "multi_elif_stmt_function -> else_stmt_function"<<endl;}
+multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG( "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
+                        |elif_stmt_function {ODEBUG( "multi_elif_stmt_function -> else_stmt_function");}
                         |%empty
                         ;
 
-else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {cout << "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
           | %empty
           ;
-elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {cout << "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" <<endl;}
+elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" );}
           ;
 
-multi_elif_stmt: multi_elif_stmt elif_stmt {cout << "multi_elif_stmt -> multi_elif_stmt elif_stmt"<<endl;}
-          | elif_stmt {cout << "multi_elif_stmt -> elif_stmt"<<endl;}
+multi_elif_stmt: multi_elif_stmt elif_stmt {ODEBUG( "multi_elif_stmt -> multi_elif_stmt elif_stmt");}
+          | elif_stmt {ODEBUG( "multi_elif_stmt -> elif_stmt");}
           | %empty
           ;
 
-else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "else_stmt -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY"<<endl;}
+else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG( "else_stmt -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
           | %empty
           ;
         
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {cout << "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY" <<endl;}
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG( "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY" );}
           ;
 
 
-ifElse_stmt: if_stmt multi_elif_stmt else_stmt {cout<<"ifElse_stmt -> if_stmt multi_elif_stmt else_stmt"<<endl;}
+ifElse_stmt: if_stmt multi_elif_stmt else_stmt {ODEBUG("ifElse_stmt -> if_stmt multi_elif_stmt else_stmt");}
           ;
 
-function_argument: IDENTIFIER {cout << "function_argument -> IDENTIFIER"<<endl;}
-                  | number {cout << "function_argument -> number"<<endl;}
-                  | arithmetic_expr {cout << "function_argument -> arithmetic_expr"<<endl;}
-                  | condition_expr {cout << "function_argument -> condition_expr"<<endl;}
-                  | array_access_expr {cout << "function_argument -> array_access_expr"<<endl;}
-                  | function_call_stmt {cout << "function_argument -> function_call_stmt"<<endl;}
+function_argument: IDENTIFIER {ODEBUG( "function_argument -> IDENTIFIER");}
+                  | number {ODEBUG( "function_argument -> number");}
+                  | arithmetic_expr {ODEBUG( "function_argument -> arithmetic_expr");}
+                  | condition_expr {ODEBUG( "function_argument -> condition_expr");}
+                  | array_access_expr { ODEBUG( "function_argument -> array_access_expr");}
+                  | function_call_stmt {ODEBUG( "function_argument -> function_call_stmt");}
                   ;
-function_arguments  : function_arguments COMMA function_argument {cout << "function_arguments -> function_arguments COMMA function_argument"<<endl;}
-                  | function_argument {cout << "function_arguments -> function_argument "<<endl;}
+function_arguments  : function_arguments COMMA function_argument {ODEBUG( "function_arguments -> function_arguments COMMA function_argument");}
+                  | function_argument {ODEBUG( "function_arguments -> function_argument ");}
                   | %empty
                   ;
 
-function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR"<<endl;}
-                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {cout << "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR"<<endl;}
+function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {ODEBUG( "function_call_stmt -> IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR");}
+                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {ODEBUG( "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");}
                   ;
 
-loop_block_function: loop_block_function code_block {cout << "loop_block_function -> loop_block code_block" <<endl;}
-                  | loop_block_function BREAK SEMICOLON {cout << "loop_block_function -> loop_block BREAK SEMICOLON" <<endl;}
-                  | loop_block_function RETURN expr {cout << "loop_block_function -> loop_block_function RETURN expr" <<endl;}
+loop_block_function: loop_block_function code_block {ODEBUG( "loop_block_function -> loop_block code_block" );}
+                  | loop_block_function BREAK SEMICOLON {ODEBUG( "loop_block_function -> loop_block BREAK SEMICOLON" );}
+                  | loop_block_function RETURN expr {ODEBUG( "loop_block_function -> loop_block_function RETURN expr" );}
                   | %empty
                   ;
 
-loop_block: loop_block code_block {cout << "loop_block -> loop_block code_block" <<endl;}
-          | loop_block BREAK SEMICOLON {cout << "loop_block -> loop_block BREAK SEMICOLON" <<endl;}
+loop_block: loop_block code_block {ODEBUG( "loop_block -> loop_block code_block" );}
+          | loop_block BREAK SEMICOLON {ODEBUG( "loop_block -> loop_block BREAK SEMICOLON" );}
           | %empty
           ;
 
-code_block: code_block statement SEMICOLON { cout << "code_block -> code_block statement SEMICOLON "<<endl;}
-          | code_block control_flow_stmt { cout << "code_block -> code_block control_flow_stmt "<<endl;}
-          | code_block RETURN expr { cout << "code_block -> code_block RETURN expr"<<endl;}
+code_block: code_block statement SEMICOLON { ODEBUG( "code_block -> code_block statement SEMICOLON ");}
+          | code_block control_flow_stmt { ODEBUG( "code_block -> code_block control_flow_stmt ");}
+          | code_block RETURN expr { ODEBUG( "code_block -> code_block RETURN expr");}
           | %empty
           ;
 
-control_flow_stmt: while_stmt {cout << "block_stmt -> while_stmt" <<endl;}
-        | for_stmt {cout << "block_stmt -> for_stmt" <<endl;}
-        | ifElse_stmt {cout << "block_stmt -> ifElse_stmt" <<endl;}
+control_flow_stmt: while_stmt {ODEBUG( "block_stmt -> while_stmt" );}
+        | for_stmt {ODEBUG( "block_stmt -> for_stmt" );}
+        | ifElse_stmt {ODEBUG( "block_stmt -> ifElse_stmt" );}
         ;
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
-          cout << "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR"<<endl;
+          ODEBUG( "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR");
           CodeNode *node = new CodeNode(YYSYMBOL_read_stmt);
           node->IRCode = std::string(".< ") + ($1->sourceCode) + std::string("\n");
           node->printIR();
@@ -427,36 +495,37 @@ read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
         }
         ;
 print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
-          cout <<"print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"<<endl; 
+          ODEBUG("print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"); 
           //CodeNode *node = new CodeNode(0xffff0001);
           //node->IRCode = std::string(".> ") + ($2->sourceCode);
           //$$ = node; 
         }
         | PRINT LEFT_PAR identifier RIGHT_PAR {
-          cout <<"print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"<<endl; 
+          ODEBUG("print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"); 
           CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
           node->IRCode = std::string(".> ") + ($3->sourceCode);
           $$ = node; 
         }
         ;
 
-statements: statements  statement SEMICOLON  {cout << "statements -> statements  statement SEMICOLON" <<endl;}
-          | statements control_flow_stmt {cout << "statements -> statements control_flow_stmt" <<endl;}
-          | statement SEMICOLON {cout << "statements -> statement SEMICOLON" <<endl;}
-          | statements function_declartion {cout << "statements -> statements function_declartion" <<endl;}
+statements: statements  statement SEMICOLON  {ODEBUG( "statements -> statements  statement SEMICOLON" );}
+          | statements control_flow_stmt {ODEBUG( "statements -> statements control_flow_stmt" );}
+          | statement SEMICOLON {ODEBUG( "statements -> statement SEMICOLON" );}
+          | statements function_declartion {ODEBUG( "statements -> statements function_declartion" );}
           | %empty
           ;
 
-statement: expr {cout << "statement -> expr" <<endl;}
-          | assignment_stmt expr {cout << "statement -> assignment_stmt expr" <<endl;}
-          | variable_declartion {cout << "statement -> variable_declartion" <<endl;}
-          | function_call_stmt {cout << "statement -> function_call_stmt" <<endl;}
+statement: expr {ODEBUG( "statement -> expr" );}
+          | assignment_stmt expr {ODEBUG( "statement -> assignment_stmt expr" );}
+          | variable_declartion {ODEBUG( "statement -> variable_declartion" );}
+          | function_call_stmt {ODEBUG( "statement -> function_call_stmt" );}
+          | array_access_stmt
           | read_stmt
           | print_stmt
           | %empty
           ;
 
-functions: functions function_declartion {cout << "functions-> functions function_declartion"<<endl;}
+functions: functions function_declartion {ODEBUG( "functions-> functions function_declartion");}
         | %empty
         ;
 
