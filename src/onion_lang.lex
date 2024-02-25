@@ -13,7 +13,7 @@ The Onion Lang lexizier
 #include "code_node.hpp"
 using namespace std;
 #define ONION_PATTERN current_col += strlen(yytext) 
-#define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext); \
+#define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext);\
     if(in_error){ \
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
@@ -32,7 +32,7 @@ int white_spaces = 0;
 int current_line = 1;
 int current_col = 1;
 set<string> keywords = {"if","else","for","while","and","or","fun","break","continue","int",
-"elif","return","read","print"}; 
+"elif","return","read","print"};
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
@@ -144,13 +144,13 @@ else {
 while {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext);
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return WHILE;
 }
 for {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext);
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return FOR;
 }
 
@@ -165,15 +165,15 @@ int  {
 {LEFT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("LEFT BOX BRAC\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_BOX_BRAC;}
 {RIGHT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("RIGHT BOX BRAC\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_BOX_BRAC;}
 "+" {
-    ONION_PATTERN; 
+    ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
     CodeNode* node = new CodeNode(yytext, ADDING);
     yylval.codeNode = node;
@@ -284,19 +284,19 @@ int  {
     ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
 }
 "(" {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_PAR;}
 ")" {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_PAR;}
 "{" {ONION_PATTERN;ODEBUG("LEFT CURLEY\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_CURLEY;}
 "}" {ONION_PATTERN;ODEBUG("RIGHT CURLEY\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_CURLEY;}
 "," {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return COMMA;}
 
 
@@ -313,10 +313,10 @@ int  {
     ++current_line;
     current_col=1;
 }
-; {
+;{
     ONION_PATTERN;
     ODEBUG("Terminator\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return SEMICOLON;
 }
 
