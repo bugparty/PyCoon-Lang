@@ -9,7 +9,7 @@ SymbolManager SymbolManager::instance;
     }
     return nullptr;
  }
- Symbol* SymbolManager::addSymbol(const std::string&  name, enum SymbolType type){
+ Symbol* SymbolManager::addSymbol(const std::string&  name,const enum SymbolType type){
     Symbol* old = this->find(name);
     if(old!=nullptr) return nullptr;
     Symbol * sym = new Symbol(name,type);
@@ -25,7 +25,7 @@ std::string SymbolManager::allocate_temp(enum SymbolType type){
  SymbolManager& SymbolManager::getInstance(){
     return instance;
 }
-Symbol* SymbolManager::addFunction(const std::string& name, std::vector<Symbol*> arguments){
+Symbol* SymbolManager::addFunction(const std::string& name, const std::vector<Symbol*>& arguments){
     Symbol* old = this->find(name);
     if(old!=nullptr) return nullptr;
     Symbol * sym = new Symbol(name,SymbolType::SYM_FUNCTION);
