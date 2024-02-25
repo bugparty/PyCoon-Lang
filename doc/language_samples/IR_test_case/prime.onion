@@ -1,4 +1,4 @@
-fun main() {
+fun main(){
     int n;
     int sqrt_n;
     int i;
@@ -10,24 +10,24 @@ fun main() {
     read(n);
 
     x = n;
-    while (x > n / x) {
+    while (x > n / x){
         x = (x + n / x) / 2;
     }
     sqrt_n = x;
 
-    for (i = 2; i <= n; i = i + 1) {
+    for (i = 2; i <= n; i = i + 1){
         a[i] = 0;
     }
 
-    for (i = 2; i <= sqrt_n; i = i + 1) {
-        if (a[i] == 0) {
-            for (j = i * i; j <= n; j = j + i) {
+    for (i = 2; i <= sqrt_n; i = i + 1){
+        if (a[i] == 0){
+            for (j = i * i; j <= n; j = j + i){
                 a[j] = 1; 
             }
         }
     }
-    for (i = 2; i <= n; i = i + 1) {
-        if (a[i] == 0) {
+    for (i = 2; i <= n; i = i + 1){
+        if (a[i] == 0){
             print(i);
         }
     }
