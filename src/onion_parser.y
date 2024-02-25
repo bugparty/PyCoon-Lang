@@ -101,7 +101,7 @@ expr: quote_op {ODEBUG("LEFT_PAR expr RIGHT_PAR expr");}
     ;
 
 quote_op: LEFT_PAR expr RIGHT_PAR {
-        ODEBUG( "quote_op-> LEFT_PAR expr RIGHT_PAR expr" );
+        ODEBUG( "quote_op-> LEFT_PAR expr RIGHT_PAR expr");
         $$ = $2;
 }
 arithmetic_op: MULTIPLYING {ODEBUG( "arithmetic_op-> MULTIPLYING");}
@@ -444,9 +444,9 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
           | %empty
           ;
 
-control_flow_stmt_function:  while_stmt {ODEBUG( "block_stmt -> while_stmt" );}
-        | for_stmt {ODEBUG( "block_stmt -> for_stmt" );}
-        | ifElse_stmt_function {ODEBUG( "block_stmt -> ifElse_stmt_function" );}
+control_flow_stmt_function:  while_stmt {ODEBUG( "block_stmt -> while_stmt");}
+        | for_stmt {ODEBUG( "block_stmt -> for_stmt");}
+        | ifElse_stmt_function {ODEBUG( "block_stmt -> ifElse_stmt_function");}
         ;
 
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG( "ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
@@ -454,7 +454,7 @@ ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_functi
                     ;
 if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");}
                  ;
-elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" );}
+elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY");}
           ;
 multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG( "multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
                         |elif_stmt_function {ODEBUG( "multi_elif_stmt_function -> else_stmt_function");}
@@ -464,7 +464,7 @@ multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG( "
 else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG( "else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
           | %empty
           ;
-elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY" );}
+elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {ODEBUG( "elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY");}
           ;
 
 multi_elif_stmt: multi_elif_stmt elif_stmt {ODEBUG( "multi_elif_stmt -> multi_elif_stmt elif_stmt");}
@@ -476,7 +476,7 @@ else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG( "else_stmt -> ELSE 
           | %empty
           ;
         
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG( "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY" );}
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG( "if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY");}
           ;
 
 
@@ -499,14 +499,14 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {ODEBUG( "
                   | IDENTIFIER LEFT_PAR RIGHT_PAR  {ODEBUG( "function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");}
                   ;
 
-loop_block_function: loop_block_function code_block {ODEBUG( "loop_block_function -> loop_block code_block" );}
-                  | loop_block_function BREAK SEMICOLON {ODEBUG( "loop_block_function -> loop_block BREAK SEMICOLON" );}
-                  | loop_block_function RETURN expr {ODEBUG( "loop_block_function -> loop_block_function RETURN expr" );}
+loop_block_function: loop_block_function code_block {ODEBUG( "loop_block_function -> loop_block code_block");}
+                  | loop_block_function BREAK SEMICOLON {ODEBUG( "loop_block_function -> loop_block BREAK SEMICOLON");}
+                  | loop_block_function RETURN expr {ODEBUG( "loop_block_function -> loop_block_function RETURN expr");}
                   | %empty
                   ;
 
-loop_block: loop_block code_block {ODEBUG( "loop_block -> loop_block code_block" );}
-          | loop_block BREAK SEMICOLON {ODEBUG( "loop_block -> loop_block BREAK SEMICOLON" );}
+loop_block: loop_block code_block {ODEBUG( "loop_block -> loop_block code_block");}
+          | loop_block BREAK SEMICOLON {ODEBUG( "loop_block -> loop_block BREAK SEMICOLON");}
           | %empty
           ;
 
@@ -516,9 +516,9 @@ code_block: code_block statement SEMICOLON { ODEBUG( "code_block -> code_block s
           | %empty
           ;
 
-control_flow_stmt: while_stmt {ODEBUG( "block_stmt -> while_stmt" );}
-        | for_stmt {ODEBUG( "block_stmt -> for_stmt" );}
-        | ifElse_stmt {ODEBUG( "block_stmt -> ifElse_stmt" );}
+control_flow_stmt: while_stmt {ODEBUG( "block_stmt -> while_stmt");}
+        | for_stmt {ODEBUG( "block_stmt -> for_stmt");}
+        | ifElse_stmt {ODEBUG( "block_stmt -> ifElse_stmt");}
         ;
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           ODEBUG( "read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR");
@@ -542,17 +542,17 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
         }
         ;
 
-statements: statements  statement SEMICOLON  {ODEBUG( "statements -> statements  statement SEMICOLON" );}
-          | statements control_flow_stmt {ODEBUG( "statements -> statements control_flow_stmt" );}
-          | statement SEMICOLON {ODEBUG( "statements -> statement SEMICOLON" );}
-          | statements function_declartion {ODEBUG( "statements -> statements function_declartion" );}
+statements: statements  statement SEMICOLON  {ODEBUG( "statements -> statements  statement SEMICOLON");}
+          | statements control_flow_stmt {ODEBUG( "statements -> statements control_flow_stmt");}
+          | statement SEMICOLON {ODEBUG( "statements -> statement SEMICOLON");}
+          | statements function_declartion {ODEBUG( "statements -> statements function_declartion");}
           | %empty
           ;
 
-statement: expr {ODEBUG( "statement -> expr" );}
-          | assignment_stmt expr {ODEBUG( "statement -> assignment_stmt expr" );}
-          | variable_declartion {ODEBUG( "statement -> variable_declartion" );}
-          | function_call_stmt {ODEBUG( "statement -> function_call_stmt" );}
+statement: expr {ODEBUG( "statement -> expr");}
+          | assignment_stmt expr {ODEBUG( "statement -> assignment_stmt expr");}
+          | variable_declartion {ODEBUG( "statement -> variable_declartion");}
+          | function_call_stmt {ODEBUG( "statement -> function_call_stmt");}
           | array_access_stmt
           | read_stmt
           | print_stmt
