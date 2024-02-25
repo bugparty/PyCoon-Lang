@@ -13,7 +13,7 @@ The Onion Lang lexizier
 #include "code_node.hpp"
 using namespace std;
 #define ONION_PATTERN current_col += strlen(yytext) 
-#define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext);\
+#define ONION_PATTERN_HANDLE_ERROR current_col += strlen(yytext); \
     if(in_error){ \
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
@@ -313,7 +313,7 @@ int  {
     ++current_line;
     current_col=1;
 }
-;{
+; {
     ONION_PATTERN;
     ODEBUG("Terminator\n");
     yylval.tokenStr = yytext;
