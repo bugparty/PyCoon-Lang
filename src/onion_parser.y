@@ -111,8 +111,8 @@ arithmetic_op: MULTIPLYING {ODEBUG( "arithmetic_op-> MULTIPLYING");}
             | MODULE       {ODEBUG( "arithmetic_op-> MODULE");}
             | logical_op   {ODEBUG( "arithmetic_op-> logical_op");}
             ;
-logical_op: LOGICAL_ADD
-          | LOGICAL_OR
+logical_op: LOGICAL_ADD  {ODEBUG( "logical_op-> logical_ADD");}
+          | LOGICAL_OR   {ODEBUG( "logical_op-> logical_OR");}
           ;
 arithmetic_expr :  expr arithmetic_op expr {ODEBUG( "expr -> expr arithmetic_op expr");
                 CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
@@ -179,9 +179,9 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG( "expr -> expr arithmetic_op 
 condition_op: GE {ODEBUG( "condition_op-> GE");}
            | GEQ {ODEBUG( "condition_op-> GEQ");}
            | LE {ODEBUG( "condition_op-> LE");}
-           | LEQ{ODEBUG( "condition_op-> LEQ");}
-           | EQ
-           | NEQ
+           | LEQ {ODEBUG( "condition_op-> LEQ");}
+           | EQ {ODEBUG( "condition_op-> EQ");}
+           | NEQ {ODEBUG( "condition_op-> NEQ");}
            ;
 condition_expr : expr condition_op expr {ODEBUG( "condition_expr -> expr condition_op expr");
                 CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
