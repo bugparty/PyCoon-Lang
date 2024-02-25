@@ -22,7 +22,7 @@ using namespace std;
 
 #if ENABLE_LEX_PRINTF
     #define ODEBUG( ...) \
-    do{printf("YYLEX: ");printf( __VA_ARGS__ );}while(0)
+    do{printf("YYLEX: ");printf( __VA_ARGS__);}while(0)
 #else
     #define ODEBUG( ...)
 #endif
@@ -80,76 +80,76 @@ RIGHT_BOX_BRAC [\]]
 }
 return {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, RETURN);
     yylval.codeNode = node;
     return RETURN;
 }
 read {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, READ);
     yylval.codeNode = node;
     return READ;
 }
 print {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, PRINT);
     yylval.codeNode = node;
     return PRINT;
 }
 fun {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return FUN;
 }
 break {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return BREAK;
 }
 continue {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return CONTINUE;
 }
 
 and {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return LOGICAL_ADD;
 }
 or {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return LOGICAL_OR;
 }
 if {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return IF;
 }
 elif {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return ELIF;
 }
 else {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return ELSE;
 }
 
 while {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     yylval.tokenStr = yytext; 
     return WHILE;
 }
 for {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     yylval.tokenStr = yytext; 
     return FOR;
 }
