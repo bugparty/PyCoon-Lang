@@ -30,8 +30,8 @@ class SymbolManager{
     public:
     //find a existing symbol,if not exist,return null
     Symbol* find(const std::string& name);
-     Symbol* addSymbol(const std::string&  name, enum SymbolType type);
-    Symbol* addFunction(const std::string& name, std::vector<Symbol*> arguments);
+     Symbol* addSymbol(const std::string&  name,const enum SymbolType type);
+    Symbol* addFunction(const std::string& name, const std::vector<Symbol*>& arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
     static SymbolManager& getInstance();

@@ -20,6 +20,14 @@ struct CodeNode{
     int subType;
     std::vector<CodeNode*> children;
     CodeNode(int type):type(type),subType(0){}
+    CodeNode(const CodeNode& right){
+        this->IRCode = right.IRCode;
+        this->sourceCode = right.sourceCode;
+        this->val = right.val;
+        this->type = right.type;
+        this->subType = right.subType;
+        this->children = right.children;
+    }
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
         std::string s = std::string(sourceCode);
         switch(type){
