@@ -22,7 +22,7 @@ using namespace std;
 
 #if ENABLE_LEX_PRINTF
     #define ODEBUG( ...) \
-    do{printf("YYLEX: ");printf( __VA_ARGS__ );}while(0)
+    do{printf("YYLEX: ");printf( __VA_ARGS__);}while(0)
 #else
     #define ODEBUG( ...)
 #endif
@@ -32,7 +32,7 @@ int white_spaces = 0;
 int current_line = 1;
 int current_col = 1;
 set<string> keywords = {"if","else","for","while","and","or","fun","break","continue","int",
-"elif","return","read","print"}; 
+"elif","return","read","print"};
 string error_lexeme;
 bool in_error = false;
 int error_begin_row;
@@ -80,77 +80,77 @@ RIGHT_BOX_BRAC [\]]
 }
 return {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, RETURN);
     yylval.codeNode = node;
     return RETURN;
 }
 read {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, READ);
     yylval.codeNode = node;
     return READ;
 }
 print {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     CodeNode* node = new CodeNode(yytext, PRINT);
     yylval.codeNode = node;
     return PRINT;
 }
 fun {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return FUN;
 }
 break {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return BREAK;
 }
 continue {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return CONTINUE;
 }
 
 and {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return LOGICAL_ADD;
 }
 or {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return LOGICAL_OR;
 }
 if {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return IF;
 }
 elif {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return ELIF;
 }
 else {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
+    ODEBUG( "Keyword: %s\n", yytext);
     return ELSE;
 }
 
 while {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
-    yylval.tokenStr = yytext; 
+    ODEBUG( "Keyword: %s\n", yytext);
+    yylval.tokenStr = yytext;
     return WHILE;
 }
 for {
     ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext );
-    yylval.tokenStr = yytext; 
+    ODEBUG( "Keyword: %s\n", yytext);
+    yylval.tokenStr = yytext;
     return FOR;
 }
 
@@ -165,15 +165,15 @@ int  {
 {LEFT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("LEFT BOX BRAC\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_BOX_BRAC;}
 {RIGHT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("RIGHT BOX BRAC\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_BOX_BRAC;}
 "+" {
-    ONION_PATTERN; 
+    ONION_PATTERN;
     ODEBUG("Arithmetic Op +:%s\n",yytext);
     CodeNode* node = new CodeNode(yytext, ADDING);
     yylval.codeNode = node;
@@ -284,19 +284,19 @@ int  {
     ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
 }
 "(" {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_PAR;}
 ")" {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_PAR;}
 "{" {ONION_PATTERN;ODEBUG("LEFT CURLEY\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return LEFT_CURLEY;}
 "}" {ONION_PATTERN;ODEBUG("RIGHT CURLEY\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return RIGHT_CURLEY;}
 "," {ONION_PATTERN;
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return COMMA;}
 
 
@@ -316,7 +316,7 @@ int  {
 ; {
     ONION_PATTERN;
     ODEBUG("Terminator\n");
-    yylval.tokenStr = yytext; 
+    yylval.tokenStr = yytext;
     return SEMICOLON;
 }
 
