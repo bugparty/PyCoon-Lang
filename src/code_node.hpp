@@ -27,6 +27,7 @@ struct CodeNode{
         this->type = right.type;
         this->subType = right.subType;
         this->children = right.children;
+        //std::cout << "copy constructor"<<std::endl;
     }
     CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
         std::string s = std::string(sourceCode);
@@ -50,6 +51,10 @@ struct CodeNode{
     }
     void debug(){
         std::cout << "type:" << type <<" subtype: " << subType;
+        std::cout << "children size:" << children.size() <<std::endl;
+        for(int i=0;i<children.size();i++){
+            std::cout << i << "th child, address: " << children[i] <<std::endl;
+        }
         printIR();
     }
     void printIR(){
