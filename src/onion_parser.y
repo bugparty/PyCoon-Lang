@@ -78,11 +78,11 @@ int yylex(void);
 %type <codeNode> assignment_stmt
 %type <codeNode> variable_declartion  single_variable_declartion
 %type <codeNode> array_access_expr  array_access_stmt array_declartion_stmt
-%type <codeNode> function_code_block
-%type <codeNode> function_call_stmt function_declartion function_arguments_declartion function_argument
+%type <codeNode> function_code_block functions function_declartion function_call_stmt
+%type <codeNode>  function_arguments_declartion function_argument
 
 
-%start functions
+%start entry
 
 %%
 number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );}
@@ -290,6 +290,7 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG("array_a
                       stringstream ss;
                       auto& ctx = SymbolManager::getInstance();
                       auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
+                      ss << ". " << tempVar <<endl;
                       ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
                       newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
@@ -466,7 +467,7 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
                 ss << "endfunc"<<endl;
                 func->IRCode = ss.str();
                 func->printIR();
-                
+                $$=func;
                 }
           ;
 
@@ -633,10 +634,28 @@ statement: expr {ODEBUG("statement -> expr");}
           | %empty
           ;
 
-functions: functions function_declartion {ODEBUG("functions-> functions function_declartion");}
-        | %empty
+functions: functions function_declartion {
+                ODEBUG("functions-> functions function_declartion");
+                $1->addChild($2);
+                $$=$1;
+                }
+        | %empty {
+                CodeNode *node = new CodeNode(YYSYMBOL_functions);
+                $$=node;
+        }
         ;
-
+entry: functions {
+        ODEBUG("entry -> functions");
+        puts("\e[36m");
+        ODEBUG("full program mil code");
+        puts("\e[32m");
+        for(int i=0;i<$1->children.size();i++){
+                assert($1->children[i]!=nullptr);
+                cout << $1->children[i]->IRCode;
+        }
+        puts("\e[0m");
+}
+     ;
 %%
 
 int yyerror(string s)
