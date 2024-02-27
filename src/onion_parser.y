@@ -391,7 +391,6 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 ss << $3->IRCode;
                 assert(array_access_expr->children.size()==2);
                 assert(array_access_expr->children[0]->type == IDENTIFIER);
-                ODEBUG("crash1");
                 ss << "[]= " << (array_access_expr->children[0]->sourceCode) << ", " ;
                 switch(array_access_expr->children[1]->type){
                         case IDENTIFIER:
@@ -407,7 +406,6 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                                 break;
                 }
                 ss<<",";
-ODEBUG("crash2");
                 switch($3->type){
                         case IDENTIFIER:
                                 ss << $3->sourceCode;
