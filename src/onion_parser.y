@@ -6,6 +6,7 @@
 #include "heading.h"
 #include "code_node.hpp"
 #include <sstream>
+#include <fstream>
 #include <cassert>
 int yyerror(char *s);
 int yylex(void);
@@ -732,11 +733,14 @@ entry: functions {
         puts("\e[36m");
         ODEBUG("full program mil code");
         puts("\e[32m");
+        fstream fout("a.mil", ios::out);
         for(int i=0;i<$1->children.size();i++){
                 assert($1->children[i]!=nullptr);
                 cout << $1->children[i]->IRCode;
+                fout << $1->children[i]->IRCode;
         }
         puts("\e[0m");
+        fout.close();
 }
      ;
 %%
