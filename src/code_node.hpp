@@ -52,7 +52,7 @@ struct CodeNode{
     void debug(){
         std::cout << "type:" << type <<" subtype: " << subType;
         std::cout << "children size:" << children.size() <<std::endl;
-        for(int i=0;i<children.size();i++){
+        for(size_t i=0;i<children.size();i++){
             std::cout << i << "th child, address: " << children[i] <<std::endl;
         }
         printIR();
