@@ -294,7 +294,8 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG("array_a
                       ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
                       newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
-                      newNode->printIR();
+                      //Do not output this. array_access_expr content should only be output from array_access_stmt
+
                       $$ = newNode;
 
 
@@ -315,7 +316,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
         newNode->addChild(identifier);
         newNode->addChild(arrayNode);
         stringstream ss;
-        ss<<"="<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
+        ss<<"=[]"<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
@@ -408,10 +409,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 newNode->printIR();
                 $$ = newNode;
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
-                ODEBUG("assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
-                }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
+                | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
                  CodeNode *identifier = $2;
                  CodeNode *numberNode = $4;
