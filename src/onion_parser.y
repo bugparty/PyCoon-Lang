@@ -14,15 +14,15 @@ int yylex(void);
 
 #if ENABLE_BISON_PRINTF
     #define ODEBUG( ...) \
-    do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s, lineno:%d\n",__FILE__,__LINE__);}while(0)
+    do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\n",__FILE__,__LINE__);}while(0)
 #else
     #define ODEBUG( ...)
 #endif
 #define OWARN( ...) \
-    do{fprintf(stderr, "\e[35mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s, lineno:%d\e[0m\n",__FILE__,__LINE__);}while(0)
+    do{fprintf(stderr, "\e[35mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);}while(0)
 
 #define OERROR( ...) \
-    do{fprintf(stderr, "\e[31mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s, lineno:%d\e[0m\n",__FILE__,__LINE__);yyerror("error");}while(0)
+    do{fprintf(stderr, "\e[31mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);yyerror("error");}while(0)
 %}
 
 
@@ -38,14 +38,12 @@ int yylex(void);
 };
 
 
-%token arithmetic
 %token <codeNode> NUMBER
 %token <codeNode> BINARY_NUMBER
 %token <codeNode> HEX_NUMBER
 %token <codeNode> IDENTIFIER 
-%token VARTYPE
 %token FUN RETURN READ PRINT
-%token <codeNode> INT
+%token  INT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
@@ -55,6 +53,7 @@ int yylex(void);
 %token LOGICAL_ADD LOGICAL_OR
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 %token LEQ GEQ LE GE EQ NEQ
+%token ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
 
 %right ASSIGNMENT
 %left LOGICAL_ADD LOGICAL_OR
@@ -62,7 +61,7 @@ int yylex(void);
 %left ADDING SUBTRACTING
 %left MULTIPLYING DIVISION MODULE 
 %left LEFT_PAR RIGHT_PAR
-
+%left IDENTIFIER
 
 
 %nterm  statement add sub multi div mod statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
@@ -72,11 +71,11 @@ int yylex(void);
 %nterm right_array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
-%nterm condition_op
+%nterm condition_op arithmetic_op multiply_op term1 term2 factor operand 
 
 %type <codeNode> statements statement 
-%type <codeNode> expr  arithmetic_expr condition_expr
-%type <codeNode> quote_op arithmetic_op condition_op
+%type <codeNode> expr arithmetic_expr
+%type <codeNode>  arithmetic_op condition_op 
 %type <codeNode> add sub multi div mod
 %type <codeNode> identifier number
 %type <codeNode> read_stmt print_stmt
@@ -86,6 +85,7 @@ int yylex(void);
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
+%type <codeNode>  multiply_op factor add_op logical_op term1 term2 term3 operand 
 
 %start entry
 
@@ -104,55 +104,42 @@ number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );
 identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c_str());
                     $$= $1;}
       ;
-expr: quote_op {ODEBUG("LEFT_PAR expr RIGHT_PAR expr");}
-    | number {ODEBUG("expr -> number ");}
-    | identifier {ODEBUG("expr -> identifier -> ");}
-    | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");}
-    | condition_expr {ODEBUG("expr -> condition_expr");}
+expr: 
+    | number {ODEBUG("expr -> number ");$$=$1;}
+    | identifier {ODEBUG("expr -> identifier -> "); $$=$1;}
+    | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
     | array_access_stmt {ODEBUG("expr -> array_access_stmt");}
     | function_call_stmt {ODEBUG("expr -> function_call_stmt");}
-    | %empty
+    | %empty {ODEBUG("expr -> %%empty");
+                CodeNode *node = new CodeNode(O_EXPR);
+                $$ = node;
+                }
     ;
 
-quote_op: LEFT_PAR expr RIGHT_PAR {
-        ODEBUG("quote_op-> LEFT_PAR expr RIGHT_PAR expr");
-        $$ = $2;
-}
-arithmetic_op: MULTIPLYING {ODEBUG("arithmetic_op-> MULTIPLYING");}
-            | DIVISION     {ODEBUG("arithmetic_op-> DIVISION");}
-            | ADDING       {ODEBUG("arithmetic_op-> ADDING");}
-            | SUBTRACTING  {ODEBUG("arithmetic_op-> SUBTRACTING");}
-            | MODULE       {ODEBUG("arithmetic_op-> MODULE");}
-            | logical_op   {ODEBUG("arithmetic_op-> logical_op");}
+multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");}
+            | DIVISION     {ODEBUG("multiply_op-> DIVISION");}         
+            | MODULE       {ODEBUG("multiply_op-> MODULE");}
+            ;
+add_op:  ADDING       {ODEBUG("add_op-> ADDING");}
+        | SUBTRACTING  {ODEBUG("add_op-> SUBTRACTING");}
             ;
 logical_op: LOGICAL_ADD  {ODEBUG("logical_op-> logical_ADD");}
           | LOGICAL_OR   {ODEBUG("logical_op-> logical_OR");}
           ;
-arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op expr");
-                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
+condition_op: GE {ODEBUG("condition_op-> GE");}
+           | GEQ {ODEBUG("condition_op-> GEQ");}
+           | LE {ODEBUG("condition_op-> LE");}
+           | LEQ {ODEBUG("condition_op-> LEQ");}
+           | EQ {ODEBUG("condition_op-> EQ");}
+           | NEQ {ODEBUG("condition_op-> NEQ");}
+           ;
+
+arithmetic_expr : expr logical_op term1 {
+                ODEBUG("arithmetic_expr -> expr logical_op term1");
+                CodeNode* addNode = new CodeNode(O_EXPR);
                 string ariOP="WTF!!!!";
                 switch($2->type){
-                        case ADDING:
-                                addNode->subType = ADDING;
-                                ariOP = "+";
-                                break;
-                        case SUBTRACTING:
-                                addNode->subType = SUBTRACTING;
-                                ariOP = "-";
-                                break;
-                        case DIVISION:
-                                addNode->subType = DIVISION;
-                                ariOP = "/";
-                                break;
-                        case MULTIPLYING:
-                                addNode->subType = DIVISION;
-                                ariOP = "*";
-                                break;
-                        
-                        case MODULE:
-                                addNode->subType = MODULE;
-                                ariOP = "%";
-                                break;
+
                         case LOGICAL_ADD:
                                 addNode->subType = LOGICAL_ADD;
                                 ariOP = "&&";
@@ -167,7 +154,7 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op e
                 }
                         addNode->addChild($1);
                         addNode->addChild($3);
-                        $$=addNode;
+                        
                         string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
@@ -175,7 +162,7 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op e
                         ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
                         if($1->type == O_INT){
                                 ss << $1->val.i;
-                        }else if ($1->type == YYSYMBOL_arithmetic_op){
+                        }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
                         }else{
                                 OERROR("unexpected type %d", $1->type);
@@ -183,7 +170,7 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op e
                         ss <<", ";
                         if($3->type == O_INT){
                                 ss << $3->val.i;
-                        }else if ($3->type == YYSYMBOL_arithmetic_op){
+                        }else if ($3->type == O_EXPR){
                                 ss << *($3->val.str);
                         }else{
                                 OERROR("unexpected type %d", $3->type);
@@ -192,47 +179,45 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op e
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
+                        $$=addNode;
+                        }
+                | term1 {ODEBUG("arithmetic_expr -> term1 ");
+                        $$ = $1;
                 }
-    ;
-condition_op: GE {ODEBUG("condition_op-> GE");}
-           | GEQ {ODEBUG("condition_op-> GEQ");}
-           | LE {ODEBUG("condition_op-> LE");}
-           | LEQ {ODEBUG("condition_op-> LEQ");}
-           | EQ {ODEBUG("condition_op-> EQ");}
-           | NEQ {ODEBUG("condition_op-> NEQ");}
-           ;
-condition_expr : expr condition_op expr {ODEBUG("condition_expr -> expr condition_op expr");
-                CodeNode* addNode = new CodeNode(YYSYMBOL_arithmetic_op);
+                ;
+term1 : term1 condition_op term2 {
+                ODEBUG("term1 -> term1 condition_op term2");
+                CodeNode* addNode = new CodeNode(O_EXPR);
                 string ariOP="WTF!!!!";
                 switch($2->type){
                         case GE:
-                                addNode->subType = ADDING;
+                                addNode->subType = GE;
                                 ariOP = ">";
                                 break;
                         case GEQ:
-                                addNode->subType = SUBTRACTING;
+                                addNode->subType = GEQ;
                                 ariOP = ">=";
                                 break;
                         case LE:
-                                addNode->subType = DIVISION;
+                                addNode->subType = LE;
                                 ariOP = "<";
                                 break;
                         case LEQ:
-                                addNode->subType = DIVISION;
+                                addNode->subType = LEQ;
                                 ariOP = "<=";
                                 break;
                         
                         case EQ:
-                                addNode->subType = MODULE;
+                                addNode->subType = EQ;
                                 ariOP = "==";
                                 break;
                         case NEQ:
-                                addNode->subType = LOGICAL_ADD;
+                                addNode->subType = NEQ;
                                 ariOP = "!=";
                                 break;
                         default:
                            ODEBUG("unknown type %d",$2->type);
-                           //yyerror("unknown type "+$2->type);
+                                yyerror("unknown type ");
                 }
                         addNode->addChild($1);
                         addNode->addChild($3);
@@ -244,21 +229,133 @@ condition_expr : expr condition_op expr {ODEBUG("condition_expr -> expr conditio
                         ss<< ariOP<< " "<<tempVar<<", ";
                         if($1->type == O_INT){
                                 ss << $1->val.i;
-                        }else if ($1->type == YYSYMBOL_arithmetic_op){
+                        }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
                         }
                         ss <<", ";
                         if($3->type == O_INT){
                                 ss << $3->val.i;
-                        }else if ($3->type == YYSYMBOL_arithmetic_op){
+                        }else if ($3->type == O_EXPR){
                                 ss << *($3->val.str);
                         }
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
+
+                                }
+        | term2 {ODEBUG("term1 -> term2 ");$$ = $1;
+                $$=$1;}
+        ;
+term2 :  term2 add_op term3 {
+                ODEBUG("term2 -> term2 add_op term3");
+                CodeNode* addNode = new CodeNode(O_EXPR);
+                string ariOP="WTF!!!!";
+                switch($2->type){
+                        case ADDING:
+                                addNode->subType = ADDING;
+                                ariOP = "+";
+                                break;
+                        case SUBTRACTING:
+                                addNode->subType = SUBTRACTING;
+                                ariOP = "-";
+                                break;
+                        default:
+                           ODEBUG("unknown type "+$2->type);
+                           $2->debug();
+                           yyerror("unknown type "+$2->type);
                 }
-              ;
+                        addNode->addChild($1);                       
+                        addNode->addChild($3);
+                        $$=addNode;
+                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        stringstream ss;
+                        ss<< $1->IRCode <<$3->IRCode;
+                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
+                        if($1->type == O_INT){
+                                ss << $1->val.i;
+                        }else if ($1->type == O_EXPR){
+                                ss << *($1->val.str);
+                        }else{
+                                $1->debug();
+                                OERROR("unexpected type %d", $1->type);
+                                
+                        }
+                        ss <<", ";
+                        if($3->type == O_INT){
+                                ss << $3->val.i;
+                        }else if ($3->type == O_EXPR){
+                                ss << *($3->val.str);
+                        }else{
+                                OERROR("unexpected type %d", $3->type);
+                        }
+                        ss << endl;
+                        addNode->IRCode = ss.str();
+                        addNode->val.str = new string(tempVar);
+                        addNode->printIR();
+                }
+                |term3 {ODEBUG("term2 -> term3 ");$$ = $1;}
+    ;
+term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
+                ODEBUG("term2 -> term2 add_op term3");
+                CodeNode* addNode = new CodeNode(O_EXPR);
+                string ariOP="WTF!!!!";
+                switch($2->type){
+                        case MULTIPLYING:
+                                addNode->subType = ADDING;
+                                ariOP = "*";
+                                break;
+                        case DIVISION:
+                                addNode->subType = SUBTRACTING;
+                                ariOP = "/";
+                                break;
+                        case MODULE:
+                                addNode->subType = MODULE;
+                                ariOP = "%";
+                                break;
+                        default:
+                           ODEBUG("unknown type "+$2->type);
+                           $2->debug();
+                           yyerror("unknown type "+$2->type);
+                }
+                        addNode->addChild($1);                       
+                        addNode->addChild($3);
+                        $$=addNode;
+                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        stringstream ss;
+                        ss<< $1->IRCode <<$3->IRCode;
+                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
+                        if($1->type == O_INT){
+                                ss << $1->val.i;
+                        }else if ($1->type == O_EXPR){
+                                ss << *($1->val.str);
+                        }else{
+                                $1->debug();
+                                OERROR("unexpected type %d", $1->type);
+                                
+                        }
+                        ss <<", ";
+                        if($3->type == O_INT){
+                                ss << $3->val.i;
+                        }else if ($3->type == O_EXPR){
+                                ss << *($3->val.str);
+                        }else{
+                                OERROR("unexpected type %d", $3->type);
+                        }
+                        ss << endl;
+                        addNode->IRCode = ss.str();
+                        addNode->val.str = new string(tempVar);
+                        addNode->printIR();}
+        | factor {ODEBUG("term3 ->factor");$$ = $1;}
+        ;
+factor: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
+        | NUMBER {ODEBUG("factor-> NUMBER");$$ = $1;}
+        | BINARY_NUMBER {ODEBUG("factor-> BINARY_NUMBER");$$ = $1;}
+        | HEX_NUMBER {ODEBUG("factor-> HEX_NUMBER");$$ = $1;}
+        | IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
+        ;
+
+
 number_tuple : number_tuple COMMA number  {ODEBUG("number_tuple -> number_tuple COMMA number");}
               | number {ODEBUG("number_tuple ->  number");}
               |%empty
@@ -391,7 +488,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
         }
                     
-assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
+assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $2;
                 //it should be the first time to seen the identifier
@@ -415,7 +512,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case O_INT:
                                 ss << $4->val.i;
                                 break;
-                        case YYSYMBOL_arithmetic_op:
+                        case O_EXPR:
                                 ss << *($4->val.str);
                                 break;
                         default:
@@ -447,7 +544,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case O_INT:
                                 ss << array_access_expr->children[1]->val.i;
                                 break;
-                        case YYSYMBOL_arithmetic_op:
+                        case O_EXPR:
                                 ss << *($3->val.str);
                                 break;
                         default:
@@ -461,7 +558,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case O_INT:
                                 ss << $3->val.i;
                                 break;
-                        case YYSYMBOL_arithmetic_op:
+                        case O_EXPR:
                         case YYSYMBOL_left_array_access_expr:
                                 ss << *($3->val.str);
                                 break;
@@ -483,6 +580,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 assert($1!=nullptr && $3!=nullptr);
                 CodeNode *identifierLeft = $1;
                 stringstream ss;
+                ss << $3->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
 
                 switch($3->type){
@@ -492,7 +590,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case O_INT:
                                 ss << $3->val.i;
                                 break;
-                        case YYSYMBOL_arithmetic_op:
+                        case O_EXPR:
                                 ss << *($3->val.str);
                                 break;
                         default:
@@ -506,9 +604,6 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 newNode->addChild($3);
                 newNode->printIR();
                 $$ = newNode;
-                }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
-                ODEBUG("assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
@@ -617,7 +712,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                         case IDENTIFIER:
                                 ss << $3->sourceCode;
                                 break;
-                        case YYSYMBOL_arithmetic_op:
+                        case O_EXPR:
                                 ss << *($3->val.str);
                                 break;
                         default:
@@ -678,7 +773,6 @@ ifElse_stmt: if_stmt multi_elif_stmt else_stmt {ODEBUG("ifElse_stmt -> if_stmt m
 function_argument: IDENTIFIER {ODEBUG("function_argument -> IDENTIFIER");}
                   | number {ODEBUG("function_argument -> number");}
                   | arithmetic_expr {ODEBUG("function_argument -> arithmetic_expr");}
-                  | condition_expr {ODEBUG("function_argument -> condition_expr");}
                   | right_array_access_expr { ODEBUG("function_argument -> array_access_expr");}
                   | function_call_stmt {ODEBUG("function_argument -> function_call_stmt");}
                   ;
@@ -761,20 +855,23 @@ statements: statements  statement SEMICOLON  {
           }
           ;
 
-statement: expr {ODEBUG("statement -> expr");}
-          | assignment_stmt expr {ODEBUG("statement -> assignment_stmt expr");
+statement: expr {ODEBUG("statement -> expr");$$=$1;}
+          | assignment_stmt {ODEBUG("statement -> assignment_stmt");
                 CodeNode *node = new CodeNode(YYSYMBOL_statement);
                 node->addChild($1);
-                node->addChild($2);
-                node->IRCode = $1->IRCode + $2->IRCode;
+                //node->addChild($2);
+                node->IRCode = $1->IRCode;
                 $$=node;
                 }
-          | variable_declartion {ODEBUG("statement -> variable_declartion");}
+          | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
           | function_call_stmt {ODEBUG("statement -> function_call_stmt");}
-          | array_access_stmt
-          | read_stmt
-          | print_stmt
-          | %empty
+          | array_access_stmt {ODEBUG("statement -> array_access_stmt");}
+          | read_stmt          {ODEBUG("statement -> read_stmt");}
+          | print_stmt         {ODEBUG("statement -> print_stmt");}
+          | %empty      {ODEBUG("statement -> %empty");
+                        CodeNode *node = new CodeNode(YYSYMBOL_statement);
+                        $$=node;
+                        }
           ;
 
 functions: functions function_declartion {

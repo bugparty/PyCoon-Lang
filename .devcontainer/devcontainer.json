@@ -9,7 +9,8 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "daohong-emilio.yash"
+        "daohong-emilio.yash",
+        "ms-vscode.makefile-tools"
       ]
     }
   }
