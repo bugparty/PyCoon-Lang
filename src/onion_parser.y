@@ -244,8 +244,7 @@ term1 : term1 condition_op term2 {
                         addNode->printIR();
 
                                 }
-        | term2 {ODEBUG("term1 -> term2 ");$$ = $1;
-                $$=$1;}
+        | term2 {ODEBUG("term1 -> term2 ");$$ = $1;}
         ;
 term2 :  term2 add_op term3 {
                 ODEBUG("term2 -> term2 add_op term3");
@@ -267,32 +266,27 @@ term2 :  term2 add_op term3 {
                 }
                         addNode->addChild($1);                       
                         addNode->addChild($3);
-                        $$=addNode;
+                        
                         string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else{
+                        if($1->getImmOrVariableIRCode(ss)==false){
                                 $1->debug();
                                 OERROR("unexpected type %d", $1->type);
                                 
                         }
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $3->type);
+                        if($3->getImmOrVariableIRCode(ss)==false){
+                                $1->debug();
+                                OERROR("unexpected type %d", $1->type);
+                                
                         }
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
+                        $$=addNode;
                 }
                 |term3 {ODEBUG("term2 -> term3 ");$$ = $1;}
     ;
@@ -804,6 +798,7 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           ODEBUG("print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"); 
            CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
            stringstream ss;
+           ss << $3->IRCode;
            ss << ".> "<< *($3->val.str)<<endl;
           node->IRCode = ss.str();
           $$ = node; 

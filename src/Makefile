@@ -30,7 +30,7 @@ main.o:		main.cc
 
 lex.o yac.o main.o	: heading.h
 
-lex.o main.o		: tok.h
+lex.o main.o code_node.hpp		: tok.h
 
 symbol_table.o: symbol_table.cpp symbol_table.hpp tok.h
 		$(CC) $(CFLAGS) -c symbol_table.cpp -o symbol_table.o

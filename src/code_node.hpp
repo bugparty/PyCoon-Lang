@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include "tok.h"
 struct CodeNode;
 typedef struct CodeNode CodeNode;
@@ -55,6 +56,32 @@ struct CodeNode{
             default:
                 break;
         }
+    }
+    //get the immediate value or variable name
+    //return false if the type is not immediate value or variable name
+    //output the immediate value or variable name to ss
+    bool getImmOrVariableIRCode(std::stringstream& ss){
+        if(type == O_INT){
+            ss << val.i;
+            return true;
+        }
+        if(type == O_FLOAT){
+            ss << val.f;
+            return true;
+        }
+        if(type == O_DOUBLE){
+            ss << val.d;
+            return true;
+        }
+        if(type == O_IDENTIFIER || type == IDENTIFIER){
+            ss << sourceCode;
+            return true;
+        }
+        if(type == O_EXPR){
+            ss << *(val.str);
+            return true;
+        }
+        return false;
     }
     void addChild(CodeNode* child){
         children.push_back(child);
