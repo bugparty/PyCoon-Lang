@@ -256,6 +256,17 @@ multi_demension_number_tuple:  multi_demension_number_tuple COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("multi_demension_number_tuple -> LEFT_CURLEY number_tuple RIGHT_CURLEY");}
                           ;
 single_variable_declartion: INT identifier {ODEBUG("variable_declartion -> INT identifier");
+           //it should be the first time to seen the identifier
+           CodeNode *identifer = $2;
+           auto ctx = SymbolManager::getInstance();
+           Symbol* sym = ctx.find(identifer->sourceCode);
+           if(sym!=nullptr){
+                OWARN("redeclaration of variable %s",identifer->sourceCode);
+                yyerror("redeclaration of variable ");
+           }else{
+                ctx.addSymbol(identifer->sourceCode, SymbolType::SYM_VAR_INT);
+           }
+
            CodeNode *variableDeclarationNode = new CodeNode(YYSYMBOL_single_variable_declartion);
            stringstream ss;
            ss<<std::string(". ") + ($2->sourceCode)<<endl;
@@ -335,7 +346,7 @@ array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_
                     ;
 array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
-        ODEBUG("array_access_stmt -> expr ASSIGNMENT right_array_access_expr");
+        ODEBUG("array_access_stmt -> IDENTIFIER ASSIGNMENT right_array_access_expr");
         CodeNode *arrayNode = $3;
         CodeNode *identifier = $1;
         
@@ -358,9 +369,20 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $2;
+                //it should be the first time to seen the identifier
+                auto ctx = SymbolManager::getInstance();
+                Symbol* sym = ctx.find(identifierLeft->sourceCode);
+                if(sym!=nullptr){
+                        OWARN("redeclaration of variable %s",identifierLeft->sourceCode);
+                        yyerror("redeclaration of variable ");
+                }else{
+                        ctx.addSymbol(identifierLeft->sourceCode, SymbolType::SYM_VAR_INT);
+                }
                 stringstream ss;
+                ss << ". " << identifierLeft->sourceCode<<endl;
+                ss << $4->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
-
+                
                 switch($4->type){
                         case IDENTIFIER:
                                 ss << $4->sourceCode;
