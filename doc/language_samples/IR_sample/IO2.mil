@@ -1,0 +1,18 @@
+func main
+.[] arr, 5
+[]= arr, 1, 1
+. _temp0
++ _temp0, 2, 2
+[]= arr, 2, _temp0
+. _temp1
+* _temp1, 1, 2
+[]= arr, 3, _temp1
+[]= arr, 4, 0
+. t
+. _temp2
+=[] _temp2,arr, 2
+= t, _temp2
+. n
+.< n
+.> n
+endfunc

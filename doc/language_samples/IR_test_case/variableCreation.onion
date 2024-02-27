@@ -1,8 +1,5 @@
 fun main(){
     int a;
     a=1+2*3+(4+5);
-    int n;
-    n = read();
-    print(n);
-    return 0;
+    print(a);
 }

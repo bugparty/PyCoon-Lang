@@ -1,8 +1,12 @@
 fun main(){
     int arr[5];
-    b[5] = 3;
+    arr[1]=1;
+    arr[2]=2+2;
+    arr[3]=1*2;
+    arr[4] = 0;
+    int t;
+    t= arr[2];
     int n;
     n = read();
     print(n);
-    return 0;
 }
