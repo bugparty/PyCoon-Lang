@@ -5,9 +5,8 @@ fun main(){
     arr[3]=1*2;
     arr[4] = 0;
     int t;
-    t= b[2];
+    t= arr[2];
     int n;
     n = read();
     print(n);
-    return 0;
 }
