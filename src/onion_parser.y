@@ -433,7 +433,8 @@ right_array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {
                       ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
                       newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
-                      newNode->printIR();
+                      //Do not output this. array_access_expr content should only be output from array_access_stmt
+
                       $$ = newNode;
 
 
@@ -478,7 +479,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
         newNode->addChild(arrayNode);
         stringstream ss;
         ss << $3->IRCode;
-        ss<<"= "<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
+        ss<<"=[]"<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
