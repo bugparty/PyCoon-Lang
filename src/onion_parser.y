@@ -290,8 +290,24 @@ array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG("array_a
                       stringstream ss;
                       auto& ctx = SymbolManager::getInstance();
                       auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
-                      ss << ". " << tempVar <<endl;
-                      ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
+                      ss << identifier->sourceCode<<", ";
+                     
+                      switch($3->type){
+                        case IDENTIFIER:
+                                ss << $3->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $3->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << *($3->val.str);
+                                break;
+                        default:
+                                break;
+                }
+
+                        ss<<endl;
+
                       newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
                       newNode->printIR();
@@ -315,7 +331,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT array_access_expr  {
         newNode->addChild(identifier);
         newNode->addChild(arrayNode);
         stringstream ss;
-        ss<<"="<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
+        ss<<"=[]"<< (identifier->sourceCode)<<", "<<arrayNode->IRCode;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
@@ -352,35 +368,6 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 newNode->printIR();
                 $$ = newNode;
                 }
-          | array_access_expr ASSIGNMENT expr {
-                ODEBUG("assignment_stmt -> array_access_expr ASSIGNMENT expr ");
-                assert($1!=nullptr && $3!=nullptr);
-                CodeNode *array_access_expr = $1;
-                stringstream ss;
-                ss << "= " << *(array_access_expr->val.str) << ", ";
-
-                switch($3->type){
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case NUMBER:
-                                ss << $3->val.i;
-                                break;
-                        case YYSYMBOL_arithmetic_op:
-                        case YYSYMBOL_array_access_expr:
-                                ss << *($3->val.str);
-                                break;
-                        default:
-                                break;
-                }
-
-                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
-                ss << endl;
-                newNode->IRCode = ss.str();
-                newNode->printIR();
-                $$ = newNode;
-                
-          }
           | IDENTIFIER ASSIGNMENT expr {
                 ODEBUG("assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 assert($1!=nullptr && $3!=nullptr);
@@ -411,15 +398,36 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC {
                 ODEBUG("assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
-                ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
-                 CodeNode *identifier = $2;
-                 CodeNode *numberNode = $4;
-                 CodeNode *exprNode = $7;  
+          |IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
+                 ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
+
+                 assert($1!=nullptr && $3!=nullptr);
+
+                 CodeNode *identifier = $1;
+                 CodeNode *numberNode = $3;
+                 CodeNode *exprNode = $6;  
 
                  CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+
                 stringstream ss;
-                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
+                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
+
+                  switch($6->type){
+                        case IDENTIFIER:
+                                ss << $6->sourceCode;
+                                break;
+                        case NUMBER:
+                                ss << $6->val.i;
+                                break;
+                        case YYSYMBOL_arithmetic_op:
+                                ss << *($6->val.str);
+                                break;
+                        default:
+                                break;
+                }
+
+                ss<<endl;
+
                 newNode->IRCode = ss.str();
                 newNode->printIR();
                 $$ = newNode;

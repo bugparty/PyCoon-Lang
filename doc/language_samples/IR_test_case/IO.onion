@@ -1,6 +1,8 @@
 fun main(){
     int arr[5];
     b[5] = 3;
+    a = b[5];
+    a = b[c];
     int n;
     n = read();
     print(n);
