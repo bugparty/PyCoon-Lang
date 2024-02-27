@@ -4,5 +4,4 @@ fun main(){
     int n;
     n = read();
     print(n);
-    return 0;
 }
