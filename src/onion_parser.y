@@ -597,7 +597,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss <<$1->IRCode<< "ret ";
                 switch($3->type){
-                        case NUMBER:
+                        case O_INT:
                                 ss << $3->val.i;
                                 break;
                         case IDENTIFIER:
