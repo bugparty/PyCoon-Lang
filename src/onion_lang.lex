@@ -59,7 +59,7 @@ RIGHT_BOX_BRAC [\]]
 %%
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
-    CodeNode* node = new CodeNode(yytext, NUMBER);
+    CodeNode* node = new CodeNode(yytext, CodeNodeType::O_INT);
     ODEBUG("NUMBER:%d\n", node->val.i);
     yylval.codeNode = node;
     return NUMBER;

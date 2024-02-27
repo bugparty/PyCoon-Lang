@@ -39,10 +39,10 @@ struct CodeNode{
         this->children = right.children;
         //std::cout << "copy constructor"<<std::endl;
     }
-    CodeNode(char* sourceCode,yytoken_kind_t type):sourceCode(std::string(sourceCode)),type(type){
+    CodeNode(char* sourceCode,int type):sourceCode(std::string(sourceCode)),type(type){
         std::string s = std::string(sourceCode);
         switch(type){
-            case NUMBER:
+            case O_INT:
                 val.i = std::stoi(sourceCode);
                 break;
             case BINARY_NUMBER:
@@ -61,7 +61,7 @@ struct CodeNode{
     }
     void debug(){
         std::cout << "type:" << type <<" subtype: " << subType;
-        std::cout << "children size:" << children.size() <<std::endl;
+        std::cout << " children size:" << children.size() <<std::endl;
         for(size_t i=0;i<children.size();i++){
             std::cout << i << "th child, address: " << children[i] <<std::endl;
         }
