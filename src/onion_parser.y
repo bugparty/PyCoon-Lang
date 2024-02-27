@@ -272,6 +272,20 @@ variable_declartion: array_declartion_stmt {ODEBUG("variable_declartion -> array
                   ;
 array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG("array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                       CodeNode *identifier = $2;
+
+                      auto ctx = SymbolManager::getInstance();
+                      Symbol* sym = ctx.find(identifier->sourceCode);
+                      if(sym!=nullptr)
+                      {
+                      OWARN("redeclaration of array variable %s",identifier->sourceCode);
+                      yyerror("redeclaration of variable ");
+                      }
+                      else
+                        {
+                        ctx.addSymbol(identifier->sourceCode, SymbolType::SYM_VAR_INT_ARRAY);
+                        }
+
+
                       CodeNode *numberNode = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
                       stringstream ss;
