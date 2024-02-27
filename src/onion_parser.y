@@ -282,9 +282,9 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEB
                       }
                       else
                         {
-                        ctx.addSymbol(identifier->sourceCode, SymbolType::SYM_VAR_INT);
+                        ctx.addSymbol(identifier->sourceCode, SymbolType::SYM_VAR_INT_ARRAY);
                         }
-                        
+
 
                       CodeNode *numberNode = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
