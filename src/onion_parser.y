@@ -40,8 +40,8 @@ int yylex(void);
 
 %token arithmetic
 %token <codeNode> NUMBER
-%token <tokenVal> BINARY_NUMBER
-%token <tokenVal> HEX_NUMBER
+%token <codeNode> BINARY_NUMBER
+%token <codeNode> HEX_NUMBER
 %token <codeNode> IDENTIFIER 
 %token VARTYPE
 %token FUN RETURN READ PRINT
@@ -90,9 +90,16 @@ int yylex(void);
 %start entry
 
 %%
-number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );}
-      | BINARY_NUMBER  {ODEBUG("number -> BINARY_NUMBER -> %d",$1 );}
-      | HEX_NUMBER  {ODEBUG("number -> HEX_NUMBER -> %d",$1 );}
+number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );
+                $1->type = O_INT;
+                $$= $1;}
+      | BINARY_NUMBER  {
+                ODEBUG("number -> BINARY_NUMBER -> %d",$1 );
+                $1->type = O_INT;
+                $$= $1;}
+      | HEX_NUMBER  {ODEBUG("number -> HEX_NUMBER -> %d",$1 );
+                $1->type = O_INT;
+                $$= $1;}
       ;
 identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c_str());
                     $$= $1;}
@@ -166,16 +173,20 @@ arithmetic_expr :  expr arithmetic_op expr {ODEBUG("expr -> expr arithmetic_op e
                         ss<< $1->IRCode <<$3->IRCode;
 
                         ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == NUMBER){
+                        if($1->type == O_INT){
                                 ss << $1->val.i;
                         }else if ($1->type == YYSYMBOL_arithmetic_op){
                                 ss << *($1->val.str);
+                        }else{
+                                OERROR("unexpected type %d", $1->type);
                         }
                         ss <<", ";
-                        if($3->type == NUMBER){
+                        if($3->type == O_INT){
                                 ss << $3->val.i;
                         }else if ($3->type == YYSYMBOL_arithmetic_op){
                                 ss << *($3->val.str);
+                        }else{
+                                OERROR("unexpected type %d", $3->type);
                         }
                         ss << endl;
                         addNode->IRCode = ss.str();
@@ -231,13 +242,13 @@ condition_expr : expr condition_op expr {ODEBUG("condition_expr -> expr conditio
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl;
                         ss<< ariOP<< " "<<tempVar<<", ";
-                        if($1->type == NUMBER){
+                        if($1->type == O_INT){
                                 ss << $1->val.i;
                         }else if ($1->type == YYSYMBOL_arithmetic_op){
                                 ss << *($1->val.str);
                         }
                         ss <<", ";
-                        if($3->type == NUMBER){
+                        if($3->type == O_INT){
                                 ss << $3->val.i;
                         }else if ($3->type == YYSYMBOL_arithmetic_op){
                                 ss << *($3->val.str);
@@ -256,6 +267,17 @@ multi_demension_number_tuple:  multi_demension_number_tuple COMMA  LEFT_CURLEY n
                           | LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("multi_demension_number_tuple -> LEFT_CURLEY number_tuple RIGHT_CURLEY");}
                           ;
 single_variable_declartion: INT identifier {ODEBUG("variable_declartion -> INT identifier");
+           //it should be the first time to seen the identifier
+           CodeNode *identifer = $2;
+           auto ctx = SymbolManager::getInstance();
+           Symbol* sym = ctx.find(identifer->sourceCode);
+           if(sym!=nullptr){
+                OWARN("redeclaration of variable %s",identifer->sourceCode);
+                yyerror("redeclaration of variable ");
+           }else{
+                ctx.addSymbol(identifer->sourceCode, SymbolType::SYM_VAR_INT);
+           }
+
            CodeNode *variableDeclarationNode = new CodeNode(YYSYMBOL_single_variable_declartion);
            stringstream ss;
            ss<<std::string(". ") + ($2->sourceCode)<<endl;
@@ -349,7 +371,7 @@ array_block_assignment_stmt: array_declartion_stmt ASSIGNMENT LEFT_CURLEY multi_
                     ;
 array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
-        ODEBUG("array_access_stmt -> expr ASSIGNMENT right_array_access_expr");
+        ODEBUG("array_access_stmt -> IDENTIFIER ASSIGNMENT right_array_access_expr");
         CodeNode *arrayNode = $3;
         CodeNode *identifier = $1;
         
@@ -372,14 +394,25 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $2;
+                //it should be the first time to seen the identifier
+                auto ctx = SymbolManager::getInstance();
+                Symbol* sym = ctx.find(identifierLeft->sourceCode);
+                if(sym!=nullptr){
+                        OWARN("redeclaration of variable %s",identifierLeft->sourceCode);
+                        yyerror("redeclaration of variable ");
+                }else{
+                        ctx.addSymbol(identifierLeft->sourceCode, SymbolType::SYM_VAR_INT);
+                }
                 stringstream ss;
+                ss << ". " << identifierLeft->sourceCode<<endl;
+                ss << $4->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
-
+                
                 switch($4->type){
                         case IDENTIFIER:
                                 ss << $4->sourceCode;
                                 break;
-                        case NUMBER:
+                        case O_INT:
                                 ss << $4->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
@@ -411,7 +444,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case IDENTIFIER:
                                 ss << array_access_expr->children[1]->sourceCode;
                                 break;
-                        case NUMBER:
+                        case O_INT:
                                 ss << array_access_expr->children[1]->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
@@ -425,7 +458,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case IDENTIFIER:
                                 ss << $3->sourceCode;
                                 break;
-                        case NUMBER:
+                        case O_INT:
                                 ss << $3->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
@@ -456,7 +489,7 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr {
                         case IDENTIFIER:
                                 ss << $3->sourceCode;
                                 break;
-                        case NUMBER:
+                        case O_INT:
                                 ss << $3->val.i;
                                 break;
                         case YYSYMBOL_arithmetic_op:
@@ -528,10 +561,22 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
                 
                 stringstream ss;
                 ss << "func " << identifer->sourceCode<<endl;
+                //querying if the function type is already defined
+                auto ctx = SymbolManager::getInstance();
+                vector<Symbol*> args;
+                for(int i=0;i<arguments->children.size();i++){
+                        args.push_back(new Symbol(arguments->children[i]->sourceCode, SymbolType::SYM_VAR_INT));
+                }
+                Symbol* sym = ctx.addFunction(identifer->sourceCode, args);
+                if(sym==nullptr){
+                        OWARN("redeclaration of function %s",identifer->sourceCode);
+                        yyerror("redeclaration of function");
+                }
                //processing arguments
                 for(int i=0;i<arguments->children.size();i++){
                    ss<< ". "<< *(arguments->children[i]->val.str) << "," << "$" << i<<endl;
                 }
+                
                 ss << codes->IRCode;
                 ss << "endfunc"<<endl;
                 func->IRCode = ss.str();
@@ -566,7 +611,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss <<$1->IRCode<< "ret ";
                 switch($3->type){
-                        case NUMBER:
+                        case O_INT:
                                 ss << $3->val.i;
                                 break;
                         case IDENTIFIER:

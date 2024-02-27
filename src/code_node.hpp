@@ -5,6 +5,16 @@
 #include "tok.h"
 struct CodeNode;
 typedef struct CodeNode CodeNode;
+enum CodeNodeType{
+    O_INT=4096,
+    O_FLOAT,
+    O_DOUBLE,
+    O_IDENTIFIER,
+    O_NUMBER,
+    O_EXPR,
+    O_ARRAY_EXPR,
+    O_ARRAY_DECLARATION
+};
 /*
 if target type is YYSYMBOL_arithmetic_op, store the temp variable name in val.str*/
 struct CodeNode{

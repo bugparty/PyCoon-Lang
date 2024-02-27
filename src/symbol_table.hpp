@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "tok.h"
+#include "code_node.hpp"
 enum class SymbolType {
     SYM_VAR_INT=2048,
     SYM_VAR_FLOAT,
@@ -13,11 +15,35 @@ struct Symbol{
     using enum SymbolType;
     std::string name;
     enum SymbolType type;
-    Symbol(std::string name,enum SymbolType type):name(name),type(type){}
+    int *arraySize;
+    int arrayDimension;
+    Symbol(std::string name,enum SymbolType type):name(name),type(type),arraySize(nullptr),
+                                                 arrayDimension(0){}
+    Symbol(std::string name,enum SymbolType type, int arrayDimension, int *arraySize):name(name),type(type),arraySize(arraySize),
+                                                 arrayDimension(arrayDimension){}
     union {
         int iVal;
         std::vector<Symbol*>* funVal;
     }val;
+    static Symbol* createFromCodeNode(CodeNode* node){
+        switch(node->type){
+            case CodeNodeType::O_INT:
+                return new Symbol(node->sourceCode,SYM_VAR_INT);
+                 break;
+            case CodeNodeType::O_FLOAT:
+                return new Symbol(node->sourceCode,SYM_VAR_FLOAT);
+                 break;
+            case CodeNodeType::O_DOUBLE:
+            case CodeNodeType::O_ARRAY_DECLARATION:
+                CodeNode *identifier = node->children[0];
+                CodeNode *numberNode = node->children[1];
+                //currently only support one dimension array
+                //TODO: support multi-dimension array
+                return new Symbol(identifier->sourceCode,SYM_VAR_INT_ARRAY,new int(numberNode->val.i),1);
+                break;
+    
+        }
+    }
 };
 class SymbolManager{
     std::map<std::string,Symbol*> symbols;

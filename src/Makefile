@@ -45,4 +45,4 @@ mil_run:
 run: onion
 	./onion
 clean:
-	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h onion_parser.tab.c onion_parser.tab.h onion onion_parser.output
+	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h onion_parser.tab.c onion_parser.tab.h onion onion_parser.output a.mil
