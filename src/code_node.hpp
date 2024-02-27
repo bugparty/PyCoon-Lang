@@ -16,7 +16,7 @@ enum CodeNodeType{
     O_ARRAY_DECLARATION
 };
 /*
-if target type is YYSYMBOL_arithmetic_op, store the temp variable name in val.str*/
+if target type is O_EXPR, store the temp variable name in val.str*/
 struct CodeNode{
     std::string IRCode;
     std::string sourceCode;

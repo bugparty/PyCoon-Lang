@@ -2,6 +2,8 @@
 fun main(){
     int a=(1+2)+(3+4);
     int b=1>2;
+    int c=1+2*3+5;
     print(a);
     print(b);
+    print(c);
 }
