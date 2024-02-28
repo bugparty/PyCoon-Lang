@@ -1,4 +1,4 @@
-name: onion CI
+name: onion bison report
 
 on:
   push:
