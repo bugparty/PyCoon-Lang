@@ -1,0 +1,13 @@
+fun a(){
+    return 3;
+}
+
+fun main(){
+int a = 0;
+
+a = a();
+
+print(a);
+
+}
+

@@ -608,13 +608,6 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 }
                 ss<<", ";
                 switch($3->type){
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case O_INT:
-                                ss << $3->val.i;
-                                break;
-                        case O_EXPR:
                         case YYSYMBOL_right_array_access_expr:
                                 ss << *($3->val.str);
                                 break;
@@ -635,18 +628,27 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 assert($1!=nullptr && $3!=nullptr);
                 CodeNode *identifierLeft = $1;
+                CodeNode *functionIdentifier = $3;
                 stringstream ss;
                 ss << $3->IRCode;
-                ss << "= " << identifierLeft->sourceCode << ", ";
+
+
 
                 switch($3->type){
+                        case YYSYMBOL_function_call_stmt:
+                                ss << "call " << identifierLeft->sourceCode << ", ";
+                                ss << functionIdentifier->children.front()->sourceCode;
+                                break;
                         case IDENTIFIER:
-                                ss << $3->sourceCode;
+                                ss << "= " << $3->sourceCode << ", ";
+                                ss << identifierLeft->sourceCode;
                                 break;
                         case O_INT:
+                                ss << "= " << identifierLeft->sourceCode << ", ";
                                 ss << $3->val.i;
                                 break;
                         case O_EXPR:
+                                ss << "= " << identifierLeft->sourceCode << ", ";
                                 ss << *($3->val.str);
                                 break;
                         default:
@@ -883,7 +885,16 @@ function_arguments  : function_arguments COMMA function_argument {ODEBUG("functi
                   ;
 
 function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR");}
-                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");}
+                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {
+                        ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");
+                        CodeNode *identifier = $1;
+                        
+                        CodeNode *newNode = new CodeNode(YYSYMBOL_function_call_stmt);
+
+                        newNode->addChild(identifier);
+                        newNode->printIR();
+                        $$ = newNode;
+                        }
                   ;
 
 loop_block_function: loop_block_function code_block {ODEBUG("loop_block_function -> loop_block code_block");}
