@@ -1,0 +1,19 @@
+name: onion CI
+
+on:
+  push:
+      branches: [ main ]
+  pull_request:
+      branches: [ main ]
+
+jobs:
+  build-and-test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: gen bison report 
+          run: cd src && make bison_debug
+        - uses: actions/upload-artifact@v4
+          with:
+            name: bison_report
+            path: src/onion_parser.output
