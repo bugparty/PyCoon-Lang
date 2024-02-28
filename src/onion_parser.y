@@ -583,6 +583,54 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 $$ = newNode;
                 
           }
+          | left_array_access_expr ASSIGNMENT right_array_access_expr {
+                ODEBUG("assignment_stmt -> left_array_access_expr ASSIGNMENT expr ");
+                assert($1!=nullptr && $3!=nullptr);
+                CodeNode *array_access_expr = $1;
+                stringstream ss;
+                ss << $1->IRCode;
+                ss << $3->IRCode;
+                assert(array_access_expr->children.size()==2);
+                assert(array_access_expr->children[0]->type == IDENTIFIER);
+                ss << "[]= " << (array_access_expr->children[0]->sourceCode) << ", " ;
+                switch(array_access_expr->children[1]->type){
+                        case IDENTIFIER:
+                                ss << array_access_expr->children[1]->sourceCode;
+                                break;
+                        case O_INT:
+                                ss << array_access_expr->children[1]->val.i;
+                                break;
+                        case O_EXPR:
+                                ss << *($3->val.str);
+                                break;
+                        default:
+                                break;
+                }
+                ss<<", ";
+                switch($3->type){
+                        case IDENTIFIER:
+                                ss << $3->sourceCode;
+                                break;
+                        case O_INT:
+                                ss << $3->val.i;
+                                break;
+                        case O_EXPR:
+                        case YYSYMBOL_right_array_access_expr:
+                                ss << *($3->val.str);
+                                break;
+                        default:
+                                break;
+                }
+
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                ss << endl;
+                newNode->IRCode = ss.str();
+                newNode->addChild($1);
+                newNode->addChild($3);
+                newNode->printIR();
+                $$ = newNode;
+                
+          }
           | IDENTIFIER ASSIGNMENT expr {
                 ODEBUG("assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 assert($1!=nullptr && $3!=nullptr);
