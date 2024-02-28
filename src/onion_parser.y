@@ -79,7 +79,7 @@ int yylex(void);
 %type <codeNode> add sub multi div mod
 %type <codeNode> identifier number
 %type <codeNode> read_stmt print_stmt
-%type <codeNode> assignment_stmt
+%type <codeNode> assignment_stmt number_tuple
 %type <codeNode> variable_declartion  single_variable_declartion
 %type <codeNode> left_array_access_expr right_array_access_expr  array_access_stmt array_declartion_stmt
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
@@ -356,10 +356,18 @@ factor: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGH
         ;
 
 
-number_tuple : number_tuple COMMA number  {ODEBUG("number_tuple -> number_tuple COMMA number");}
-              | number {ODEBUG("number_tuple ->  number");}
-              |%empty
-              ;
+number_tuple: number_tuple COMMA number {
+                ODEBUG("number_tuple -> number_tuple COMMA number");
+                $1->addChild($3);
+                $$ = $1;
+                }
+                | number {
+                ODEBUG("number_tuple -> number");
+                CodeNode *node = new CodeNode(YYSYMBOL_number_tuple);
+                node->addChild($1);
+                $$ = node;
+                }
+                | %empty
 multi_demension_number_tuple:  multi_demension_number_tuple COMMA  LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("multi_demension_number_tuple -> multi_demension_number_tuple COMMA  LEFT_CURLEY number_tuple RIGHT_CURLEY");}
                           | LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("multi_demension_number_tuple -> LEFT_CURLEY number_tuple RIGHT_CURLEY");}
                           ;
@@ -607,11 +615,11 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
-                 CodeNode *identifier = $2;
-                 CodeNode *numberNode = $4;
-                 CodeNode *exprNode = $7;  
+                CodeNode *identifier = $2;
+                CodeNode *numberNode = $4;
+                CodeNode *exprNode = $7;  
 
-                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
                 ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
                 newNode->IRCode = ss.str();
@@ -622,8 +630,48 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 $$ = newNode;
       
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
-          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {
+                ODEBUG("assignment_stmt -> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");
+                CodeNode *identifier = $2;
+                CodeNode *numberNode = $4;
+                CodeNode *numberTuple = $8;
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+
+                stringstream ss;
+
+                for (int i = 0; i < numberTuple->children.size(); i++) {
+                        ss << ".[]< " << identifier->sourceCode << ", " << numberTuple->children[i]->sourceCode << "\n";
+                }
+
+                newNode->IRCode = ss.str();
+
+                newNode->addChild(identifier);
+                newNode->addChild(numberNode);
+                newNode->addChild(numberTuple);
+
+                newNode->printIR();
+                $$ = newNode;
+                }
+          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {
+                ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");
+                CodeNode *identifier = $2;
+                CodeNode *numberTuple = $7;
+                CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
+
+                stringstream ss;
+
+                for (int i = 0; i < numberTuple->children.size(); i++) {
+                        ss << ".[]< " << identifier->sourceCode << ", " << numberTuple->children[i]->sourceCode << "\n";
+                }
+
+                newNode->IRCode = ss.str();
+
+                newNode->addChild(identifier);
+                newNode->addChild(numberTuple);
+
+                newNode->printIR();
+                $$ = newNode;
+                }
           
           ;
     
