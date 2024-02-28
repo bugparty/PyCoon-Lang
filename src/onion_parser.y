@@ -883,6 +883,17 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           node->IRCode = ss.str();
           $$ = node; 
         }
+        | PRINT LEFT_PAR identifier LEFT_BOX_BRAC number RIGHT_BOX_BRAC RIGHT_PAR {
+          ODEBUG("print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"); 
+
+          CodeNode *numberNode = $5;
+
+          CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
+          stringstream ss;
+          ss << ".[]> "<< $3->sourceCode << ", " << numberNode->sourceCode <<endl;
+          node->IRCode = ss.str();
+          $$ = node; 
+        }
         ;
 
 statements: statements  statement SEMICOLON  {
