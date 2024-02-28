@@ -107,7 +107,8 @@ expr:
     | number {ODEBUG("expr -> number ");$$=$1;}
     | identifier {ODEBUG("expr -> identifier -> "); $$=$1;}
     | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
-    | array_access_stmt {ODEBUG("expr -> array_access_stmt");}
+    | function_call_stmt {ODEBUG("expr -> function_call_stmt");$$ = $1;}
+    | array_access_stmt {ODEBUG("expr -> array_access_stmt");$$=$1;}
     ;
 
 multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");}
