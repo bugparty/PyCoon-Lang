@@ -19,6 +19,8 @@ struct Symbol{
     int arrayDimension;
     Symbol(std::string name,enum SymbolType type):name(name),type(type),arraySize(nullptr),
                                                  arrayDimension(0){}
+    Symbol(enum SymbolType type):name(""),type(type),arraySize(nullptr),
+                                                 arrayDimension(0){}
     Symbol(std::string name,enum SymbolType type, int arrayDimension, int *arraySize):name(name),type(type),arraySize(arraySize),
                                                  arrayDimension(arrayDimension){}
     union {
@@ -29,10 +31,10 @@ struct Symbol{
         switch(node->type){
             case CodeNodeType::O_INT:
                 return new Symbol(node->sourceCode,SYM_VAR_INT);
-                 break;
+                break;
             case CodeNodeType::O_FLOAT:
                 return new Symbol(node->sourceCode,SYM_VAR_FLOAT);
-                 break;
+                break;
             case CodeNodeType::O_DOUBLE:
             case CodeNodeType::O_ARRAY_DECLARATION:
                 CodeNode *identifier = node->children[0];
@@ -47,11 +49,11 @@ struct Symbol{
 };
 class SymbolManager{
     std::map<std::string,Symbol*> symbols;
+    std::map<std::string,Symbol*> functions;
     static SymbolManager instance;
     int tempCounter;
     protected:
     SymbolManager():tempCounter(0){
-
     }
     public:
     //find a existing symbol,if not exist,return null

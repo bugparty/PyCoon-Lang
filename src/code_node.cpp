@@ -98,7 +98,9 @@
                 }
                 ss << *(val.str);
                 break;
+
             default:
+                OWARN("getImmOrVariableIRCode: unknown type %d\n",type);
                 return false;
         }
         return true;

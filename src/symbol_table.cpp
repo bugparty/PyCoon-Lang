@@ -1,5 +1,6 @@
 #include "symbol_table.hpp"
 #include <sstream>
+#include <cassert>
 
 SymbolManager SymbolManager::instance;
  Symbol* SymbolManager::find(const std::string&  name){
@@ -26,10 +27,17 @@ std::string SymbolManager::allocate_temp(enum SymbolType type){
     return instance;
 }
 Symbol* SymbolManager::addFunction(const std::string& name, const std::vector<Symbol*>& arguments){
-    Symbol* old = this->find(name);
+    auto it = functions.find(name);
+    Symbol* old;
+    if (it!= functions.end()){
+        old = it->second;
+    }else{
+        old = nullptr;
+    }
     if(old!=nullptr) return nullptr;
     Symbol * sym = new Symbol(name,SymbolType::SYM_FUNCTION);
     sym->val.funVal = new std::vector<Symbol*>(arguments);
-    symbols[name]=sym;
+    assert( sym->val.funVal != nullptr);
+    functions[name]=sym;
     return sym;
 }

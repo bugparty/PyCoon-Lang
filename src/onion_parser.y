@@ -422,10 +422,9 @@ right_array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {
                       ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
                       newNode->val.str = new string(tempVar);
                       newNode->IRCode = ss.str();
-                      newNode->printIR();
+                      //Do not output this. array_access_expr content should only be output from array_access_stmt
+
                       $$ = newNode;
-
-
                       } 
             | right_array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {ODEBUG("array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC");}
             ;
@@ -662,6 +661,8 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
                 
                 stringstream ss;
                 ss << "func " << identifer->getImmOrVariableIRCode()<<endl;
+                ODEBUG("identier->debug");
+                identifer->debug();
                 //querying if the function type is already defined
                 auto ctx = SymbolManager::getInstance();
                 vector<Symbol*> args;
@@ -678,7 +679,7 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
                . a
                = a, $0
                 */
-               arguments->debug(true);
+  
                 for(int i=0;i<arguments->children.size();i++){
                    ss<< ". " << arguments->children[i]->getImmOrVariableIRCode()<<endl;
                    ss << "= "<< arguments->children[i]->getImmOrVariableIRCode()<< ", " << "$" << i<<endl;
