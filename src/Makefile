@@ -2,7 +2,7 @@
 OBJS	= bison.o lex.o main.o symbol_table.o code_node.o
 
 CC	= g++
-CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings
+CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings 
 
 onion:		$(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
@@ -39,8 +39,8 @@ symbol_table.o: symbol_table.cpp symbol_table.hpp tok.h
 symbol_table_tests.o: symbol_table_tests.cpp
 		$(CC) $(CFLAGS) -c symbol_table_tests.cpp -o symbol_table_tests.o
 		
-symbol_tests: symbol_table.o symbol_table_tests.o
-		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o -o symbol_tests
+symbol_tests: symbol_table.o symbol_table_tests.o code_node.o
+		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o code_node.o -o symbol_tests
 mil_run:
 	wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run
 	chmod +x mil_run
