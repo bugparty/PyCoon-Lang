@@ -468,7 +468,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
         newNode->addChild(arrayNode);
         stringstream ss;
         ss << $3->IRCode;
-        ss<<"=[]"<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
+        ss<<"= "<< (identifier->sourceCode)<<", "<<*(arrayNode->val.str)<<endl;
 
         newNode->IRCode = ss.str();
         newNode->printIR();
