@@ -638,9 +638,12 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
 
                 stringstream ss;
+                //initialize the array
+                ss << ".[] " << identifier->sourceCode << ", " << numberNode->sourceCode << "\n";
 
+                //fill array w/ values
                 for (int i = 0; i < numberTuple->children.size(); i++) {
-                        ss << ".[]< " << identifier->sourceCode << ", " << numberTuple->children[i]->sourceCode << "\n";
+                        ss << "[]= " << identifier->sourceCode << ", " << i << ", " << numberTuple->children[i]->sourceCode << "\n";
                 }
 
                 newNode->IRCode = ss.str();
@@ -659,9 +662,11 @@ assignment_stmt: INT IDENTIFIER ASSIGNMENT expr{
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
 
                 stringstream ss;
+                //initialize the array
+                ss << ".[] " << identifier->sourceCode << ", " << numberTuple->children.size() << "\n";
 
                 for (int i = 0; i < numberTuple->children.size(); i++) {
-                        ss << ".[]< " << identifier->sourceCode << ", " << numberTuple->children[i]->sourceCode << "\n";
+                        ss << "[]= " << identifier->sourceCode << ", " << i << ", " << numberTuple->children[i]->sourceCode << "\n";
                 }
 
                 newNode->IRCode = ss.str();
