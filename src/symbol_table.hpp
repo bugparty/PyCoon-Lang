@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex> 
 #include "tok.h"
 #include "code_node.hpp"
 enum class SymbolType {
@@ -19,6 +20,8 @@ struct Symbol{
     int arrayDimension;
     Symbol(std::string name,enum SymbolType type):name(name),type(type),arraySize(nullptr),
                                                  arrayDimension(0){}
+    Symbol(enum SymbolType type):name(""),type(type),arraySize(nullptr),
+                                                 arrayDimension(0){}
     Symbol(std::string name,enum SymbolType type, int arrayDimension, int *arraySize):name(name),type(type),arraySize(arraySize),
                                                  arrayDimension(arrayDimension){}
     union {
@@ -29,10 +32,10 @@ struct Symbol{
         switch(node->type){
             case CodeNodeType::O_INT:
                 return new Symbol(node->sourceCode,SYM_VAR_INT);
-                 break;
+                break;
             case CodeNodeType::O_FLOAT:
                 return new Symbol(node->sourceCode,SYM_VAR_FLOAT);
-                 break;
+                break;
             case CodeNodeType::O_DOUBLE:
             case CodeNodeType::O_ARRAY_DECLARATION:
                 CodeNode *identifier = node->children[0];
@@ -46,19 +49,30 @@ struct Symbol{
     }
 };
 class SymbolManager{
+    private:
     std::map<std::string,Symbol*> symbols;
-    static SymbolManager instance;
+    std::map<std::string,Symbol*> functions;
     int tempCounter;
+    static std::mutex mutex_;
+    static SymbolManager* instance;
     protected:
     SymbolManager():tempCounter(0){
-
     }
     public:
+       /**
+     * Singletons should not be cloneable.
+     */
+    SymbolManager(SymbolManager &other) = delete;
+    /**
+     * Singletons should not be assignable.
+     */
+    void operator=(const SymbolManager &) = delete;
     //find a existing symbol,if not exist,return null
-    Symbol* find(const std::string& name);
-     Symbol* addSymbol(const std::string&  name,const enum SymbolType type);
+    Symbol* find(const std::string& name,const std::string& scope);
+     Symbol* addSymbol(const std::string&  name,const std::string& scope, const enum SymbolType type);
     Symbol* addFunction(const std::string& name, const std::vector<Symbol*>& arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
-    static SymbolManager& getInstance();
+    static SymbolManager* getInstance();
+    void debugPrint();
 };

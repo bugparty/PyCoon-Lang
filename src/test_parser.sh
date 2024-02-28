@@ -1,6 +1,6 @@
 #!/bin/bash
 make clean
-make
+make -j`nproc`
 error=$?
 if [ "$error" -ne 0 ]; then
 echo -e "\e[31m!!!!!!!!Error in make onion,stop testing.!!!!!!!!!! \e[0m"
