@@ -1,5 +1,5 @@
 
-OBJS	= bison.o lex.o main.o symbol_table.o code_node.o
+OBJS	= bison.o lex.o main.o symbol_table.o code_node.o states.o
 
 CC	= g++
 CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings 
@@ -38,6 +38,8 @@ symbol_table.o: symbol_table.cpp symbol_table.hpp tok.h
 
 symbol_table_tests.o: symbol_table_tests.cpp
 		$(CC) $(CFLAGS) -c symbol_table_tests.cpp -o symbol_table_tests.o
+states.o: states.cpp states.hpp
+		$(CC) $(CFLAGS) -c states.cpp -o states.o
 		
 symbol_tests: symbol_table.o symbol_table_tests.o code_node.o
 		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o code_node.o -o symbol_tests
