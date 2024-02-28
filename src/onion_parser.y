@@ -618,8 +618,8 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
                                 ss << functionIdentifier->children.front()->sourceCode;
                                 break;
                         case IDENTIFIER:
-                                ss << "= " << $3->sourceCode << ", ";
-                                ss << identifierLeft->sourceCode;
+                                ss << "= " << identifierLeft->sourceCode << ", ";
+                                ss << $3->sourceCode;
                                 break;
                         case O_INT:
                                 ss << "= " << identifierLeft->sourceCode << ", ";
