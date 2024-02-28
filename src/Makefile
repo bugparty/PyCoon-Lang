@@ -43,6 +43,9 @@ states.o: states.cpp states.hpp
 		
 symbol_tests: symbol_table.o symbol_table_tests.o code_node.o
 		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o code_node.o -o symbol_tests
+bison_debug::	onion_parser.y code_node.hpp
+		bison -d -v -r all onion_parser.y
+		echo "See onion_parser.output for details"
 mil_run:
 	wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run
 	chmod +x mil_run
