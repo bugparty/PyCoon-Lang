@@ -27,7 +27,7 @@
                     case O_FLOAT:
                     case O_DOUBLE:
                     {
-                        auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
+                        auto tempVar = ctx->allocate_temp(SymbolType::SYM_VAR_INT);
                         ss << ". " << tempVar << std::endl;
                         ss << "= " << tempVar << ", " << children[i]->val.i  << std::endl;
                         args.push_back(tempVar);
@@ -59,7 +59,7 @@
             return false;
         }
         auto ctx = SymbolManager::getInstance();
-        auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
+        auto tempVar = ctx->allocate_temp(SymbolType::SYM_VAR_INT);
         val.str = new std::string(tempVar);
         ss << ". " << tempVar << std::endl;
         for(size_t i =0;i<args.size();i++){

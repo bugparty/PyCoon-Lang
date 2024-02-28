@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex> 
 #include "tok.h"
 #include "code_node.hpp"
 enum class SymbolType {
@@ -48,19 +49,30 @@ struct Symbol{
     }
 };
 class SymbolManager{
+    private:
     std::map<std::string,Symbol*> symbols;
     std::map<std::string,Symbol*> functions;
-    static SymbolManager instance;
     int tempCounter;
+    static std::mutex mutex_;
+    static SymbolManager* instance;
     protected:
     SymbolManager():tempCounter(0){
     }
     public:
+       /**
+     * Singletons should not be cloneable.
+     */
+    SymbolManager(SymbolManager &other) = delete;
+    /**
+     * Singletons should not be assignable.
+     */
+    void operator=(const SymbolManager &) = delete;
     //find a existing symbol,if not exist,return null
-    Symbol* find(const std::string& name);
-     Symbol* addSymbol(const std::string&  name,const enum SymbolType type);
+    Symbol* find(const std::string& name,const std::string& scope);
+     Symbol* addSymbol(const std::string&  name,const std::string& scope, const enum SymbolType type);
     Symbol* addFunction(const std::string& name, const std::vector<Symbol*>& arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
-    static SymbolManager& getInstance();
+    static SymbolManager* getInstance();
+    void debugPrint();
 };

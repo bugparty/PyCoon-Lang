@@ -60,18 +60,18 @@ expect_fail() {
 
   cat $1 | ./onion
   error=$?
-  if [ "$error" -eq 0 ]; then
-    echo -e "\e[31mError found,stop testing. \e[0m"
-    failed_tests+=("$filename")
-  else
+  if [ "$error" -ne 0 ]; then
     echo -e "\e[32mTest succees in : $filename \e[0m"
     passing_tests+=("$filename")
+  else
+    echo -e "\e[31mError found,stop testing. \e[0m"
+    failed_tests+=("$filename")
   fi
 }
 make
 for PASSINGFILE in ../doc/language_samples/IR_test_case/*; do run_test $PASSINGFILE; done;
 for PASSINGFILE in tests/IR_auto_tests/*.onion; do run_e2e_test $PASSINGFILE; done;
-# for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;
+for FAILINGFILE in ../doc/language_samples/test_cases/parser_fail/*; do expect_fail $FAILINGFILE; done;
 
 echo ""
 echo -e "\e[33mSummary:\e[0m"

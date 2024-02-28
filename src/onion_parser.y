@@ -149,7 +149,7 @@ arithmetic_expr : expr logical_op term1 {
                         addNode->addChild($1);
                         addNode->addChild($3);
                         
-                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
 
@@ -216,7 +216,7 @@ term1 : term1 condition_op term2 {
                         addNode->addChild($1);
                         addNode->addChild($3);
                         $$=addNode;
-                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl;
@@ -261,7 +261,7 @@ term2 :  term2 add_op term3 {
                         addNode->addChild($1);                       
                         addNode->addChild($3);
                         
-                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
@@ -309,7 +309,7 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                         addNode->addChild($1);                       
                         addNode->addChild($3);
                         $$=addNode;
-                        string tempVar = SymbolManager::getInstance().allocate_temp(SymbolType::SYM_VAR_INT);
+                        string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
@@ -355,14 +355,14 @@ single_variable_declartion: INT IDENTIFIER {ODEBUG("single_variable_declartion -
            //it should be the first time to seen the identifier
            CodeNode *identifer = $2;
            auto ctx = SymbolManager::getInstance();
-           Symbol* sym = ctx.find(identifer->sourceCode);
+           Symbol* sym = ctx->find(identifer->sourceCode,currentFunction());
            if(sym!=nullptr){
-                OWARN("redeclaration of variable %s",identifer->sourceCode);
+                OWARN("redeclaration of variable %s",identifer->sourceCode.c_str());
                 yyerror("redeclaration of variable ");
            }else{
-                ctx.addSymbol(identifer->sourceCode, SymbolType::SYM_VAR_INT);
+                ctx->addSymbol(identifer->sourceCode, currentFunction(),SymbolType::SYM_VAR_INT);
            }
-          
+           ctx->debugPrint();
            CodeNode *variableDeclarationNode = new CodeNode(O_VAR_DECLARATION);
            stringstream ss;
            ss<<". " << $2->sourceCode<<endl;
@@ -382,7 +382,7 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEB
                       CodeNode *identifier = $2;
 
                       auto ctx = SymbolManager::getInstance();
-                      Symbol* sym = ctx.find(identifier->sourceCode);
+                      Symbol* sym = ctx->find(identifier->sourceCode,currentFunction());
                       if(sym!=nullptr)
                       {
                       OWARN("redeclaration of array variable %s",identifier->sourceCode);
@@ -390,9 +390,8 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEB
                       }
                       else
                         {
-                        ctx.addSymbol(identifier->sourceCode, SymbolType::SYM_VAR_INT_ARRAY);
+                        ctx->addSymbol(identifier->sourceCode,currentFunction(), SymbolType::SYM_VAR_INT_ARRAY);
                         }
-
 
                       CodeNode *numberNode = $4;
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
@@ -416,8 +415,8 @@ right_array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {
                       newNode->addChild(identifier);
                       
                       stringstream ss;
-                      auto& ctx = SymbolManager::getInstance();
-                      auto tempVar = ctx.allocate_temp(SymbolType::SYM_VAR_INT);
+                      auto ctx = SymbolManager::getInstance();
+                      auto tempVar = ctx->allocate_temp(SymbolType::SYM_VAR_INT);
                       ss << ". " << tempVar <<endl;
                       ss<<"=[] "<<tempVar << "," << identifier->sourceCode<<", "<<expr->sourceCode<<"\n";
                       newNode->val.str = new string(tempVar);
@@ -478,15 +477,6 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $1;
                 CodeNode *expr = $3;
-                //it should be the first time to seen the identifier
-                auto ctx = SymbolManager::getInstance();
-                Symbol* sym = ctx.find(identifierLeft->sourceCode);
-                if(sym!=nullptr){
-                        OWARN("redeclaration of variable %s",identifierLeft->sourceCode);
-                        yyerror("redeclaration of variable ");
-                }else{
-                        ctx.addSymbol(identifierLeft->sourceCode, SymbolType::SYM_VAR_INT);
-                }
                 stringstream ss;
                 ss << ". " << identifierLeft->sourceCode<<endl;
                 ss << expr->IRCode;
@@ -651,27 +641,33 @@ function_arguments_declartion  : function_arguments_declartion COMMA variable_de
                         $$=newNode;
                   }
                   ;
-function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {
+function_declartion : FUN IDENTIFIER {
+                ODEBUG( "function_declartion -> FUN IDENTIFIER");
+                //push the identifier to the stack, it will be used in the next half of the function_declartion
+                push_code_node($2);
+                pushFunction($2->sourceCode);
+                } 
+        LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {
                 ODEBUG( "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY");
-                CodeNode* identifer = $2;
-                CodeNode* arguments = $4;   
-                CodeNode* codes = $7;
+                //pop the identifier from the stack
+                CodeNode* identifer = pop_code_node();
+                assert(identifer!=nullptr);
+                CodeNode* arguments = $5;   
+                CodeNode* codes = $8;
  
                 CodeNode* func = new CodeNode(YYSYMBOL_function_declartion);
                 
                 stringstream ss;
                 ss << "func " << identifer->getImmOrVariableIRCode()<<endl;
-                ODEBUG("identier->debug");
-                identifer->debug();
                 //querying if the function type is already defined
                 auto ctx = SymbolManager::getInstance();
                 vector<Symbol*> args;
                 for(int i=0;i<arguments->children.size();i++){
                         args.push_back(new Symbol(arguments->children[i]->getImmOrVariableIRCode(), SymbolType::SYM_VAR_INT));
                 }
-                Symbol* sym = ctx.addFunction(identifer->getImmOrVariableIRCode(), args);
+                Symbol* sym = ctx->addFunction(identifer->getImmOrVariableIRCode(), args);
                 if(sym==nullptr){
-                        OWARN("redeclaration of function %s",identifer->getImmOrVariableIRCode());
+                        OWARN("redeclaration of function %s",identifer->getImmOrVariableIRCode().c_str());
                         yyerror("redeclaration of function");
                 }
                /*processing arguments,will generate the IR code for the arguments
@@ -689,9 +685,10 @@ function_declartion : FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGH
                 ss << "endfunc"<<endl;
                 func->IRCode = ss.str();
                 func->printIR();
-                func->addChild($2);
-                func->addChild($4);
-                func->addChild($7);
+                func->addChild(identifer);
+                func->addChild(arguments);
+                func->addChild(codes);
+                popFunction();
                 $$=func;
                 }
           ;
