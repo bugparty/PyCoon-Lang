@@ -87,3 +87,4 @@ if [ ${#failed_tests[@]} -gt 0 ]; then
     echo "${failed_tests[*]}" 
     exit -2
 fi
+rm -rf "$actual_output_dir"
