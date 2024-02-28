@@ -15,5 +15,5 @@ fi
 # cat ../doc/language_samples/parser/05while02.onion | ./onion
 # cat ../doc/language_samples/parser/06Ifelse.onion | ./onion
 # cat ../doc/language_samples/parser/11IfElse2.onion | ./onion
-# cat ../doc/language_samples/parser/12ifElse_additional_testing.onion | ./onion
-cat ../doc/language_samples/IR_test_case/assignment_a[].onion | ./onion
+#cat ../doc/language_samples/IR_test_case/function_test.onion | ./onion
+cat tests/IR_auto_tests/function01.onion | ./onion
