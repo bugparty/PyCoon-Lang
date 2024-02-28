@@ -1,5 +1,5 @@
 
-OBJS	= bison.o lex.o main.o symbol_table.o
+OBJS	= bison.o lex.o main.o symbol_table.o code_node.o
 
 CC	= g++
 CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings
@@ -29,7 +29,8 @@ main.o:		main.cc
 		$(CC) $(CFLAGS) -c main.cc -o main.o
 
 lex.o yac.o main.o	: heading.h
-
+code_node.o: code_node.cpp code_node.hpp
+		$(CC) $(CFLAGS) -c code_node.cpp -o code_node.o
 lex.o main.o code_node.hpp		: tok.h
 
 symbol_table.o: symbol_table.cpp symbol_table.hpp tok.h
