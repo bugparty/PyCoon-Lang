@@ -1,6 +1,6 @@
 #!/bin/bash
 make clean
-make
+make -j`nproc`
 error=$?
 if [ "$error" -ne 0 ]; then
 echo -e "\e[31m!!!!!!!!Error in make onion,stop testing.!!!!!!!!!! \e[0m"
@@ -16,4 +16,4 @@ fi
 # cat ../doc/language_samples/parser/06Ifelse.onion | ./onion
 # cat ../doc/language_samples/parser/11IfElse2.onion | ./onion
 # cat ../doc/language_samples/parser/12ifElse_additional_testing.onion | ./onion
-cat ../doc/language_samples/IR_test_case/IO.onion | ./onion
+cat ../doc/language_samples/IR_test_case/2expr.onion | ./onion
