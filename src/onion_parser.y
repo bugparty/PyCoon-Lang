@@ -104,10 +104,7 @@ identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c
                     $$= $1;}
       ;
 expr: 
-    | number {ODEBUG("expr -> number ");$$=$1;}
-    | identifier {ODEBUG("expr -> identifier -> "); $$=$1;}
     | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
-    | array_access_stmt {ODEBUG("expr -> array_access_stmt");}
     ;
 
 multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");}
@@ -337,9 +334,7 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
         | factor {ODEBUG("term3 ->factor");$$ = $1;}
         ;
 factor: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
-        | NUMBER {ODEBUG("factor-> NUMBER");$$ = $1;}
-        | BINARY_NUMBER {ODEBUG("factor-> BINARY_NUMBER");$$ = $1;}
-        | HEX_NUMBER {ODEBUG("factor-> HEX_NUMBER");$$ = $1;}
+        | number {ODEBUG("factor-> NUMBER");$$ = $1;}
         | IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
         ;
 
@@ -910,10 +905,6 @@ statement: expr {ODEBUG("statement -> expr");$$=$1;}
           | array_access_stmt {ODEBUG("statement -> array_access_stmt"); $$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
-          | %empty      {ODEBUG("statement -> %empty");
-                        CodeNode *node = new CodeNode(YYSYMBOL_statement);
-                        $$=node;
-                        }
           ;
 
 functions: functions function_declartion {
