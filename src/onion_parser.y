@@ -666,7 +666,28 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
 
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
-                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
+
+                switch(exprNode->type){
+                        case YYSYMBOL_function_call_stmt:
+                                ss << "call " << identifier->sourceCode << ", ";
+                                ss << identifier->children.front()->sourceCode;
+                                break;
+                        case IDENTIFIER:
+                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
+                                ss << exprNode->sourceCode<<"\n";
+                                break;
+                        case O_INT:
+                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
+                                ss << exprNode->val.i;
+                                break;
+                        case O_EXPR:
+                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
+                                ss << *(exprNode->val.str);
+                                break;
+                        default:
+                                break;
+                }
+                
                 newNode->IRCode = ss.str();
                 newNode->addChild($2);
                 newNode->addChild($4);
