@@ -54,6 +54,7 @@ int yylex(void);
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 %token LEQ GEQ LE GE EQ NEQ
 %token ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
+
 %left NUMBER
 %left BINARY_NUMBER
 %left HEX_NUMBER
@@ -64,7 +65,9 @@ int yylex(void);
 %left MULTIPLYING DIVISION MODULE 
 %left LEFT_PAR RIGHT_PAR
 %left IDENTIFIER
-
+%right IF
+%right ELSE
+%right ELIF
 
 %nterm  statement   assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm loop_block for_stmt for_first_stmt
