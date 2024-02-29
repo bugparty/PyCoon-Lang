@@ -54,7 +54,9 @@ int yylex(void);
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 %token LEQ GEQ LE GE EQ NEQ
 %token ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
-
+%left NUMBER
+%left BINARY_NUMBER
+%left HEX_NUMBER
 %right ASSIGNMENT
 %left LOGICAL_ADD LOGICAL_OR
 %left LEQ GEQ LE GE EQ NEQ
@@ -64,27 +66,26 @@ int yylex(void);
 %left IDENTIFIER
 
 
-%nterm  statement statements quote assignment_stmt block_stmt while_stmt ifElse_stmt condition
+%nterm  statement   assignment_stmt block_stmt while_stmt ifElse_stmt condition
 %nterm loop_block for_stmt for_first_stmt
 %nterm number_tuple function_arguments variable_declartion function_code_block
 %nterm right_array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
-%nterm condition_op arithmetic_op multiply_op term1 term2 factor operand 
+%nterm condition_op arithmetic_op multiply_op term1 term2 factor 
 
-%type <codeNode> statements statement 
+%type <codeNode>  statement 
 %type <codeNode> expr arithmetic_expr
 %type <codeNode>  arithmetic_op condition_op 
-%type <codeNode> add sub multi div mod
 %type <codeNode> identifier number
 %type <codeNode> read_stmt print_stmt
-%type <codeNode> assignment_stmt number_tuple
+%type <codeNode> assignment_stmt function_arguments_declartion_non_empty number_tuple
 %type <codeNode> variable_declartion  single_variable_declartion
 %type <codeNode> left_array_access_expr right_array_access_expr  array_access_stmt array_declartion_stmt
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
-%type <codeNode>  multiply_op factor add_op logical_op term1 term2 term3 operand 
+%type <codeNode>  multiply_op factor add_op logical_op term1 term2 term3 
 
 %start entry
 
@@ -103,12 +104,8 @@ number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );
 identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c_str());
                     $$= $1;}
       ;
-expr: 
-    | number {ODEBUG("expr -> number ");$$=$1;}
-    | identifier {ODEBUG("expr -> identifier -> "); $$=$1;}
-    | arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
-    | function_call_stmt {ODEBUG("expr -> function_call_stmt");$$ = $1;}
-    | array_access_stmt {ODEBUG("expr -> array_access_stmt");$$=$1;}
+      
+expr: arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
     ;
 
 multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");}
@@ -338,9 +335,7 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
         | factor {ODEBUG("term3 ->factor");$$ = $1;}
         ;
 factor: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
-        | NUMBER {ODEBUG("factor-> NUMBER");$$ = $1;}
-        | BINARY_NUMBER {ODEBUG("factor-> BINARY_NUMBER");$$ = $1;}
-        | HEX_NUMBER {ODEBUG("factor-> HEX_NUMBER");$$ = $1;}
+        | number {ODEBUG("factor-> NUMBER");$$ = $1;}
         | IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
         ;
 
@@ -482,7 +477,8 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
         }
                     
-assignment_stmt: single_variable_declartion ASSIGNMENT expr{
+assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt");}
+                | single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $1;
                 CodeNode *expr = $3;
@@ -749,20 +745,22 @@ while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {
           ;
 for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-function_arguments_declartion  : function_arguments_declartion COMMA variable_declartion {ODEBUG( "function_arguments_declartion -> function_arguments_declartion COMMA variable_declartion");
+function_arguments_declartion  : function_arguments_declartion_non_empty {ODEBUG( "function_arguments_declartion -> function_arguments_declartion_non_empty");}
+                        | %empty {ODEBUG( "function_arguments_declartion -> %empty");
+                                CodeNode *node = new CodeNode(YYSYMBOL_function_arguments_declartion);
+                                $$=node;}
+                        ;
+
+function_arguments_declartion_non_empty  : function_arguments_declartion_non_empty COMMA variable_declartion {ODEBUG( "function_arguments_declartion -> function_arguments_declartion COMMA variable_declartion");
                         CodeNode* arguments = $1;
                         arguments->IRCode+=$3->IRCode;
                         arguments->addChild($3);
                         $$=arguments;
-                }
+                        }
                   | variable_declartion {ODEBUG( "function_arguments_declartion -> variable_declartion");
                                         CodeNode * newNode = new CodeNode(YYSYMBOL_function_arguments_declartion);
                                         newNode->addChild($1);
                                         $$=newNode;}
-                  | %empty {
-                        CodeNode * newNode = new CodeNode(YYSYMBOL_function_arguments_declartion);
-                        $$=newNode;
-                  }
                   ;
 function_declartion : FUN IDENTIFIER {
                 ODEBUG( "function_declartion -> FUN IDENTIFIER");
@@ -1001,41 +999,8 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           node->IRCode = ss.str();
           $$ = node; 
         }
-        | PRINT LEFT_PAR identifier LEFT_BOX_BRAC number RIGHT_BOX_BRAC RIGHT_PAR {
-          ODEBUG("print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"); 
-
-          CodeNode *numberNode = $5;
-
-          CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
-          stringstream ss;
-          ss << ".[]> "<< $3->sourceCode << ", " << numberNode->sourceCode <<endl;
-          node->IRCode = ss.str();
-          $$ = node; 
-        }
         ;
 
-statements: statements  statement SEMICOLON  {
-                        ODEBUG("statements -> statements  statement SEMICOLON");
-                        $1->addChild($2);
-                        $1->IRCode+=$2->IRCode;
-                        $$=$1;}
-          | statements control_flow_stmt {ODEBUG("statements -> statements control_flow_stmt");}
-          | statement SEMICOLON {
-                ODEBUG("statements -> statement SEMICOLON");
-                CodeNode *node = new CodeNode(YYSYMBOL_statements);
-                $$=node;
-                }
-          | statements function_declartion {
-                ODEBUG("statements -> statements function_declartion");
-                $1->addChild($2);
-                $1->IRCode+=$2->IRCode;
-                $$=$1;
-                }
-          | %empty{
-                CodeNode *node = new CodeNode(YYSYMBOL_statements);
-                $$=node;
-          }
-          ;
 
 statement: expr {ODEBUG("statement -> expr");$$=$1;}
           | assignment_stmt {ODEBUG("statement -> assignment_stmt");
@@ -1043,13 +1008,8 @@ statement: expr {ODEBUG("statement -> expr");$$=$1;}
                 }
           | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
           | function_call_stmt {ODEBUG("statement -> function_call_stmt");$$=$1;}
-          | array_access_stmt {ODEBUG("statement -> array_access_stmt"); $$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
-          | %empty      {ODEBUG("statement -> %empty");
-                        CodeNode *node = new CodeNode(YYSYMBOL_statement);
-                        $$=node;
-                        }
           ;
 
 functions: functions function_declartion {
