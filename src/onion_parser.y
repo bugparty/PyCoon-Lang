@@ -538,6 +538,9 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
                 }
                 ss<<", ";
                 switch($3->type){
+                        case O_FUNC_CALL:
+                                ss << $3->getImmOrVariableIRCode();
+                                break;
                         case IDENTIFIER:
                                 ss << $3->sourceCode;
                                 break;
@@ -606,27 +609,24 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> IDENTIFIER ASSIGNMENT expr ");
                 assert($1!=nullptr && $3!=nullptr);
                 CodeNode *identifierLeft = $1;
-                CodeNode *functionIdentifier = $3;
                 stringstream ss;
                 ss << $3->IRCode;
+
+                ss << "= " << identifierLeft->sourceCode << ", ";
 
 
 
                 switch($3->type){
-                        case YYSYMBOL_function_call_stmt:
-                                ss << "call " << identifierLeft->sourceCode << ", ";
-                                ss << functionIdentifier->children.front()->sourceCode;
+                        case O_FUNC_CALL:
+                                ss << $3->getImmOrVariableIRCode();
                                 break;
                         case IDENTIFIER:
-                                ss << "= " << identifierLeft->sourceCode << ", ";
                                 ss << $3->sourceCode;
                                 break;
                         case O_INT:
-                                ss << "= " << identifierLeft->sourceCode << ", ";
                                 ss << $3->val.i;
                                 break;
                         case O_EXPR:
-                                ss << "= " << identifierLeft->sourceCode << ", ";
                                 ss << *($3->val.str);
                                 break;
                         default:
@@ -667,21 +667,19 @@ assignment_stmt: single_variable_declartion ASSIGNMENT expr{
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 stringstream ss;
 
+                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
+
                 switch(exprNode->type){
-                        case YYSYMBOL_function_call_stmt:
-                                ss << "call " << identifier->sourceCode << ", ";
-                                ss << identifier->children.front()->sourceCode;
+                        case O_FUNC_CALL:
+                                ss << exprNode->getImmOrVariableIRCode();
                                 break;
                         case IDENTIFIER:
-                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
                                 ss << exprNode->sourceCode<<"\n";
                                 break;
                         case O_INT:
-                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
                                 ss << exprNode->val.i;
                                 break;
                         case O_EXPR:
-                                ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ");
                                 ss << *(exprNode->val.str);
                                 break;
                         default:
@@ -938,21 +936,23 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         }
                         stringstream ss;
                         ss << $3->IRCode;
-                        node->genFunctionCallIRCode(ss);
+                        node->genFunctionCallIRCode(ss, $1->sourceCode);
                         node->IRCode = ss.str();
                         node->printIR();
                         node->debug();
                         $$=node;
                         }
                         
-                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");
-                                                CodeNode *node = new CodeNode(O_FUNC_CALL);
-                                                stringstream ss;
-                                                node->genFunctionCallIRCode(ss);
-                                                node->IRCode = ss.str();
-                                                node->printIR();
-                                                $$=node;
-                                                }
+                  | IDENTIFIER LEFT_PAR RIGHT_PAR  
+                  {
+                        ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");
+                        CodeNode *node = new CodeNode(O_FUNC_CALL);
+                        stringstream ss;
+                        node->genFunctionCallIRCode(ss, $1->sourceCode);
+                        node->IRCode = ss.str();
+                        node->printIR();
+                        $$=node;
+                        }
                   ;
 
 loop_block_function: loop_block_function code_block {ODEBUG("loop_block_function -> loop_block code_block");}

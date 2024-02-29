@@ -1,13 +1,19 @@
-fun a(){
+fun ab(){
     return 3;
 }
 
 fun main(){
 int a = 0;
 
-a = a();
+int b[] = {2,3,4,5,6};
+
+a = ab();
+
+b[2] = ab();
 
 print(a);
+
+print(b[2]);
 
 }
 

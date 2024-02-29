@@ -1,9 +1,14 @@
+fun caller(){
+    return 3;
+}
 fun main(){
     int a = 0;
     int b = 2;
 
     a = b;
     b = a;
+
+
     print(a);
     print(b);
 }
