@@ -1,0 +1,23 @@
+fun main(){
+int a[2]={2,3};
+print(a[1]);
+
+int numbers[] = {1, 2, 3, 4, 5};
+
+int numbers[3]=0;
+
+print(numbers[3]);
+
+int numbers2[5] = {1, 2, 3, 4, 5};
+
+numbers[3] = numbers2[2];
+
+numbers[2] = numbers2[3];
+
+print(numbers[2]);
+
+int arr_access = 3;
+numbers[arr_access] = 22;
+print(numbers[3]);
+
+}

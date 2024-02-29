@@ -75,7 +75,7 @@ struct CodeNode{
     bool getImmOrVariableIRCode(std::stringstream& ss);
     std::string getImmOrVariableIRCode();
     bool genFunctionCallIRCodeImpl(std::stringstream &ss, std::vector<std::string> &args);
-    bool genFunctionCallIRCode(std::stringstream &ss);
+    bool genFunctionCallIRCode(std::stringstream &ss, std::string &funName);
     void addChild(CodeNode* child){
         children.push_back(child);
     }

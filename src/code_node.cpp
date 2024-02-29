@@ -52,7 +52,7 @@
         }
         return true;
     }
-    bool CodeNode::genFunctionCallIRCode(std::stringstream &ss){
+    bool CodeNode::genFunctionCallIRCode(std::stringstream &ss, std::string &funName){
         std::vector<std::string> args;
         bool succeed = genFunctionCallIRCodeImpl(ss,args);
         if(!succeed){
@@ -65,7 +65,7 @@
         for(size_t i =0;i<args.size();i++){
             ss << "param " << args[i] << std::endl;
         }
-        ss << "call " << sourceCode << ", " << tempVar << std::endl;
+        ss << "call " << funName << ", " << tempVar << std::endl;
         
         return true;
     }
