@@ -26,10 +26,16 @@ int yylex(void);
 %}
 
 
-
-
+/*
+use ./onion -p to enable parser tracing
+*/
+/* Generate the parser description file. */
+%verbose
+/* Enable run-time traces (yydebug). */
+%define parse.trace
 %define parse.error verbose
-%define parse.lac full
+/* look ahead trace */
+//%define parse.lac full
 
 %union{
     int tokenVal;
@@ -77,7 +83,7 @@ int yylex(void);
 %nterm function_declartion
 %nterm condition_op arithmetic_op multiply_op term1 term2 factor 
 
-%type <codeNode>  statement 
+%type <codeNode>  statement statement1 statement2 statement3
 %type <codeNode> expr arithmetic_expr
 %type <codeNode>  arithmetic_op condition_op 
 %type <codeNode> identifier number
@@ -351,7 +357,6 @@ term6: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("term6-> LEFT_PAR expr RIGHT_
 // term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
 //         ;
 term7: function_call_stmt {ODEBUG("term7-> function_call_stmt");$$=$1;}
-        
         ;
 
 
@@ -484,7 +489,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
         }
                     
-assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt");}
+assignment_stmt: array_access_stmt 
                 | single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $1;
@@ -870,15 +875,16 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
         ;
 
 
-statement: expr {ODEBUG("statement -> expr");$$=$1;}
-          | assignment_stmt {ODEBUG("statement -> assignment_stmt");
-                $$=$1;
-                }
+statement: statement2
+          | expr {ODEBUG("statement -> expr");$$=$1;}
+         
           | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
           ;
-
+statement2: assignment_stmt {ODEBUG("statement -> assignment_stmt");
+                $$=$1;
+                }
 functions: functions function_declartion {
                 ODEBUG("functions-> functions function_declartion");
                 $1->addChild($2);
