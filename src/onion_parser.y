@@ -95,7 +95,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
 %type <codeNode>  multiply_op factor add_op logical_op
-%type <codeNode> term1 term2 term3 term4 term5 term6 term7
+%type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty
 %start entry
 
 %%
@@ -743,10 +743,38 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($3);
                 $$=$1;
 }
-          | %empty {
-                ODEBUG( "function_code_block -> empty");
-                CodeNode* node = new CodeNode(YYSYMBOL_function_code_block);
-                 $$ = node;
+          | statement SEMICOLON {ODEBUG( "function_code_block ->  statement SEMICOLON");
+                $$=$1;
+                 }
+         | RETURN expr SEMICOLON {
+                ODEBUG( "function_code_block -> RETURN expr SEMICOLON");
+                CodeNode *node = new CodeNode(O_FUNC_RETURN);
+                stringstream ss;
+                ss << $2->IRCode;
+                ss << "ret ";
+                switch($2->type){
+                        case O_INT:
+                                ss << $2->val.i;
+                                break;
+                        case IDENTIFIER:
+                                ss << $2->sourceCode;
+                                break;
+                        case O_EXPR:
+                                ss << *($2->val.str);
+                                break;
+                        default:
+                           OWARN("unexpected type");
+                           yyerror("unexpected type");
+                }
+                ss <<endl;
+                node->IRCode = ss.str();
+                node->printIR();
+                node->addChild($2);
+                $$=node;
+                }
+        | control_flow_stmt_function {
+                ODEBUG( "function_code_block -> control_flow_stmt_function");
+                $$=$1;
                 }
           ;
 
@@ -756,8 +784,8 @@ control_flow_stmt_function:  while_stmt {ODEBUG("control_flow_stmt_function -> w
                 CodeNode *node = new CodeNode(O_IF_STMT);
                 $$ = node;}
         ;
-
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
+                    | if_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");}
                     ;
 if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");}
                  ;
@@ -765,7 +793,6 @@ elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function
           ;
 multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG("multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
                         |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function");}
-                        |%empty
                         ;
 
 else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG("else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
@@ -829,22 +856,26 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         $$=node;
                         }
                   ;
-
-loop_block_function: loop_block_function code_block {ODEBUG("loop_block_function -> loop_block code_block");}
-                  | loop_block_function BREAK SEMICOLON {ODEBUG("loop_block_function -> loop_block BREAK SEMICOLON");}
-                  | loop_block_function RETURN expr {ODEBUG("loop_block_function -> loop_block_function RETURN expr");}
-| %empty
+loop_block_function: %empty {ODEBUG("loop_block_function -> %empty");
+                        CodeNode *node = new CodeNode(YYSYMBOL_loop_block_function);
+                        $$=node;}
+                | loop_block_function_non_empty {ODEBUG("loop_block_function -> loop_block_function_non_empty");
+                        $$=$1;}
+                ;
+loop_block_function_non_empty: loop_block_function_non_empty BREAK  {ODEBUG("loop_block_function -> loop_block BREAK SEMICOLON");}
+                  | function_code_block
+                  | BREAK SEMICOLON
                   ;
 
-loop_block: loop_block code_block {ODEBUG("loop_block -> loop_block code_block");}
-| loop_block BREAK SEMICOLON {ODEBUG("loop_block -> loop_block BREAK SEMICOLON");}
+loop_block:  code_block {ODEBUG("loop_block -> loop_block code_block");}
+          | loop_block BREAK  {ODEBUG("loop_block -> loop_block BREAK SEMICOLON");}
           | %empty
           ;
 
 code_block: code_block statement SEMICOLON { ODEBUG("code_block -> code_block statement SEMICOLON ");}
           | code_block control_flow_stmt { ODEBUG("code_block -> code_block control_flow_stmt ");}
-| code_block RETURN expr { ODEBUG("code_block -> code_block RETURN expr");}
-          | %empty
+          | statement SEMICOLON
+          | control_flow_stmt
           ;
 
 control_flow_stmt: while_stmt {ODEBUG("block_stmt -> while_stmt");}
@@ -876,7 +907,6 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
 
 statement: statement2
           | expr {ODEBUG("statement -> expr");$$=$1;}
-         
           | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
