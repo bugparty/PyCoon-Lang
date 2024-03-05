@@ -129,7 +129,7 @@ condition_op: GE {ODEBUG("condition_op-> GE");}
            | NEQ {ODEBUG("condition_op-> NEQ");}
            ;
 
-arithmetic_expr : expr logical_op term1 {
+arithmetic_expr : arithmetic_expr logical_op term1 {
                 ODEBUG("arithmetic_expr -> expr logical_op term1");
                 CodeNode* addNode = new CodeNode(O_EXPR);
                 string ariOP="WTF!!!!";
@@ -342,15 +342,16 @@ factor:  term4 {ODEBUG("factor-> term4");$$ = $1;}
 term4: number {ODEBUG("factor-> NUMBER");$$ = $1;}
         | term5 {ODEBUG("factor-> term5");$$ = $1;}
         ;
-term5:  IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
+term5:  IDENTIFIER {ODEBUG("term5-> IDENTIFIER %s",$1->sourceCode.c_str());$$ = $1;}
         |term6 {ODEBUG("factor-> term6");$$ = $1;}
         ;
-// term6: function_call_stmt {ODEBUG("factor-> function_call_stmt");$$=$1;}
-//        | term7 {ODEBUG("factor-> term7");$$=$1;}
-//         ;
-term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
+term6: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("term6-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
+       | term7 {ODEBUG("factor-> term7");$$=$1;}
         ;
-term7: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
+// term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
+//         ;
+term7: function_call_stmt {ODEBUG("term7-> function_call_stmt");$$=$1;}
+        
         ;
 
 
