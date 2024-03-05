@@ -824,7 +824,6 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
 
 loop_block_function: while_stmt  {ODEBUG("loop_block_function -> while_stmt");}
                   | for_stmt {ODEBUG("loop_block_function -> for_stmt");}
-                  | %empty
                   ;
 
 
@@ -843,7 +842,7 @@ for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_P
           ; 
 
 
-loop_block: loop_block function_code_block {ODEBUG("loop_block -> loop_block code_block");}
+loop_block: function_code_block loop_block {ODEBUG("loop_block -> loop_block code_block");}
           | function_code_block BREAK SEMICOLON 
           {
                 ODEBUG("loop_block -> loop_block BREAK SEMICOLON"); 
@@ -859,7 +858,6 @@ loop_block: loop_block function_code_block {ODEBUG("loop_block -> loop_block cod
                  ODEBUG("loop_block -> loop_block_function"); 
                 //NEsted loop
           }
-          | %empty
           ;
 
 
