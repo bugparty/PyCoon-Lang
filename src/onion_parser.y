@@ -88,8 +88,8 @@ int yylex(void);
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
-%type <codeNode>  multiply_op factor add_op logical_op term1 term2 term3 
-
+%type <codeNode>  multiply_op factor add_op logical_op
+%type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %start entry
 
 %%
@@ -337,9 +337,20 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                         addNode->printIR();}
         | factor {ODEBUG("term3 ->factor");$$ = $1;}
         ;
-factor: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
-        | number {ODEBUG("factor-> NUMBER");$$ = $1;}
-        | IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
+factor:  term4 {ODEBUG("factor-> term4");$$ = $1;}
+        ;
+term4: number {ODEBUG("factor-> NUMBER");$$ = $1;}
+        | term5 {ODEBUG("factor-> term5");$$ = $1;}
+        ;
+term5:  IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
+        |term6 {ODEBUG("factor-> term6");$$ = $1;}
+        ;
+// term6: function_call_stmt {ODEBUG("factor-> function_call_stmt");$$=$1;}
+//        | term7 {ODEBUG("factor-> term7");$$=$1;}
+//         ;
+term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
+        ;
+term7: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
         ;
 
 
@@ -700,14 +711,6 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($2);
                 $$=$1;
                  }
-          | statement SEMICOLON {
-                ODEBUG( "function_code_block -> statement SEMICOLON");
-                CodeNode* node = new CodeNode(YYSYMBOL_function_code_block);
-                node->IRCode+=$1->IRCode;
-                node->addChild($1);
-                $$=node;
-               
-          }
           | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
                 $1->IRCode+=$2->IRCode;
@@ -737,11 +740,11 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->printIR();
                 $1->addChild($3);
                 $$=$1;
-                }
+}
           | %empty {
                 CodeNode* node = new CodeNode(YYSYMBOL_function_code_block);
                  $$ = node;
-          }
+                }
           ;
 
 control_flow_stmt_function:  while_stmt {ODEBUG("block_stmt -> while_stmt");}
@@ -785,7 +788,6 @@ ifElse_stmt: if_stmt multi_elif_stmt else_stmt {ODEBUG("ifElse_stmt -> if_stmt m
 function_argument: arithmetic_expr {ODEBUG("function_argument -> arithmetic_expr");$$=$1;} 
                         
                   | right_array_access_expr { ODEBUG("function_argument -> array_access_expr"); $$=$1;}
-                  | function_call_stmt {ODEBUG("function_argument -> function_call_stmt"); $$=$1;}
                   ;
 function_arguments  : function_arguments COMMA function_argument {
                         ODEBUG("function_arguments -> function_arguments COMMA function_argument");$1->addChild($3);
@@ -821,31 +823,22 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         node->debug();
                         $$=node;
                         }
-                        
-                  | IDENTIFIER LEFT_PAR RIGHT_PAR  {ODEBUG("function_call_stmt -> IDENTIFIER LEFT_PAR RIGHT_PAR");
-                                                CodeNode *node = new CodeNode(O_FUNC_CALL);
-                                                stringstream ss;
-                                                node->genFunctionCallIRCode(ss);
-                                                node->IRCode = ss.str();
-                                                node->printIR();
-                                                $$=node;
-                                                }
                   ;
 
 loop_block_function: loop_block_function code_block {ODEBUG("loop_block_function -> loop_block code_block");}
                   | loop_block_function BREAK SEMICOLON {ODEBUG("loop_block_function -> loop_block BREAK SEMICOLON");}
                   | loop_block_function RETURN expr {ODEBUG("loop_block_function -> loop_block_function RETURN expr");}
-                  | %empty
+| %empty
                   ;
 
 loop_block: loop_block code_block {ODEBUG("loop_block -> loop_block code_block");}
-          | loop_block BREAK SEMICOLON {ODEBUG("loop_block -> loop_block BREAK SEMICOLON");}
+| loop_block BREAK SEMICOLON {ODEBUG("loop_block -> loop_block BREAK SEMICOLON");}
           | %empty
           ;
 
 code_block: code_block statement SEMICOLON { ODEBUG("code_block -> code_block statement SEMICOLON ");}
           | code_block control_flow_stmt { ODEBUG("code_block -> code_block control_flow_stmt ");}
-          | code_block RETURN expr { ODEBUG("code_block -> code_block RETURN expr");}
+| code_block RETURN expr { ODEBUG("code_block -> code_block RETURN expr");}
           | %empty
           ;
 
@@ -863,18 +856,13 @@ read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
         ;
 print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           ODEBUG("print_stmt-> PRINT LEFT_PAR expr RIGHT_PAR"); 
+          CodeNode*expr = $3;
            CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
            stringstream ss;
-           ss << $3->IRCode;
-           ss << ".> "<< *($3->val.str)<<endl;
-          node->IRCode = ss.str();
-          $$ = node; 
-        }
-        | PRINT LEFT_PAR identifier RIGHT_PAR {
-          ODEBUG("print_stmt-> PRINT LEFT_PAR identifier RIGHT_PAR"); 
-          CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
-          stringstream ss;
-          ss << ".> "<< $3->sourceCode<<endl;
+           ss << expr->IRCode;
+           ss << ".> ";
+           expr->getImmOrVariableIRCode(ss);
+           ss << endl;
           node->IRCode = ss.str();
           $$ = node; 
         }
@@ -886,7 +874,6 @@ statement: expr {ODEBUG("statement -> expr");$$=$1;}
                 $$=$1;
                 }
           | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
-          | function_call_stmt {ODEBUG("statement -> function_call_stmt");$$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
           ;
