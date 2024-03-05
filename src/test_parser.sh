@@ -16,4 +16,6 @@ fi
 # cat ../doc/language_samples/parser/06Ifelse.onion | ./onion
 # cat ../doc/language_samples/parser/11IfElse2.onion | ./onion
 # cat ../doc/language_samples/parser/12ifElse_additional_testing.onion | ./onion
-cat ../doc/language_samples/IR_test_case/2expr.onion | ./onion
+#cat ../doc/language_samples/IR_test_case/2expr.onion | ./onion
+cat tests/IR_auto_tests/function01.onion | ./onion -p
+#cat tests/IR_auto_tests/a_plus_b.onion | ./onion

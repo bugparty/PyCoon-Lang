@@ -26,10 +26,16 @@ int yylex(void);
 %}
 
 
-
-
+/*
+use ./onion -p to enable parser tracing
+*/
+/* Generate the parser description file. */
+%verbose
+/* Enable run-time traces (yydebug). */
+%define parse.trace
 %define parse.error verbose
-%define parse.lac full
+/* look ahead trace */
+//%define parse.lac full
 
 %union{
     int tokenVal;
@@ -77,7 +83,7 @@ int yylex(void);
 %nterm function_declartion
 %nterm condition_op arithmetic_op multiply_op term1 term2 factor 
 
-%type <codeNode>  statement 
+%type <codeNode>  statement statement1 statement2 statement3
 %type <codeNode> expr arithmetic_expr
 %type <codeNode>  arithmetic_op condition_op 
 %type <codeNode> identifier number
@@ -129,7 +135,7 @@ condition_op: GE {ODEBUG("condition_op-> GE");}
            | NEQ {ODEBUG("condition_op-> NEQ");}
            ;
 
-arithmetic_expr : expr logical_op term1 {
+arithmetic_expr : arithmetic_expr logical_op term1 {
                 ODEBUG("arithmetic_expr -> expr logical_op term1");
                 CodeNode* addNode = new CodeNode(O_EXPR);
                 string ariOP="WTF!!!!";
@@ -342,16 +348,11 @@ factor:  term4 {ODEBUG("factor-> term4");$$ = $1;}
 term4: number {ODEBUG("factor-> NUMBER");$$ = $1;}
         | term5 {ODEBUG("factor-> term5");$$ = $1;}
         ;
-term5:  IDENTIFIER {ODEBUG("factor-> IDENTIFIER");$$ = $1;}
+term5:  IDENTIFIER {ODEBUG("term5-> IDENTIFIER %s",$1->sourceCode.c_str());$$ = $1;}
         |term6 {ODEBUG("factor-> term6");$$ = $1;}
         ;
-// term6: function_call_stmt {ODEBUG("factor-> function_call_stmt");$$=$1;}
-//        | term7 {ODEBUG("factor-> term7");$$=$1;}
-//         ;
-term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
-        ;
-term7: LEFT_PAR expr RIGHT_PAR  {ODEBUG("factor-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
-        ;
+term6: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("term6-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
+       ;
 
 
 number_tuple : number_tuple COMMA number  {ODEBUG("number_tuple -> number_tuple COMMA number");}
@@ -483,7 +484,7 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
 
         }
                     
-assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt");}
+assignment_stmt: array_access_stmt 
                 | single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $1;
@@ -869,15 +870,16 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
         ;
 
 
-statement: expr {ODEBUG("statement -> expr");$$=$1;}
-          | assignment_stmt {ODEBUG("statement -> assignment_stmt");
-                $$=$1;
-                }
+statement: statement2
+          | expr {ODEBUG("statement -> expr");$$=$1;}
+         
           | variable_declartion {ODEBUG("statement -> variable_declartion");$$=$1;}
           | read_stmt          {ODEBUG("statement -> read_stmt");$$=$1;}
           | print_stmt         {ODEBUG("statement -> print_stmt");}
           ;
-
+statement2: assignment_stmt {ODEBUG("statement -> assignment_stmt");
+                $$=$1;
+                }
 functions: functions function_declartion {
                 ODEBUG("functions-> functions function_declartion");
                 $1->addChild($2);

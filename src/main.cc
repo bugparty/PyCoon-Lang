@@ -1,14 +1,17 @@
 /* main.cc */
 
 #include "heading.h"
-
+#include <cstring>
 // prototype of bison-generated parser function
 int yyparse();
 
 int main(int argc, char **argv)
 {
   pushFunction("__global__");
-  if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
+  /* Enable parse traces on option -p. */
+  if (argc == 2 && strcmp(argv[1], "-p") == 0)
+    yydebug = 1;
+  else if ((argc > 1) && (freopen(argv[1], "r", stdin) == NULL))
   {
     cerr << argv[0] << ": File " << argv[1] << " cannot be opened.\n";
     exit( 1 );
