@@ -854,6 +854,11 @@ loop_block: loop_block function_code_block {ODEBUG("loop_block -> loop_block cod
                  ODEBUG("loop_block -> function_code_block CONTINUE SEMICOLON"); 
                 //Continue
           }
+          |loop_block_function 
+          {
+                 ODEBUG("loop_block -> loop_block_function"); 
+                //NEsted loop
+          }
           | %empty
           ;
 
