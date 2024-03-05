@@ -352,12 +352,7 @@ term5:  IDENTIFIER {ODEBUG("term5-> IDENTIFIER %s",$1->sourceCode.c_str());$$ = 
         |term6 {ODEBUG("factor-> term6");$$ = $1;}
         ;
 term6: LEFT_PAR arithmetic_expr RIGHT_PAR  {ODEBUG("term6-> LEFT_PAR expr RIGHT_PAR ");$$=$2;}
-       | term7 {ODEBUG("factor-> term7");$$=$1;}
-        ;
-// term6:  term7 {ODEBUG("factor-> term7");$$=$1;}
-//         ;
-term7: function_call_stmt {ODEBUG("term7-> function_call_stmt");$$=$1;}
-        ;
+       ;
 
 
 number_tuple : number_tuple COMMA number  {ODEBUG("number_tuple -> number_tuple COMMA number");}
