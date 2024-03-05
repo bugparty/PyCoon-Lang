@@ -778,12 +778,16 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }
           ;
 
-control_flow_stmt_function:  while_stmt {ODEBUG("control_flow_stmt_function -> while_stmt");}
-        | for_stmt {ODEBUG("control_flow_stmt_function -> for_stmt");}
+control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_function -> while_stmt");}
+        | for_stmt_function {ODEBUG("control_flow_stmt_function -> for_stmt");}
         | ifElse_stmt_function {ODEBUG("control_flow_stmt_function -> ifElse_stmt_function");
                 CodeNode *node = new CodeNode(O_IF_STMT);
                 $$ = node;}
         ;
+while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
+          ;
+for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
+          ;
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
                     | if_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");}
                     ;
