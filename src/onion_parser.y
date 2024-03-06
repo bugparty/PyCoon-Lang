@@ -905,10 +905,10 @@ ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_functi
                         CodeNode *else_stmt = $3;
                         stringstream ss;
                         ss << if_stmt->IRCode;
-                        ss << ": " << *(if_stmt->val.str) << endl;
                         ss << multi_elif_stmt->IRCode;
                         ss << else_stmt->IRCode;
-                        ss << ": " << *(multi_elif_stmt->val.str) << endl;
+                        ss << ": " << *(if_stmt->val.str) << endl;
+                        ss << *(multi_elif_stmt->val.str);
                         node->IRCode =  ss.str();
                         node->addChild($1);
                         node->addChild($2);
@@ -969,7 +969,7 @@ elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function
         
         auto label_elif_true = SymbolManager::getInstance()->allocate_label("elif_true");
         auto label_elif_false = SymbolManager::getInstance()->allocate_label("elif_false");
-        auto label_elif_true_next = SymbolManager::getInstance()->allocate_label("if_true_next");
+        auto label_elif_true_next = SymbolManager::getInstance()->allocate_label("elif_true_next");
         ss << "?:= " << label_elif_true << ", " << tempCond << endl;
         ss << ":= " << label_elif_false << endl;
         ss << ": " << label_elif_true << endl;
@@ -987,16 +987,23 @@ multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {
                                 CodeNode *elif_stmt = $2;
                                 stringstream ss;
                                 ss << multi_elif_stmt->IRCode;
-                                //if left elif is false, jump to next elif
-                                ss << ": " << *(multi_elif_stmt->val.str) << endl;
                                 ss << elif_stmt->IRCode;
                                 multi_elif_stmt->IRCode = ss.str();
                                 multi_elif_stmt->addChild(elif_stmt);
                                 //update the next label for elif false
-                                multi_elif_stmt->val.str = elif_stmt->val.str;
+                                stringstream ss_labels;
+                                ss_labels << *(multi_elif_stmt->val.str);
+                                ss_labels << ": " << *(elif_stmt->val.str) << endl;
+                                ODEBUG("ss_labels: %s", ss_labels.str().c_str());
+                                multi_elif_stmt->val.str = new string(ss_labels.str());
                                 $$=multi_elif_stmt;
                                 }
-                        |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function"); $$=$1;}
+                        |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function");
+                                CodeNode *elif = $1;
+                                stringstream ss;
+                                ss << ": " << *(elif->val.str) << endl;
+                                elif->val.str = new string(ss.str());
+                                $$=elif;}
                         ;
 
 else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {
