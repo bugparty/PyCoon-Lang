@@ -96,6 +96,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
 %type <codeNode>  multiply_op factor add_op logical_op
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty
+%type <codeNode> for_stmt_function
 %start entry
 
 %%
@@ -714,6 +715,11 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                  }
           | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
+                ODEBUG("test1");
+                $1->debug();
+                ODEBUG("test 2");
+                $2->debug();
+                ODEBUG("test 3");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
@@ -779,7 +785,10 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
           ;
 
 control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_function -> while_stmt");}
-        | for_stmt_function {ODEBUG("control_flow_stmt_function -> for_stmt");}
+        | for_stmt_function {
+                ODEBUG("control_flow_stmt_function -> for_stmt");
+                $$ = $1;
+                }
         | ifElse_stmt_function {ODEBUG("control_flow_stmt_function -> ifElse_stmt_function");
                 CodeNode *node = new CodeNode(O_IF_STMT);
                 $$ = node;}
@@ -805,7 +814,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
 
 
 
-        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->IRCode;  
+        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->getImmOrVariableIRCode();  
         //We jump back to the label if the condition is still true;
 
         //?:= label, predicate
@@ -817,7 +826,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         //:= label
         //goto labels
 
-
+        $$=newNode;
         }
           ;
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
