@@ -7,7 +7,9 @@ int yyparse();
 
 int main(int argc, char **argv)
 {
+  //initialize the symbol manager and the states
   pushFunction("__global__");
+  SymbolManager::getInstance();
   /* Enable parse traces on option -p. */
   if (argc == 2 && strcmp(argv[1], "-p") == 0)
     yydebug = 1;

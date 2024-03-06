@@ -20,6 +20,10 @@ enum CodeNodeType{
     O_FUNC_DECLARATION,
     O_FUNC_ARGS,
     O_FUNC_CALL,
+    O_IF_STMT,
+    O_FUNC_RETURN,
+    O_WHILE_STMT,
+    O_FOR_STMT
 };
 /*
 if target type is O_EXPR, store the temp variable name in val.str*/
