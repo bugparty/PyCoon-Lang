@@ -35,15 +35,18 @@ std::string real_name(const std::string& name,const std::string& scope){
     return sym;
  }
 std::string SymbolManager::allocate_temp(enum SymbolType type){
-    
     std::stringstream ss;
-    ss << "_temp" << tempCounter++;
+    ss << "_temp" << ++tempCounter;
     addSymbol(ss.str(),"temp", type);
     return ss.str();
 }
-std::string SymbolManager::allocate_label(){
+std::string SymbolManager::allocate_label(std::string prefix){
     std::stringstream ss;
-    ss << "_label_" << labelCounter++;
+    ss << "_label_";
+    if(prefix.length()>0){
+        ss << prefix << "_";
+    }
+    ss << ++labelCounter;
     return ss.str();
 }
  SymbolManager* SymbolManager::getInstance(){

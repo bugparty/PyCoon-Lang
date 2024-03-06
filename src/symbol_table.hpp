@@ -74,7 +74,7 @@ class SymbolManager{
     Symbol* addFunction(const std::string& name, const std::vector<Symbol*>& arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
-    std::string allocate_label();
+    std::string allocate_label(std::string prefix="");
     static SymbolManager* getInstance();
     void debugPrint();
 };
