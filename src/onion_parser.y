@@ -95,11 +95,10 @@ use ./onion -p to enable parser tracing
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
-%type <codeNode>  multiply_op factor add_op logical_op
-%type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty
+%type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
-%type <codeNode> for_stmt_function 
 %type <codeNode> loop_block_function_non_empty while_stmt_function 
+deNode>  multiply_op factor add_op logical_op
 %type <codeNode> for_stmt_function
 %start entry
 
@@ -958,6 +957,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         ss<<": "<<label_loop_body<<endl;
         ss<<$10->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
+<<<<<<< HEAD
 
         ss<<": "<<label_loop_end<<endl;
         
