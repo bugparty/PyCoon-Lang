@@ -84,6 +84,9 @@ struct CodeNode{
     void addChild(CodeNode* child){
         children.push_back(child);
     }
+    bool isImmediateValue(){
+        return type == O_INT || type == O_FLOAT || type == O_DOUBLE;
+    }
     void debug(bool recursive = false){
         std::cout << "sourceCode: " << sourceCode << std::endl;
         std::stringstream ss;
