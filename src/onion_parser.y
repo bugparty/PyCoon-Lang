@@ -807,14 +807,11 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         //Label declaration
         auto label_if_true = SymbolManager::getInstance()->allocate_label();
         
-        ss<<": "<<label_if_true;
+        ss<<": "<<label_if_true<<endl;
         ss<<$10->IRCode; //Code Body
         
         ss<<incrementVar->IRCode; //increment, like i++
-
-
-
-        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->getImmOrVariableIRCode();  
+        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<endl;
         //We jump back to the label if the condition is still true;
 
         //?:= label, predicate
@@ -825,7 +822,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
 
         //:= label
         //goto labels
-
+        newNode->IRCode = ss.str();
         $$=newNode;
         }
           ;
