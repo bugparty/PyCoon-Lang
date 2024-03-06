@@ -786,7 +786,13 @@ control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_func
         ;
 while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
+for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        {
+        ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+        CodeNode *newNode = new CodeNode(O_IF_STMT);
+
+
+        }
           ;
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
                     | if_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");}
