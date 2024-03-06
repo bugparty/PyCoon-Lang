@@ -957,7 +957,6 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         ss<<": "<<label_loop_body<<endl;
         ss<<$10->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
-<<<<<<< HEAD
 
         ss<<": "<<label_loop_end<<endl;
         
