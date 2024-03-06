@@ -908,7 +908,21 @@ elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function
         $$=node;     
         }
         ;
-multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG("multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
+multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {
+                                ODEBUG("multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");
+                                CodeNode *multi_elif_stmt = $1;
+                                CodeNode *elif_stmt = $2;
+                                stringstream ss;
+                                ss << multi_elif_stmt->IRCode;
+                                //if left elif is false, jump to next elif
+                                ss << ": " << *(multi_elif_stmt->val.str) << endl;
+                                ss << elif_stmt->IRCode;
+                                multi_elif_stmt->IRCode = ss.str();
+                                multi_elif_stmt->addChild(elif_stmt);
+                                //update the next label for elif false
+                                multi_elif_stmt->val.str = elif_stmt->val.str;
+                                $$=multi_elif_stmt;
+                                }
                         |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function"); $$=$1;}
                         ;
 
