@@ -790,6 +790,11 @@ for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statemen
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = new CodeNode(O_IF_STMT);
+        CodeNode *loop_control_var = $3;
+        CodeNode *loopContinueCondition =$5;
+        CodeNode *incrementVar = $7;
+        string labelCreation = 
+        
 
 
         }
