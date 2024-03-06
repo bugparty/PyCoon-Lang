@@ -41,12 +41,16 @@ std::string SymbolManager::allocate_temp(enum SymbolType type){
     return ss.str();
 }
 std::string SymbolManager::allocate_label(std::string prefix){
+    auto it = labelMap.find(prefix);
+    if (it==labelMap.end()){
+        labelMap[prefix]=0;
+    }
     std::stringstream ss;
     ss << "_label_";
     if(prefix.length()>0){
         ss << prefix << "_";
     }
-    ss << ++labelCounter;
+    ss << labelMap[prefix]++;
     return ss.str();
 }
  SymbolManager* SymbolManager::getInstance(){
@@ -76,6 +80,10 @@ void SymbolManager::debugPrint(){
     std::cout << "Symbols:" << std::endl;
     for(auto it = symbols.begin(); it!=symbols.end();it++){
         std::cout << it->first << " : " << it->second->name << std::endl;
+    }
+    std::cout << "Labels:" << std::endl;
+    for(auto it = labelMap.begin(); it!=labelMap.end();it++){
+        std::cout << it->first << " : " << it->second << std::endl;
     }
     std::cout << "Functions:" << std::endl;
     for(auto it = functions.begin(); it!=functions.end();it++){
