@@ -100,6 +100,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
 %type <codeNode> for_stmt_function 
 %type <codeNode> loop_block_function_non_empty while_stmt_function 
+%type <codeNode> for_stmt_function
 %start entry
 
 %%
