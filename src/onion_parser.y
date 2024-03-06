@@ -96,6 +96,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
 %type <codeNode>  multiply_op factor add_op logical_op
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty
+%type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
 %start entry
 
 %%
@@ -781,26 +782,108 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
 control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_function -> while_stmt");}
         | for_stmt_function {ODEBUG("control_flow_stmt_function -> for_stmt");}
         | ifElse_stmt_function {ODEBUG("control_flow_stmt_function -> ifElse_stmt_function");
-                CodeNode *node = new CodeNode(O_IF_STMT);
-                $$ = node;}
+                $$ = $1;}
         ;
 while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
 for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
-                    | if_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");}
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
+                                CodeNode *node = new CodeNode(O_IF_STMT);
+                                CodeNode *if_stmt = $1;
+                                CodeNode *else_stmt = $3;
+                                stringstream ss;
+                                ss << if_stmt->IRCode;
+                                ss << else_stmt->IRCode;
+                                ss << ": " << *(if_stmt->val.str) << endl;
+                                node->IRCode =  ss.str();
+                                node->addChild($1);
+                                //node->addChild($2);
+                                node->addChild($3);
+                                $$=node;
+                                }
+                    | if_stmt_function else_stmt_function {
+                        ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");
+                                CodeNode *node = new CodeNode(O_IF_STMT);
+                                CodeNode *if_stmt = $1;
+                                CodeNode *else_stmt = $2;
+                                stringstream ss;
+                                ss << if_stmt->IRCode;
+                                ss << else_stmt->IRCode;
+                                ss << ": " << *(if_stmt->val.str) << endl;
+                                node->IRCode =  ss.str();
+                                node->addChild(if_stmt);
+                                //node->addChild($2);
+                                node->addChild(else_stmt);
+                                $$=node;
+                        $$=node;}
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");}
-                 ;
-elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG("elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY");}
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+        ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");
+        CodeNode *node = new CodeNode(O_IF_STMT);
+        CodeNode *expr = $3;
+        CodeNode *loop_block = $6;
+        stringstream ss;
+        ss << expr->IRCode;
+        auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
+        ss << ". " << tempCond <<endl;
+        ss << "> " << tempCond << " , " << expr->getImmOrVariableIRCode() << ", 0" << endl;
+        
+        auto label_if_true = SymbolManager::getInstance()->allocate_label("if_true");
+        auto label_if_false = SymbolManager::getInstance()->allocate_label("if_false");
+        auto label_if_true_next = SymbolManager::getInstance()->allocate_label("if_true_next");
+        ss << "?:= " << label_if_true << ", " << tempCond << endl;
+        ss << ":= " << label_if_false << endl;
+        ss << ": " << label_if_true << endl;
+        ss << loop_block->IRCode;
+        ss << ":= " << label_if_true_next << endl;
+        ss << ": " << label_if_false << endl;
+        node->IRCode = ss.str();
+        node->val.str = new string(label_if_true_next);
+        $$=node;     
+        }
+        ;
+elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+        ODEBUG("elif_stmt_function -> ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY ");
+        CodeNode *node = new CodeNode(O_ELIF_STMT);
+        CodeNode *expr = $3;
+        CodeNode *loop_block = $6;
+        stringstream ss;
+        ss << expr->IRCode;
+        auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
+        ss << ". " << tempCond <<endl;
+        ss << "> " << tempCond << " , " << expr->getImmOrVariableIRCode() << ", 0" << endl;
+        
+        auto label_elif_true = SymbolManager::getInstance()->allocate_label("elif_true");
+        auto label_elif_false = SymbolManager::getInstance()->allocate_label("elif_false");
+        auto label_elif_true_next = SymbolManager::getInstance()->allocate_label("if_true_next");
+        ss << "?:= " << label_elif_true << ", " << tempCond << endl;
+        ss << ":= " << label_elif_false << endl;
+        ss << ": " << label_elif_true << endl;
+        ss << loop_block->IRCode;
+        ss << ":= " << label_elif_true_next << endl;
+        ss << ": " << label_elif_false << endl;
+        node->IRCode = ss.str();
+        node->val.str = new string(label_elif_true_next);
+        $$=node;     
+        }
+
           ;
 multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG("multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
                         |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function");}
                         ;
 
-else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {ODEBUG("else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
-          | %empty
+else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+        ODEBUG("else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");
+        CodeNode *node = new CodeNode(O_ELSE_STMT);
+        node->IRCode = $3->IRCode;
+        node->addChild($3);
+        $$=node;
+        }       
+        | %empty {
+                CodeNode *node = new CodeNode(O_ELSE_STMT);
+                $$=node;
+        }
           ;
 elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {ODEBUG("elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY");}
           ;
@@ -814,7 +897,11 @@ else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG("else_stmt -> ELSE L
           | %empty
           ;
         
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG("if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY");}
+if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {
+                ODEBUG("if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY");
+                CodeNode *node = new CodeNode(O_IF_STMT);
+                $$=node;     
+                }
           ;
 
 
@@ -899,10 +986,17 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           CodeNode*expr = $3;
            CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
            stringstream ss;
+           string var;
+           if(expr->isImmediateValue()){
+                auto temp = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
+                ss << ". " << temp << endl;
+                ss << "= " << temp << ", " << expr->getImmOrVariableIRCode() << endl;
+                var = temp;
+           }else{
+                var = expr->getImmOrVariableIRCode();
+           }
            ss << expr->IRCode;
-           ss << ".> ";
-           expr->getImmOrVariableIRCode(ss);
-           ss << endl;
+           ss << ".> " << var << endl;
           node->IRCode = ss.str();
           $$ = node; 
         }

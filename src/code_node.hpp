@@ -21,6 +21,8 @@ enum CodeNodeType{
     O_FUNC_ARGS,
     O_FUNC_CALL,
     O_IF_STMT,
+    O_ELSE_STMT,
+    O_ELIF_STMT,
     O_FUNC_RETURN,
     O_WHILE_STMT,
     O_FOR_STMT
@@ -82,6 +84,9 @@ struct CodeNode{
     bool genFunctionCallIRCode(std::stringstream &ss);
     void addChild(CodeNode* child){
         children.push_back(child);
+    }
+    bool isImmediateValue(){
+        return type == O_INT || type == O_FLOAT || type == O_DOUBLE;
     }
     void debug(bool recursive = false){
         std::cout << "sourceCode: " << sourceCode << std::endl;
