@@ -41,6 +41,11 @@ std::string SymbolManager::allocate_temp(enum SymbolType type){
     addSymbol(ss.str(),"temp", type);
     return ss.str();
 }
+std::string SymbolManager::allocate_label(){
+    std::stringstream ss;
+    ss << "_label_" << labelCounter++;
+    return ss.str();
+}
  SymbolManager* SymbolManager::getInstance(){
     std::lock_guard<std::mutex> lock(mutex_);
     if(instance == nullptr){

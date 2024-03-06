@@ -53,10 +53,11 @@ class SymbolManager{
     std::map<std::string,Symbol*> symbols;
     std::map<std::string,Symbol*> functions;
     int tempCounter;
+    int labelCounter;
     static std::mutex mutex_;
     static SymbolManager* instance;
     protected:
-    SymbolManager():tempCounter(0){
+    SymbolManager():tempCounter(0),labelCounter(0){
     }
     public:
        /**
@@ -73,6 +74,7 @@ class SymbolManager{
     Symbol* addFunction(const std::string& name, const std::vector<Symbol*>& arguments);
     //allocate a new temp variable
     std::string allocate_temp(enum SymbolType type);
+    std::string allocate_label();
     static SymbolManager* getInstance();
     void debugPrint();
 };
