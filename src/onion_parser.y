@@ -95,7 +95,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
 %type <codeNode>  multiply_op factor add_op logical_op
-%type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty
+%type <codeNode> term1 term2 term3 term4 term5 term6 term7 loop_block_function_non_empty while_stmt_function
 %start entry
 
 %%
@@ -778,13 +778,48 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }
           ;
 
-control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_function -> while_stmt");}
+control_flow_stmt_function:  while_stmt_function {
+                ODEBUG("control_flow_stmt_function -> while_stmt");
+        
+                $$ = $1;
+        }
         | for_stmt_function {ODEBUG("control_flow_stmt_function -> for_stmt");}
         | ifElse_stmt_function {ODEBUG("control_flow_stmt_function -> ifElse_stmt_function");
                 CodeNode *node = new CodeNode(O_IF_STMT);
                 $$ = node;}
         ;
-while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
+while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {
+        ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+        CodeNode *node = new CodeNode(O_WHILE_STMT);
+        CodeNode *expr_node = $3;
+        CodeNode *loop_block_node = $6;
+
+        stringstream ss;
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+
+        ss << expr_node->IRCode;
+
+        ss << ": " << label_loop_start << endl;
+        
+
+        ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
+        ss << ":= " << label_loop_end << endl;
+
+        ss << ": " << label_loop_body << endl;
+
+        ss << loop_block_node->IRCode;
+
+        ss << ":= " << label_loop_start << endl;
+
+        ss << ": " << label_loop_end << endl;
+        
+        
+        
+        node->IRCode = ss.str();
+        $$=node;
+        }
           ;
 for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
