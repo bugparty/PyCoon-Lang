@@ -793,11 +793,11 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         CodeNode *loop_control_var = $3; 
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
-
-        ss<<loop_control_var->IR_Code; // int t = const;
+        stringstream ss;
+        ss<<loop_control_var->IRCode; // int t = const;
         //Label declaration
         auto label_if_true = SymbolManager::getInstance()->allocate_label();
-        stringstream ss;
+        
         ss<<": "<<label_if_true;
         ss<<$10->IRCode; //Code Body
         
@@ -805,7 +805,8 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
 
 
 
-        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->val;
+        ss<<"?:= "<<label_if_true<<", "<<loopContinueCondition->IRCode;  
+        //We jump back to the label if the condition is still true;
 
         //?:= label, predicate
         //If predicate is true(1) goto label
