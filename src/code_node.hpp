@@ -21,6 +21,7 @@ enum CodeNodeType{
     O_FUNC_ARGS,
     O_FUNC_CALL,
     O_IF_STMT,
+    O_ELSE_STMT,
     O_FUNC_RETURN,
     O_WHILE_STMT,
     O_FOR_STMT
