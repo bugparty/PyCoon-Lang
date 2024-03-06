@@ -803,21 +803,24 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
         stringstream ss;
-
+        
         ss<<loop_control_var->IRCode; // int t = const; 
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
-
+        ss<<loopContinueCondition->IRCode;
         
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
-     
+
+        auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
+        ss << ". " << tempCond <<endl;
+        ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         
         ss<<": "<<label_loop_start<<endl;
 
-        ss << "?:= " << label_loop_body << ", " << loopContinueCondition->getImmOrVariableIRCode() << endl;
+        ss << "?:= " << label_loop_body << ", " << tempCond << endl;
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
