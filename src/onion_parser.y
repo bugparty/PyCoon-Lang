@@ -786,15 +786,22 @@ control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_func
         ;
 while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
-for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = new CodeNode(O_IF_STMT);
-        CodeNode *loop_control_var = $3;
+        CodeNode *loop_control_var = $3; 
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
         string labelCreation = 
+        //?:= label, predicate
+        //If predicate is true(1) goto label
         
+        //: label 
+        //declares label
+
+        //:= label
+        //goto labels
 
 
         }
