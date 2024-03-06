@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <mutex> 
 #include "tok.h"
 #include "code_node.hpp"
+
 enum class SymbolType {
     SYM_VAR_INT=2048,
     SYM_VAR_FLOAT,
@@ -52,6 +54,7 @@ class SymbolManager{
     private:
     std::map<std::string,Symbol*> symbols;
     std::map<std::string,Symbol*> functions;
+    std::map<std::string,int> labelMap;
     int tempCounter;
     int labelCounter;
     static std::mutex mutex_;
