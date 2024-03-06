@@ -715,7 +715,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($2);
                 $$=$1;
                  }
-          | function_code_block control_flow_stmt_function {
+        | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
                 ODEBUG("test1");
                 $1->debug();
@@ -726,7 +726,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($2);
                 $$=$1;
                 }
-          | function_code_block RETURN expr SEMICOLON {
+        | function_code_block RETURN expr SEMICOLON {
                 ODEBUG( "function_code_block -> function_code_block RETURN expr SEMICOLON");
                 stringstream ss;
                 ss << $3->IRCode;
@@ -750,11 +750,11 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->printIR();
                 $1->addChild($3);
                 $$=$1;
-}
-          | statement SEMICOLON {ODEBUG( "function_code_block ->  statement SEMICOLON");
+        }
+        | statement SEMICOLON {ODEBUG( "function_code_block ->  statement SEMICOLON");
                 $$=$1;
                  }
-         | RETURN expr SEMICOLON {
+        | RETURN expr SEMICOLON {
                 ODEBUG( "function_code_block -> RETURN expr SEMICOLON");
                 CodeNode *node = new CodeNode(O_FUNC_RETURN);
                 stringstream ss;
@@ -897,20 +897,24 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         $$=newNode;
         } 
           ;
-ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
-                                CodeNode *node = new CodeNode(O_IF_STMT);
-                                CodeNode *if_stmt = $1;
-                                CodeNode *else_stmt = $3;
-                                stringstream ss;
-                                ss << if_stmt->IRCode;
-                                ss << else_stmt->IRCode;
-                                ss << ": " << *(if_stmt->val.str) << endl;
-                                node->IRCode =  ss.str();
-                                node->addChild($1);
-                                //node->addChild($2);
-                                node->addChild($3);
-                                $$=node;
-                                }
+ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
+                        ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
+                        CodeNode *node = new CodeNode(O_IF_STMT);
+                        CodeNode *if_stmt = $1;
+                        CodeNode *multi_elif_stmt = $2;
+                        CodeNode *else_stmt = $3;
+                        stringstream ss;
+                        ss << if_stmt->IRCode;
+                        ss << ": " << *(if_stmt->val.str) << endl;
+                        ss << multi_elif_stmt->IRCode;
+                        ss << else_stmt->IRCode;
+                        ss << ": " << *(multi_elif_stmt->val.str) << endl;
+                        node->IRCode =  ss.str();
+                        node->addChild($1);
+                        node->addChild($2);
+                        node->addChild($3);
+                        $$=node;
+                        }
                     | if_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");
                                 CodeNode *node = new CodeNode(O_IF_STMT);
@@ -976,10 +980,9 @@ elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function
         node->val.str = new string(label_elif_true_next);
         $$=node;     
         }
-
-          ;
+        ;
 multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {ODEBUG("multi_elif_stmt_function -> multi_elif_stmt_function else_stmt_function");}
-                        |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function");}
+                        |elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function"); $$=$1;}
                         ;
 
 else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {
