@@ -790,7 +790,13 @@ for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statemen
           ;
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
                                 CodeNode *node = new CodeNode(O_IF_STMT);
-                                node->IRCode = $1->IRCode + $3->IRCode;
+                                CodeNode *if_stmt = $1;
+                                CodeNode *else_stmt = $3;
+                                stringstream ss;
+                                ss << if_stmt->IRCode;
+                                ss << else_stmt->IRCode;
+                                ss << ": " << *(if_stmt->val.str) << endl;
+                                node->IRCode =  ss.str();
                                 node->addChild($1);
                                 //node->addChild($2);
                                 node->addChild($3);
@@ -798,10 +804,18 @@ ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_functi
                                 }
                     | if_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");
-                        CodeNode *node = new CodeNode(O_IF_STMT);
-                        node->IRCode = $1->IRCode + $2->IRCode;
-                        node->addChild($1);
-                        node->addChild($2);
+                                CodeNode *node = new CodeNode(O_IF_STMT);
+                                CodeNode *if_stmt = $1;
+                                CodeNode *else_stmt = $2;
+                                stringstream ss;
+                                ss << if_stmt->IRCode;
+                                ss << else_stmt->IRCode;
+                                ss << ": " << *(if_stmt->val.str) << endl;
+                                node->IRCode =  ss.str();
+                                node->addChild(if_stmt);
+                                //node->addChild($2);
+                                node->addChild(else_stmt);
+                                $$=node;
                         $$=node;}
                     ;
 if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
@@ -811,14 +825,21 @@ if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIG
         CodeNode *loop_block = $6;
         stringstream ss;
         ss << expr->IRCode;
+        auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
+        ss << ". " << tempCond <<endl;
+        ss << "> " << tempCond << " , " << expr->getImmOrVariableIRCode() << ", 0" << endl;
+        
         auto label_if_true = SymbolManager::getInstance()->allocate_label();
-        auto label_if_end = SymbolManager::getInstance()->allocate_label();
-        ss << "?:= " << label_if_true << ", " << expr->getImmOrVariableIRCode() << endl;
-        ss << ":= " << label_if_end << endl;
+        auto label_if_false = SymbolManager::getInstance()->allocate_label();
+        auto label_if_true_next = SymbolManager::getInstance()->allocate_label();
+        ss << "?:= " << label_if_true << ", " << tempCond << endl;
+        ss << ":= " << label_if_false << endl;
         ss << ": " << label_if_true << endl;
         ss << loop_block->IRCode;
-        ss << ": " << label_if_end << endl;
+        ss << ":= " << label_if_true_next << endl;
+        ss << ": " << label_if_false << endl;
         node->IRCode = ss.str();
+        node->val.str = new string(label_if_true_next);
         $$=node;     
         }
         ;
@@ -953,10 +974,17 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
           CodeNode*expr = $3;
            CodeNode *node = new CodeNode(YYSYMBOL_print_stmt);
            stringstream ss;
+           string var;
+           if(expr->isImmediateValue()){
+                auto temp = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
+                ss << ". " << temp << endl;
+                ss << "= " << temp << ", " << expr->getImmOrVariableIRCode() << endl;
+                var = temp;
+           }else{
+                var = expr->getImmOrVariableIRCode();
+           }
            ss << expr->IRCode;
-           ss << ".> ";
-           expr->getImmOrVariableIRCode(ss);
-           ss << endl;
+           ss << ".> " << var << endl;
           node->IRCode = ss.str();
           $$ = node; 
         }
