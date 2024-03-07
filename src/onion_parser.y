@@ -236,6 +236,8 @@ term1 : term1 condition_op term2 {
                                 ss << $1->val.i;
                         }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
+                        }else if($1->type == IDENTIFIER){
+                                ss << tempVar;
                         }
                         ss <<", ";
                         if($3->type == O_INT){
