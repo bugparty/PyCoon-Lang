@@ -41,8 +41,8 @@ symbol_table_tests.o: symbol_table_tests.cpp
 states.o: states.cpp states.hpp
 		$(CC) $(CFLAGS) -c states.cpp -o states.o
 		
-symbol_tests: symbol_table.o symbol_table_tests.o code_node.o
-		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o code_node.o -o symbol_tests
+symbol_tests: symbol_table.o symbol_table_tests.o code_node.o states.o
+		$(CC) $(CFLAGS) symbol_table.o symbol_table_tests.o code_node.o states.o -o symbol_tests
 bison_debug::	onion_parser.y code_node.hpp
 		bison -d --color -v -Wcounterexamples onion_parser.y
 		echo "See onion_parser.output for details"

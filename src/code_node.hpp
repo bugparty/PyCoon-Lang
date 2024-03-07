@@ -27,6 +27,15 @@ enum CodeNodeType{
     O_WHILE_STMT,
     O_FOR_STMT
 };
+struct LoopTag_{
+    int loopNo;
+    std::string loopStartLabel;
+    std::string loopBodyLabel;
+    std::string loopEndLabel;
+    LoopTag_(int loopNo,std::string loopStartLabel,std::string loopBodyLabel,std::string loopEndLabel):
+        loopNo(loopNo),loopStartLabel(loopStartLabel),loopBodyLabel(loopBodyLabel),loopEndLabel(loopEndLabel){}
+    };
+typedef struct LoopTag_ LoopTag;
 /*
 if target type is O_EXPR, store the temp variable name in val.str*/
 struct CodeNode{
@@ -38,6 +47,7 @@ struct CodeNode{
     float f;
     double d;
     std::string* str;
+    LoopTag* loopTag;
     }val;
     int type;
     int subType;

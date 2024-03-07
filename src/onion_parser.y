@@ -11,7 +11,7 @@
 int yyerror(char *s);
 int yylex(void);
 #define ENABLE_BISON_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
-
+int loopCounter = 0;
 #if ENABLE_BISON_PRINTF
     #define ODEBUG( ...) \
     do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\n",__FILE__,__LINE__);}while(0)
@@ -97,7 +97,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode>  multiply_op factor add_op logical_op
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
-%type <codeNode> loop_block_function_non_empty while_stmt_function
+%type <codeNode> loop_block_function_non_empty while_stmt_function 
 %start entry
 
 %%
@@ -789,36 +789,40 @@ control_flow_stmt_function:  while_stmt_function {
         | ifElse_stmt_function {ODEBUG("control_flow_stmt_function -> ifElse_stmt_function");
                 $$ = $1;}
         ;
-while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {
+while_stmt_function: WHILE {
+                CodeNode *node = new CodeNode(O_WHILE_STMT);
+                auto label_loop_start = SymbolManager::getInstance()->allocate_label("loop_start");
+                auto label_loop_body = SymbolManager::getInstance()->allocate_label("loop_body");
+                auto label_loop_end = SymbolManager::getInstance()->allocate_label("loop_end");
+                node->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
+                ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
+                
+                pushLoopTag(node);
+                push_code_node(node);
+                
+} LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {
         ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
-        CodeNode *node = new CodeNode(O_WHILE_STMT);
-        CodeNode *expr_node = $3;
-        CodeNode *loop_block_node = $6;
+        CodeNode *node = pop_code_node();
+        CodeNode *expr_node =$4;
+        CodeNode *loop_block_node = $7;
 
         stringstream ss;
-        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
-
+        auto label_loop_start = node->val.loopTag->loopStartLabel;
+        auto label_loop_body = node->val.loopTag->loopBodyLabel;
+        auto label_loop_end =   node->val.loopTag->loopEndLabel;
+        
         ss << expr_node->IRCode;
 
         ss << ": " << label_loop_start << endl;
-        
-
         ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
         ss << ":= " << label_loop_end << endl;
-
         ss << ": " << label_loop_body << endl;
 
         ss << loop_block_node->IRCode;
-
         ss << ":= " << label_loop_start << endl;
-
         ss << ": " << label_loop_end << endl;
-        
-        
-        
         node->IRCode = ss.str();
+        assert(popLoopTag()!= nullptr);
         $$=node;
         }
           ;

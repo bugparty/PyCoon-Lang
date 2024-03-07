@@ -1,4 +1,5 @@
 #include "symbol_table.hpp"
+#include "states.hpp"
 #include <iostream>
 #include <cassert>
 using namespace std;
@@ -22,5 +23,22 @@ int main(){
         
     }
     m2->debugPrint();
+    cout << "test loop tag"<<endl;
+    pushLoopTag("label_for_1");
+    pushLoopTag("label_for_2");
+    cout << currentLoopTag()<<endl;
+    popLoopTag();
+    cout << currentLoopTag()<<endl;
+    popLoopTag();
+    cout << currentLoopTag()<<endl;
+    cout << "test function tag"<<endl;
+    pushFunction("f1");
+    pushFunction("f2");
+    cout << currentFunction()<<endl;
+    popFunction();
+    cout << currentFunction()<<endl;
+    popFunction();
+    cout << currentFunction()<<endl;
+    
     return 0;
 }
