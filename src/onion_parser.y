@@ -233,6 +233,8 @@ term1 : term1 condition_op term2 {
                                 ss << $1->val.i;
                         }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
+                        }else if($1->type == IDENTIFIER){
+                                ss << tempVar;
                         }
                         ss <<", ";
                         if($3->type == O_INT){
@@ -795,6 +797,8 @@ control_flow_stmt_function:  while_stmt_function {ODEBUG("control_flow_stmt_func
         ;
 while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
           ;
+
+
 for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
@@ -839,10 +843,10 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         //declares label
 
         //:= label
-        //goto labels
+        //goto labels */
         newNode->IRCode = ss.str();
         $$=newNode;
-        }
+        } 
           ;
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");}
                     | if_stmt_function else_stmt_function {ODEBUG("ifElse_stmt_function -> if_stmt_function else_stmt_function ");}
