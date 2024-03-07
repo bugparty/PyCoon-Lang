@@ -1,9 +1,13 @@
 fun main(){
-    int a = 0;
-     for(int x = 0; x <= 5; x = x+1)
-     {
-        print(x);
-     }
+
+
+
+       for(int x = 5; x < 5; x = x + 1)
+       {
+            print(x);
+       }
+    
+    
 
 
 
