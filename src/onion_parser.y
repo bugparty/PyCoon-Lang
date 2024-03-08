@@ -97,7 +97,9 @@ use ./onion -p to enable parser tracing
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
 %type <codeNode> loop_block_function_non_empty while_stmt_function 
+
 %type <codeNode> for_stmt_function
+
 %start entry
 
 %%
@@ -852,6 +854,7 @@ while_stmt_function: WHILE {
         ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
         ss << ":= " << label_loop_end << endl;
         ss << ": " << label_loop_body << endl;
+
         ss << loop_block_node->IRCode;
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
@@ -915,8 +918,6 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         $$=newNode;
         }
           ;
-
-
 
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
