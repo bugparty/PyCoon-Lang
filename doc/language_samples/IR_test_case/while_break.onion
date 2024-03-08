@@ -1,0 +1,7 @@
+fun main(){
+    while(1){
+       print(123);
+       break;
+       print(456);
+    }
+}
