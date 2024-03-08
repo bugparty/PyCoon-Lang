@@ -181,6 +181,7 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
+                        addNode->sourceCode = ariOP;
                         addNode->printIR();
                         $$=addNode;
                         }
@@ -247,7 +248,7 @@ term1 : term1 condition_op term2 {
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
-
+                        addNode->sourceCode = ariOP; //Sorry I need this to do for loop :(
                                 }
         | term2 {ODEBUG("term1 -> term2 ");$$ = $1;}
         ;
@@ -861,7 +862,7 @@ while_stmt_function: WHILE {
           ;
 
 
-for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = new CodeNode(O_FOR_STMT);
@@ -874,11 +875,6 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
          
         
         ss<< loop_control_var->IRCode;
-        ss<< loopContinueCondition->IRCode;
-
-
-
-
         
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
@@ -889,10 +885,17 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
+        ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
+        
+
+        ss<<": "<<label_loop_start<<endl;
+        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
+        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         
-        ss<<": "<<label_loop_start<<endl;
+        
+        
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
         ss << ":= " << label_loop_end << endl;
 
@@ -900,7 +903,6 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         ss<<$10->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
         
-         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
 
 
         ss << ":= " << label_loop_start << endl;
