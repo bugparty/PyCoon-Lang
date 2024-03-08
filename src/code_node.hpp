@@ -25,6 +25,7 @@ enum CodeNodeType{
     O_ELIF_STMT,
     O_FUNC_RETURN,
     O_WHILE_STMT,
+    O_CODE_BLOCK,
     O_FOR_STMT
 };
 struct LoopTag_{

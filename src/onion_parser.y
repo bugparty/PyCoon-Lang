@@ -778,7 +778,33 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 ODEBUG( "function_code_block -> control_flow_stmt_function");
                 $$=$1;
                 }
-          ;
+        | function_code_block BREAK SEMICOLON{
+                ODEBUG( "function_code_block ->function_code_block BREAK");
+                CodeNode * node =  $1;
+                node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
+                node->printIR();
+                $$ = node;
+                
+        }
+        |  BREAK SEMICOLON {ODEBUG( "function_code_block -> BREAK");
+                CodeNode * node =  new CodeNode(O_CODE_BLOCK);
+
+                if(currentLoopTag()==nullptr){
+                                OERROR("break statement not in loop");
+                }else{
+                                
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("break statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+         };
 
 control_flow_stmt_function:  while_stmt_function {
                 ODEBUG("control_flow_stmt_function -> while_stmt");
@@ -1017,9 +1043,17 @@ loop_block_function: %empty {ODEBUG("loop_block_function -> %empty");
                 | loop_block_function_non_empty {ODEBUG("loop_block_function -> loop_block_function_non_empty");
                         $$=$1;}
                 ;
-loop_block_function_non_empty: loop_block_function_non_empty BREAK  {ODEBUG("loop_block_function -> loop_block BREAK SEMICOLON");}
-                  | function_code_block
-                  | BREAK SEMICOLON
+loop_block_function_non_empty:  loop_block_function_non_empty function_code_block {
+                        ODEBUG("loop_block_function -> function_code_block");
+                        $1->IRCode+=$2->IRCode;
+                        $1->addChild($2);
+                        $$=$1;
+                        }
+                  
+                  | function_code_block {
+                        ODEBUG("loop_block_function -> function_code_block");
+                        $$=$1;
+                  }
                   ;
 
 loop_block:  code_block {ODEBUG("loop_block -> loop_block code_block");}
