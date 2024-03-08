@@ -233,8 +233,6 @@ term1 : term1 condition_op term2 {
                                 ss << $1->val.i;
                         }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
-                        }else if($1->type == IDENTIFIER){
-                                ss << tempVar;
                         }
                         ss <<", ";
                         if($3->type == O_INT){
@@ -802,17 +800,22 @@ while_stmt_function: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_functi
 for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
-        CodeNode *newNode = new CodeNode(O_IF_STMT);
+        CodeNode *newNode = new CodeNode(O_FOR_STMT);
         CodeNode *loop_control_var = $3; 
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
         stringstream ss;
+
         
-        ss<<loop_control_var->IRCode; // int t = const; 
+        ss<< loop_control_var->IRCode;
+        
+        ss<<": "<< *(loopContinueCondition->val.str)<<endl;
+        ss<<loopContinueCondition->IRCode; // int t = const; 
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
-        ss<<loopContinueCondition->IRCode;
+       
         
+        /*
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
@@ -843,8 +846,16 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         //declares label
 
         //:= label
-        //goto labels */
+        //goto labels 
+
+        */
+
+        
+
         newNode->IRCode = ss.str();
+        newNode->addChild($3);
+        newNode->addChild($5);
+        newNode->addChild($7);
         $$=newNode;
         } 
           ;
