@@ -85,7 +85,8 @@ use ./onion -p to enable parser tracing
 
 %type <codeNode>  statement statement1 statement2 statement3
 %type <codeNode> expr arithmetic_expr
-%type <codeNode>  arithmetic_op condition_op 
+%type <codeNode>  arithmetic_op condition_op  logical_op
+%type <codeNode>  multiply_op factor add_op
 %type <codeNode> identifier number
 %type <codeNode> read_stmt print_stmt
 %type <codeNode> assignment_stmt function_arguments_declartion_non_empty
@@ -94,7 +95,6 @@ use ./onion -p to enable parser tracing
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
 %type <codeNode> control_flow_stmt_function loop_block_function loop_block
-%type <codeNode>  multiply_op factor add_op logical_op
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
 %type <codeNode> loop_block_function_non_empty while_stmt_function 
@@ -152,8 +152,8 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
                                 ariOP = "||";
                                 break;
                         default:
-                           ODEBUG("unknown type "+$2->type);
-                           yyerror("unknown type "+$2->type);
+                           ODEBUG("unknown type %d",$2->type);
+                           yyerror("unknown type");
                 }
                         addNode->addChild($1);
                         addNode->addChild($3);
