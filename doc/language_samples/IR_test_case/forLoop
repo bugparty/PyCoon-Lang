@@ -1,8 +1,7 @@
 fun main(){
-    int a = 0;
-     for(int x = 0; x <= 5; a = 5)
+     for(int x = 0; x <= 5; x = x + 5)
      {
-        a = 0;
+        print(x);
      }
 
 

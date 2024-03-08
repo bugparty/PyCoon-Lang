@@ -872,10 +872,11 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
 
         std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
          
-
+        
         ss<< loop_control_var->IRCode;
+        ss<< loopContinueCondition->IRCode;
 
-        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
+
 
 
         
@@ -898,6 +899,9 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         ss<<": "<<label_loop_body<<endl;
         ss<<$10->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
+        
+         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
+
 
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
