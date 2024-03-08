@@ -1043,14 +1043,7 @@ loop_block_function: %empty {ODEBUG("loop_block_function -> %empty");
                 | loop_block_function_non_empty {ODEBUG("loop_block_function -> loop_block_function_non_empty");
                         $$=$1;}
                 ;
-loop_block_function_non_empty:  loop_block_function_non_empty function_code_block {
-                        ODEBUG("loop_block_function -> function_code_block");
-                        $1->IRCode+=$2->IRCode;
-                        $1->addChild($2);
-                        $$=$1;
-                        }
-                  
-                  | function_code_block {
+loop_block_function_non_empty:  function_code_block {
                         ODEBUG("loop_block_function -> function_code_block");
                         $$=$1;
                   }
