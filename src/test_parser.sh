@@ -20,5 +20,5 @@ fi
 # cat tests/IR_auto_tests/function01.onion | ./onion -p
 #cat tests/IR_auto_tests/a_plus_b.onion | ./onion
 #cat ../doc/language_samples/IR_test_case/if03.onion | ./onion
-#cat tests/IR_auto_tests/if03.onion | ./onion
-cat ../doc/language_samples/IR_test_case/while_break.onion | ./onion
+cat tests/IR_auto_tests/2expr.onion | ./onion
+#cat ../doc/language_samples/IR_test_case/while_break.onion | ./onion
