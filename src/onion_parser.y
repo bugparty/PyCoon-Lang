@@ -1,4 +1,3 @@
-
 /* Mini Calculator */
 /* calc.y */
 
@@ -98,6 +97,9 @@ use ./onion -p to enable parser tracing
 %type <codeNode> term1 term2 term3 term4 term5 term6 term7
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
 %type <codeNode> loop_block_function_non_empty while_stmt_function 
+
+%type <codeNode> for_stmt_function
+
 %start entry
 
 %%
@@ -181,6 +183,7 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
+                        addNode->sourceCode = ariOP;
                         addNode->printIR();
                         $$=addNode;
                         }
@@ -234,6 +237,8 @@ term1 : term1 condition_op term2 {
                                 ss << $1->val.i;
                         }else if ($1->type == O_EXPR){
                                 ss << *($1->val.str);
+                        }else if($1->type == IDENTIFIER){
+                                ss << tempVar;
                         }
                         ss <<", ";
                         if($3->type == O_INT){
@@ -245,7 +250,7 @@ term1 : term1 condition_op term2 {
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
-
+                        addNode->sourceCode = ariOP; //Sorry I need this to do for loop :(
                                 }
         | term2 {ODEBUG("term1 -> term2 ");$$ = $1;}
         ;
@@ -515,6 +520,7 @@ assignment_stmt: array_access_stmt
                 ss << endl;
                 newNode->IRCode = ss.str();
                 newNode->printIR();
+                newNode->addChild(identifierLeft);
                 newNode->addChild(expr);
                 $$ = newNode;
                 }
@@ -716,6 +722,11 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                  }
         | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
+                ODEBUG("test1");
+                $1->debug();
+                ODEBUG("test 2");
+                $2->debug();
+                ODEBUG("test 3");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
@@ -836,7 +847,7 @@ while_stmt_function: WHILE {
         auto label_loop_start = node->val.loopTag->loopStartLabel;
         auto label_loop_body = node->val.loopTag->loopBodyLabel;
         auto label_loop_end =   node->val.loopTag->loopEndLabel;
-        
+
         ss << expr_node->IRCode;
 
         ss << ": " << label_loop_start << endl;
@@ -852,8 +863,62 @@ while_stmt_function: WHILE {
         $$=node;
         }
           ;
-for_stmt_function: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
+
+
+for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        {
+        ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+        CodeNode *newNode = new CodeNode(O_FOR_STMT);
+        CodeNode *loop_control_var = $3; 
+        CodeNode *loopContinueCondition =$5;
+        CodeNode *incrementVar = $7;
+        stringstream ss;
+
+        std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
+         
+        
+        ss<< loop_control_var->IRCode;
+        
+        //This must be before the loopbody so we will not redeclare var
+        //Label declaration
+       
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+
+        auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
+        ss << ". " << tempCond <<endl;
+        ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
+        
+
+        ss<<": "<<label_loop_start<<endl;
+        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
+        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
+        ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
+
+        
+        
+        
+        ss << "?:= " << label_loop_body << ", " << tempCond << endl;
+        ss << ":= " << label_loop_end << endl;
+
+        ss<<": "<<label_loop_body<<endl;
+        ss<<$10->IRCode; //Code Body
+        ss<<incrementVar->IRCode; //increment, like i++
+        
+
+
+        ss << ":= " << label_loop_start << endl;
+        ss << ": " << label_loop_end << endl;
+
+        
+        
+        newNode->IRCode = ss.str();
+        /*assert(popLoopTag()!= nullptr); */
+        $$=newNode;
+        }
           ;
+
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
                         CodeNode *node = new CodeNode(O_IF_STMT);
