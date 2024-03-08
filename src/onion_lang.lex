@@ -118,11 +118,15 @@ continue {
 and {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext);
+    CodeNode* node = new CodeNode(yytext, LOGICAL_ADD);
+    yylval.codeNode = node;
     return LOGICAL_ADD;
 }
 or {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext);
+    CodeNode* node = new CodeNode(yytext, LOGICAL_OR);
+    yylval.codeNode = node;
     return LOGICAL_OR;
 }
 if {

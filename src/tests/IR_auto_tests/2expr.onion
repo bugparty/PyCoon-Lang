@@ -6,4 +6,10 @@ fun main(){
     print(a);
     print(b);
     print(c);
+    a=4>3 and 1<=1;
+    print(a);
+    a=1 or 4>=3;
+    print(a);
+    a=1>2 and 3>4 or 1==1;
+    print(a);
 }
