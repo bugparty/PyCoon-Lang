@@ -514,6 +514,7 @@ assignment_stmt: array_access_stmt
                 ss << endl;
                 newNode->IRCode = ss.str();
                 newNode->printIR();
+                newNode->addChild(identifierLeft);
                 newNode->addChild(expr);
                 $$ = newNode;
                 }
@@ -805,17 +806,19 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
         stringstream ss;
+        std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
+        ss<< loop_control_var->IRCode;
+
+       
+        
+        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
+        
+        
 
         
-        ss<< loop_control_var->IRCode;
-        
-        ss<<": "<< *(loopContinueCondition->val.str)<<endl;
-        ss<<loopContinueCondition->IRCode; // int t = const; 
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
        
-        
-        /*
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
@@ -848,8 +851,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         //:= label
         //goto labels 
 
-        */
-
+       
         
 
         newNode->IRCode = ss.str();
