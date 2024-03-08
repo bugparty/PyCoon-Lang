@@ -806,13 +806,17 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignm
         CodeNode *loopContinueCondition =$5;
         CodeNode *incrementVar = $7;
         stringstream ss;
+
         std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
+         
+
         ss<< loop_control_var->IRCode;
 
        
         
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        
+
+         
         
 
         
