@@ -74,6 +74,56 @@
         getImmOrVariableIRCode(ss);
         return ss.str();
     }
+    CodeNode::CodeNode(const CodeNode& right){
+        this->IRCode = right.IRCode;
+        this->sourceCode = right.sourceCode;
+        this->val = right.val;
+        this->type = right.type;
+        this->subType = right.subType;
+        this->children = right.children;
+        //std::cout << "copy constructor"<<std::endl;
+    }
+    void CodeNode::printIR(){
+        std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
+    }
+    void CodeNode::debug(bool recursive){
+        std::cout << "sourceCode: " << sourceCode << std::endl;
+        std::stringstream ss;
+        getImmOrVariableIRCode(ss);
+        std::cout << "val: " << ss.str() << std::endl;
+        std::cout << "type:" << type <<" subtype: " << subType;
+        std::cout << " children size:" << children.size() <<std::endl;
+        for(size_t i=0;i<children.size();i++){
+            std::cout << i << "th child, address: " << children[i] << " type:" << children[i]->type <<
+            " children size: "<<children[i]->children.size()<< std::endl;
+            if(recursive){
+                children[i]->debug();
+            }
+            
+        }
+        printIR();
+    }
+    void CodeNode::freeUnionVal(){
+        switch(type){
+            case O_EXPR:
+            case O_FUNC_CALL:
+                delete val.str;
+                break;
+            case O_WHILE_STMT:
+            //case O_FOR_STMT:
+                delete val.loopTag;
+                break;
+            default:
+                break;
+        }
+    }
+    CodeNode::~CodeNode(){
+        //std::cout << "destructor called at "<< this << " type: " << type << std::endl;
+        freeUnionVal();
+        for(size_t i=0;i<children.size();i++){
+            delete children[i];
+        }
+    }
     bool CodeNode::getImmOrVariableIRCode(std::stringstream& ss){
         switch(type){
             case O_INT:
@@ -98,7 +148,9 @@
                 }
                 ss << *(val.str);
                 break;
-
+            case O_CONTAINER:
+                return false;
+                break;
             default:
                 OWARN("getImmOrVariableIRCode: unknown type %d\n",type);
                 return false;

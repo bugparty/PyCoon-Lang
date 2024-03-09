@@ -11,6 +11,7 @@ int yyerror(char *s);
 int yylex(void);
 #define ENABLE_BISON_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
 int loopCounter = 0;
+CodeNode* root = nullptr;
 #if ENABLE_BISON_PRINTF
     #define ODEBUG( ...) \
     do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\n",__FILE__,__LINE__);}while(0)
@@ -46,9 +47,9 @@ use ./onion -p to enable parser tracing
 %token <codeNode> NUMBER
 %token <codeNode> BINARY_NUMBER
 %token <codeNode> HEX_NUMBER
-%token <codeNode> IDENTIFIER 
-%token FUN RETURN READ PRINT
-%token  INT
+%token <codeNode> IDENTIFIER LOGICAL_ADD LOGICAL_OR ASSIGNMENT
+%token FUN RETURN READ 
+%token <codeNode> INT PRINT
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
@@ -57,8 +58,8 @@ use ./onion -p to enable parser tracing
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
-%token LEQ GEQ LE GE EQ NEQ
-%token ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
+%token  <codeNode> LEQ GEQ LE GE EQ NEQ
+%token  <codeNode> ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
 
 %left NUMBER
 %left BINARY_NUMBER
@@ -96,6 +97,7 @@ use ./onion -p to enable parser tracing
 %type <codeNode> term1 term2 term3 term4 term5 term6
 %type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function elif_stmt_function
 
+%destructor { ODEBUG("discarding %p", (void*)$$); } <codeNode>
 %start entry
 
 %%
@@ -110,22 +112,19 @@ number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );
                 $1->type = O_INT;
                 $$= $1;}
       ;
-identifier: IDENTIFIER {ODEBUG("identifier -> IDENTIFIER -> %s",$1->sourceCode.c_str());
-                    $$= $1;}
-      ;
       
 expr: arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
     ;
 
-multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");}
-            | DIVISION     {ODEBUG("multiply_op-> DIVISION");}         
-            | MODULE       {ODEBUG("multiply_op-> MODULE");}
+multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");$$ = $1;}
+            | DIVISION     {ODEBUG("multiply_op-> DIVISION");$$ = $1;}         
+            | MODULE       {ODEBUG("multiply_op-> MODULE");$$ = $1;}
             ;
-add_op:  ADDING       {ODEBUG("add_op-> ADDING");}
-        | SUBTRACTING  {ODEBUG("add_op-> SUBTRACTING");}
+add_op:  ADDING       {ODEBUG("add_op-> ADDING");$$ = $1;}
+        | SUBTRACTING  {ODEBUG("add_op-> SUBTRACTING");$$ = $1;}
             ;
-logical_op: LOGICAL_ADD  {ODEBUG("logical_op-> logical_ADD");}
-          | LOGICAL_OR   {ODEBUG("logical_op-> logical_OR");}
+logical_op: LOGICAL_ADD  {ODEBUG("logical_op-> logical_ADD"); $$=$1;}
+          | LOGICAL_OR   {ODEBUG("logical_op-> logical_OR");$$=$1;}
           ;
 condition_op: GE {ODEBUG("condition_op-> GE");}
            | GEQ {ODEBUG("condition_op-> GEQ");}
@@ -143,10 +142,12 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
 
                         case LOGICAL_ADD:
                                 addNode->subType = LOGICAL_ADD;
+                                delete $2;
                                 ariOP = "&&";
                                 break;
                         case LOGICAL_OR:
                                 addNode->subType = LOGICAL_OR;
+                                delete $2;
                                 ariOP = "||";
                                 break;
                         default:
@@ -222,6 +223,7 @@ term1 : term1 condition_op term2 {
                                 yyerror("unknown type ");
                 }
                         addNode->addChild($1);
+                        
                         addNode->addChild($3);
                         $$=addNode;
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
@@ -247,6 +249,7 @@ term1 : term1 condition_op term2 {
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         addNode->sourceCode = ariOP; //Sorry I need this to do for loop :(
+                        delete $2;
                                 }
         | term2 {ODEBUG("term1 -> term2 ");$$ = $1;}
         ;
@@ -291,6 +294,7 @@ term2 :  term2 add_op term3 {
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         $$=addNode;
+                        delete $2;
                 }
                 |term3 {ODEBUG("term2 -> term3 ");$$ = $1;}
     ;
@@ -318,7 +322,7 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                 }
                         addNode->addChild($1);                       
                         addNode->addChild($3);
-                        $$=addNode;
+                        
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
                         ss<< $1->IRCode <<$3->IRCode;
@@ -343,7 +347,9 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
-                        addNode->printIR();}
+                        addNode->printIR();
+                        $$=addNode;
+                        delete $2;}
         | factor {ODEBUG("term3 ->factor");$$ = $1;}
         ;
 factor:  term4 {ODEBUG("factor-> term4");$$ = $1;}
@@ -379,14 +385,15 @@ single_variable_declartion: INT IDENTIFIER {ODEBUG("single_variable_declartion -
            ctx->debugPrint();
            CodeNode *variableDeclarationNode = new CodeNode(O_VAR_DECLARATION);
            stringstream ss;
-           ss<<". " << $2->sourceCode<<endl;
-           variableDeclarationNode->addChild($2);
+           ss<<". " << identifer->sourceCode<<endl;
+           variableDeclarationNode->addChild(identifer);
            variableDeclarationNode->subType = INT;
            //variableDeclarationNode->val.str = new string($2->sourceCode);
-           variableDeclarationNode->sourceCode = ($2->sourceCode);
+           variableDeclarationNode->sourceCode = (identifer->sourceCode);
            variableDeclarationNode->IRCode = ss.str();
            variableDeclarationNode->printIR();
            $$ = variableDeclarationNode;
+           delete $1;
            }
           ;
 variable_declartion: array_declartion_stmt {ODEBUG("variable_declartion -> array_declartion_stmt");$$=$1;}
@@ -394,7 +401,7 @@ variable_declartion: array_declartion_stmt {ODEBUG("variable_declartion -> array
                   ;
 array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG("array_declartion_stmt -> INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC");
                       CodeNode *identifier = $2;
-
+                      CodeNode *numberNode = $4;
                       auto ctx = SymbolManager::getInstance();
                       Symbol* sym = ctx->find(identifier->sourceCode,currentFunction());
                       if(sym!=nullptr)
@@ -407,7 +414,7 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEB
                         ctx->addSymbol(identifier->sourceCode,currentFunction(), SymbolType::SYM_VAR_INT_ARRAY);
                         }
 
-                      CodeNode *numberNode = $4;
+                      
                       CodeNode *newNode = new CodeNode(YYSYMBOL_array_declartion_stmt);
                       stringstream ss;
                       newNode->addChild(identifier);
@@ -416,7 +423,7 @@ array_declartion_stmt: INT IDENTIFIER  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEB
                       newNode->IRCode = ss.str();
                       newNode->printIR();
                       $$ = newNode;
-
+                      delete $1;
 }
                     | array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC {ODEBUG("array_declartion_stmt -> array_declartion_stmt  LEFT_BOX_BRAC number RIGHT_BOX_BRAC");}
                     ;
@@ -458,10 +465,10 @@ left_array_access_expr: IDENTIFIER LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {
                       } 
             | left_array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC {
                 ODEBUG("array_access_expr -> array_access_expr LEFT_BOX_BRAC expr RIGHT_BOX_BRAC");
-                CodeNode *right_array_access_expr = $1;
-                right_array_access_expr->addChild($3);
-                right_array_access_expr->IRCode += $3->IRCode;
-                $$ = right_array_access_expr;
+                CodeNode *array_access_expr = $1;
+                array_access_expr->addChild($3);
+                array_access_expr->IRCode += $3->IRCode;
+                $$ = array_access_expr;
                 }
             ;
 
@@ -484,10 +491,10 @@ array_access_stmt: IDENTIFIER ASSIGNMENT right_array_access_expr  {
         newNode->IRCode = ss.str();
         newNode->printIR();
         $$ = newNode;
-
+        delete $2;
         }
                     
-assignment_stmt: array_access_stmt 
+assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt");}
                 | single_variable_declartion ASSIGNMENT expr{
                 ODEBUG("assignment_stmt -> INT IDENTIFIER ASSIGNMENT expr");
                 CodeNode *identifierLeft = $1;
@@ -519,6 +526,7 @@ assignment_stmt: array_access_stmt
                 newNode->addChild(identifierLeft);
                 newNode->addChild(expr);
                 $$ = newNode;
+                delete $2;
                 }
           | left_array_access_expr ASSIGNMENT expr {
                 ODEBUG("assignment_stmt -> left_array_access_expr ASSIGNMENT expr ");
@@ -566,6 +574,7 @@ assignment_stmt: array_access_stmt
                 newNode->addChild($3);
                 newNode->printIR();
                 $$ = newNode;
+                delete $2;
                 
           }
           | IDENTIFIER ASSIGNMENT expr {
@@ -593,10 +602,11 @@ assignment_stmt: array_access_stmt
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 ss << endl;
                 newNode->IRCode = ss.str();
-                newNode->addChild($1);
+                newNode->addChild(identifierLeft);
                 newNode->addChild($3);
                 newNode->printIR();
                 $$ = newNode;
+                delete $2;
                 }
           | single_variable_declartion ASSIGNMENT function_call_stmt {
                 ODEBUG("assignment_stmt -> single_variable_declartion ASSIGNMENT function_call_stmt ");
@@ -604,16 +614,17 @@ assignment_stmt: array_access_stmt
                 $3->debug();
                 CodeNode *identifierLeft = $1;
                 stringstream ss;
-                ss << $1->IRCode;
+                ss << identifierLeft->IRCode;
                 ss << $3->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
                 ss << *($3->val.str) <<endl;
                 CodeNode *newNode = new CodeNode(YYSYMBOL_assignment_stmt);
                 newNode->IRCode = ss.str();
-                newNode->addChild($1);
+                newNode->addChild(identifierLeft);
                 newNode->addChild($3);
                 newNode->printIR();
                 $$ = newNode;
+                delete $2;
                 }
           | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr {
                 ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT expr");
@@ -625,15 +636,16 @@ assignment_stmt: array_access_stmt
                 stringstream ss;
                 ss<< ("[]= ")<<identifier->sourceCode<<(", ")<<numberNode->sourceCode<<std::string(", ")<<exprNode->sourceCode<<"\n";
                 newNode->IRCode = ss.str();
-                newNode->addChild($2);
-                newNode->addChild($4);
-                newNode->addChild($7);
+                newNode->addChild(identifier);
+                newNode->addChild(numberNode);
+                newNode->addChild(exprNode);
                 newNode->printIR();
                 $$ = newNode;
-      
+                delete $6;
+                delete $1;
                 }
-          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
-          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
+          | INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC number RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");delete $1;delete $2;}
+          | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");delete $1;delete $2;}
           
           ;
 
@@ -1091,6 +1103,7 @@ read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           node->IRCode = std::string(".< ") + ($1->sourceCode) + std::string("\n");
           node->printIR();
           $$ = node; 
+          delete $1;
         }
         ;
 print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
@@ -1111,6 +1124,8 @@ print_stmt: PRINT LEFT_PAR expr RIGHT_PAR {
            ss << ".> " << var << endl;
           node->IRCode = ss.str();
           $$ = node; 
+          delete $1;
+          delete $3;
         }
         ;
 
@@ -1130,7 +1145,7 @@ functions: functions function_declartion {
                 $$=$1;
                 }
         | %empty {
-                CodeNode *node = new CodeNode(YYSYMBOL_functions);
+                CodeNode *node = new CodeNode(O_CONTAINER);
                 $$=node;
         }
         ;
@@ -1147,6 +1162,7 @@ entry: functions {
         }
         puts("\e[0m");
         fout.close();
+        root=$1;
 }
      ;
 %%

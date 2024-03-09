@@ -2,7 +2,7 @@
 OBJS	= bison.o lex.o main.o symbol_table.o code_node.o states.o
 
 CC	= g++
-CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings 
+CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings  -fsanitize=address -static-libasan
 
 onion:		$(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
