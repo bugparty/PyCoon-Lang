@@ -21,6 +21,8 @@ and input something to test it
 cd src
 ./ci
 ```
+## Coding Guide
+[Avoid memory leak ](doc/CODING_GUIDE.md)
 
 
 
