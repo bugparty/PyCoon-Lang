@@ -74,15 +74,14 @@ use ./onion -p to enable parser tracing
 %right ELSE
 %right ELIF
 
-%nterm  statement   assignment_stmt block_stmt while_stmt ifElse_stmt condition
-%nterm loop_block for_stmt for_first_stmt
+%nterm  statement   assignment_stmt
 %nterm number_tuple function_arguments variable_declartion function_code_block
 %nterm right_array_access_expr logical_op
 %nterm loop_block_function number
 %nterm function_declartion
 %nterm condition_op arithmetic_op multiply_op term1 term2 factor 
 
-%type <codeNode>  statement statement1 statement2 statement3
+%type <codeNode>  statement  statement2
 %type <codeNode> expr arithmetic_expr
 %type <codeNode>  arithmetic_op condition_op  logical_op
 %type <codeNode>  multiply_op factor add_op
@@ -93,12 +92,9 @@ use ./onion -p to enable parser tracing
 %type <codeNode> left_array_access_expr right_array_access_expr  array_access_stmt array_declartion_stmt
 %type <codeNode> function_code_block functions function_declartion function_call_stmt
 %type <codeNode>  function_arguments_declartion function_argument function_arguments
-%type <codeNode> control_flow_stmt_function loop_block_function loop_block
-%type <codeNode> term1 term2 term3 term4 term5 term6 term7
-%type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function if_stmt elif_stmt_function
-%type <codeNode> loop_block_function_non_empty while_stmt_function 
-
-%type <codeNode> for_stmt_function
+%type <codeNode> control_flow_stmt_function loop_block_function loop_block_function_non_empty while_stmt_function for_stmt_function
+%type <codeNode> term1 term2 term3 term4 term5 term6
+%type <codeNode>  ifElse_stmt_function if_stmt_function multi_elif_stmt_function else_stmt_function elif_stmt_function
 
 %start entry
 
@@ -640,12 +636,7 @@ assignment_stmt: array_access_stmt
           | INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY {ODEBUG("assignment_stmt-> INT IDENTIFIER LEFT_BOX_BRAC  RIGHT_BOX_BRAC ASSIGNMENT LEFT_CURLEY number_tuple RIGHT_CURLEY");}
           
           ;
-    
 
-while_stmt: WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
-          ;
-for_stmt: FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY {ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");}
-          ;
 function_arguments_declartion  : function_arguments_declartion_non_empty {ODEBUG( "function_arguments_declartion -> function_arguments_declartion_non_empty");}
                         | %empty {ODEBUG( "function_arguments_declartion -> empty");
                                 CodeNode *node = new CodeNode(YYSYMBOL_function_arguments_declartion);
@@ -1040,28 +1031,7 @@ else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {
                 $$=node;
         }
           ;
-elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY {ODEBUG("elif_stmt: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY code_block RIGHT_CURLEY");}
-          ;
 
-multi_elif_stmt: multi_elif_stmt elif_stmt {ODEBUG("multi_elif_stmt -> multi_elif_stmt elif_stmt");}
-          | elif_stmt {ODEBUG("multi_elif_stmt -> elif_stmt");}
-          | %empty
-          ;
-
-else_stmt: ELSE LEFT_CURLEY loop_block RIGHT_CURLEY {ODEBUG("else_stmt -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");}
-          | %empty
-          ;
-        
-if_stmt:  IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY {
-                ODEBUG("if_stmt -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block RIGHT_CURLEY");
-                CodeNode *node = new CodeNode(O_IF_STMT);
-                $$=node;     
-                }
-          ;
-
-
-ifElse_stmt: if_stmt multi_elif_stmt else_stmt {ODEBUG("ifElse_stmt -> if_stmt multi_elif_stmt else_stmt");}
-          ;
 
 function_argument: arithmetic_expr {ODEBUG("function_argument -> arithmetic_expr");$$=$1;} 
                         
@@ -1114,21 +1084,7 @@ loop_block_function_non_empty:  function_code_block {
                   }
                   ;
 
-loop_block:  code_block {ODEBUG("loop_block -> loop_block code_block");}
-          | loop_block BREAK  {ODEBUG("loop_block -> loop_block BREAK SEMICOLON");}
-          | %empty
-          ;
 
-code_block: code_block statement SEMICOLON { ODEBUG("code_block -> code_block statement SEMICOLON ");}
-          | code_block control_flow_stmt { ODEBUG("code_block -> code_block control_flow_stmt ");}
-          | statement SEMICOLON
-          | control_flow_stmt
-          ;
-
-control_flow_stmt: while_stmt {ODEBUG("block_stmt -> while_stmt");}
-        | for_stmt {ODEBUG("block_stmt -> for_stmt");}
-        | ifElse_stmt {ODEBUG("block_stmt -> ifElse_stmt");}
-        ;
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           ODEBUG("read_stmt -> IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR");
           CodeNode *node = new CodeNode(YYSYMBOL_read_stmt);
