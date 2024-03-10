@@ -9,24 +9,29 @@ struct CodeNode;
 typedef struct CodeNode CodeNode;
 enum CodeNodeType{
     O_INT=4096,
-    O_FLOAT,
-    O_DOUBLE,
-    O_IDENTIFIER,
-    O_NUMBER,
-    O_EXPR,
-    O_ARRAY_EXPR,
-    O_VAR_DECLARATION,
-    O_ARRAY_DECLARATION,
-    O_FUNC_DECLARATION,
+    O_FLOAT=4097,
+    O_DOUBLE=4098,
+    O_IDENTIFIER=4099,
+    O_NUMBER=4100,
+    O_EXPR=4101,
+    O_ARRAY_EXPR=4102,
+    O_VAR_DECLARATION=4103,
+    O_ARRAY_DECLARATION=4104,
+    O_FUNC_DECLARATION=4105,
     O_FUNC_ARGS,
     O_FUNC_CALL,
-    O_IF_STMT,
+    O_IF_ELSE_STMT,//this is the ifElse_stmt_function
+    O_IF_STMT, // this is if_stmt_function
     O_ELSE_STMT,
     O_ELIF_STMT,
     O_FUNC_RETURN,
     O_WHILE_STMT,
     O_CODE_BLOCK,
-    O_FOR_STMT
+    O_FOR_STMT,
+    O_CONTAINER,
+    O_RIGHT_EXPR,
+    O_LEFT_EXPR,
+    O_ASSIGN_STMT,
 };
 struct LoopTag_{
     int loopNo;
@@ -54,15 +59,7 @@ struct CodeNode{
     int subType;
     std::vector<CodeNode*> children;
     CodeNode(int type):type(type),subType(0){}
-    CodeNode(const CodeNode& right){
-        this->IRCode = right.IRCode;
-        this->sourceCode = right.sourceCode;
-        this->val = right.val;
-        this->type = right.type;
-        this->subType = right.subType;
-        this->children = right.children;
-        //std::cout << "copy constructor"<<std::endl;
-    }
+    CodeNode(const CodeNode& right);
     CodeNode(char* sourceCode,int type):sourceCode(std::string(sourceCode)),type(type){
         std::string s = std::string(sourceCode);
         switch(type){
@@ -80,6 +77,7 @@ struct CodeNode{
                 break;
         }
     }
+    virtual ~CodeNode();
     /*get the immediate value or variable name
     return false if the type is not immediate value or variable name
     output the immediate value or variable name to ss
@@ -99,24 +97,8 @@ struct CodeNode{
     bool isImmediateValue(){
         return type == O_INT || type == O_FLOAT || type == O_DOUBLE;
     }
-    void debug(bool recursive = false){
-        std::cout << "sourceCode: " << sourceCode << std::endl;
-        std::stringstream ss;
-        getImmOrVariableIRCode(ss);
-        std::cout << "val: " << ss.str() << std::endl;
-        std::cout << "type:" << type <<" subtype: " << subType;
-        std::cout << " children size:" << children.size() <<std::endl;
-        for(size_t i=0;i<children.size();i++){
-            std::cout << i << "th child, address: " << children[i] << " type:" << children[i]->type <<
-            " children size: "<<children[i]->children.size()<< std::endl;
-            if(recursive){
-                children[i]->debug();
-            }
-            
-        }
-        printIR();
-    }
-    void printIR(){
-        std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
-    }
+    void debug(bool recursive = false);
+    void printIR();
+    private:
+       void freeUnionVal();
 };

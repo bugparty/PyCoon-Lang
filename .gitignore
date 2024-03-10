@@ -11,3 +11,4 @@ src/onion_parser.output
 src/*.yy.c
 src/tok.h
 src/lex.c
+src/actual_outputs/

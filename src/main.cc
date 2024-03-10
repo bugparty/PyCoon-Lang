@@ -2,6 +2,7 @@
 
 #include "heading.h"
 #include <cstring>
+extern CodeNode* root;
 // prototype of bison-generated parser function
 int yyparse();
 
@@ -20,6 +21,10 @@ int main(int argc, char **argv)
   }
   
   yyparse();
+  if(root!=nullptr){
+    root->debug();
+    delete root;
+  }
 
   return 0;
 }
