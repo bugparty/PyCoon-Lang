@@ -14,7 +14,7 @@ run_e2e_test() {
   cat $1 | ./onion
   error=$?
   if [ "$error" -ne 0 ]; then
-    echo -e "\e[31mError found,stop testing. \e[0m"
+    echo -e "\e[31mError found in: $filename ,stop testing. \e[0m"
     failed_tests+=("$filename")
   else
       # Generate paths for the expected output and actual output files

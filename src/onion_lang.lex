@@ -132,6 +132,8 @@ or {
 if {
     ONION_PATTERN;
     ODEBUG( "Keyword: %s\n", yytext);
+    CodeNode* node = new CodeNode(yytext, IF);
+    yylval.codeNode = node;
     return IF;
 }
 elif {

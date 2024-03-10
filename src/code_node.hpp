@@ -9,25 +9,29 @@ struct CodeNode;
 typedef struct CodeNode CodeNode;
 enum CodeNodeType{
     O_INT=4096,
-    O_FLOAT,
-    O_DOUBLE,
-    O_IDENTIFIER,
-    O_NUMBER,
-    O_EXPR,
-    O_ARRAY_EXPR,
-    O_VAR_DECLARATION,
-    O_ARRAY_DECLARATION,
-    O_FUNC_DECLARATION,
+    O_FLOAT=4097,
+    O_DOUBLE=4098,
+    O_IDENTIFIER=4099,
+    O_NUMBER=4100,
+    O_EXPR=4101,
+    O_ARRAY_EXPR=4102,
+    O_VAR_DECLARATION=4103,
+    O_ARRAY_DECLARATION=4104,
+    O_FUNC_DECLARATION=4105,
     O_FUNC_ARGS,
     O_FUNC_CALL,
-    O_IF_STMT,
+    O_IF_ELSE_STMT,//this is the ifElse_stmt_function
+    O_IF_STMT, // this is if_stmt_function
     O_ELSE_STMT,
     O_ELIF_STMT,
     O_FUNC_RETURN,
     O_WHILE_STMT,
     O_CODE_BLOCK,
     O_FOR_STMT,
-    O_CONTAINER
+    O_CONTAINER,
+    O_RIGHT_EXPR,
+    O_LEFT_EXPR,
+    O_ASSIGN_STMT,
 };
 struct LoopTag_{
     int loopNo;

@@ -19,35 +19,39 @@
             return false;
         }
         auto ctx = SymbolManager::getInstance();
-        debug();
-        for(size_t i =0;i<children.size();i++){
-            if(children[i]->type != O_FUNC_CALL){
-                switch(children[i]->type){
+        CodeNode* funArgs = children[1];
+        if(funArgs->type != O_FUNC_ARGS){
+            OWARN("genFunctionCallIRCodeImpl: function call node's second child is not O_FUNC_ARGS\n");
+            return false;
+        }
+        for(size_t i =0;i<funArgs->children.size();i++){
+            if(funArgs->children[i]->type != O_FUNC_CALL){
+                switch(funArgs->children[i]->type){
                     case O_INT:
                     case O_FLOAT:
                     case O_DOUBLE:
                     {
                         auto tempVar = ctx->allocate_temp(SymbolType::SYM_VAR_INT);
                         ss << ". " << tempVar << std::endl;
-                        ss << "= " << tempVar << ", " << children[i]->val.i  << std::endl;
+                        ss << "= " << tempVar << ", " << funArgs->children[i]->val.i  << std::endl;
                         args.push_back(tempVar);
                     }
                         break;
                     case O_IDENTIFIER:
                     case IDENTIFIER:
-                        args.push_back(children[i]->sourceCode);
+                        args.push_back(funArgs->children[i]->sourceCode);
                         break;
                     case O_EXPR:
                     case O_FUNC_CALL:
 
-                        args.push_back(*(children[i]->val.str));
+                        args.push_back(*(funArgs->children[i]->val.str));
                         break;
                     default:
                         return false;
                 }
             }else{// we suppose the function call in arguments is alsways already processed
-                ss << children[i]->IRCode;
-                args.push_back(*(children[i]->val.str));
+                ss << funArgs->children[i]->IRCode;
+                args.push_back(*(funArgs->children[i]->val.str));
             }
         }
         return true;
@@ -105,15 +109,33 @@
     }
     void CodeNode::freeUnionVal(){
         switch(type){
+            //if the codenode type used the val.str, we need to add a case here to free the memory
             case O_EXPR:
             case O_FUNC_CALL:
+            case O_RIGHT_EXPR:
+            case O_IF_STMT:
+            case O_ELIF_STMT:
+            
                 delete val.str;
+                val.str = nullptr;
                 break;
             case O_WHILE_STMT:
             //case O_FOR_STMT:
                 delete val.loopTag;
+                val.loopTag=nullptr;
                 break;
+            //these case don't need to free the memory
+            case O_INT:
+            case O_FLOAT:
+            case O_DOUBLE:
+            case O_LEFT_EXPR:
+            
+            case O_ELSE_STMT:
+            
+            
+                 break;
             default:
+                OWARN("freeUnionVal: unknown type %d\n",type);
                 break;
         }
     }
