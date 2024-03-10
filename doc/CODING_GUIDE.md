@@ -2,7 +2,7 @@
 
 ## you should always add all the CodeNode symbols and terminals to the current node.
 
-`if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+```if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
         ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");
         CodeNode *node = new CodeNode(O_IF_STMT);
         CodeNode *expr = $3;
@@ -30,11 +30,11 @@
         node->addChild(loop_block);
         }
         ;
-    `
+```
 
-    ## when you override CodeNode->val.str, delete the old value first
+## when you override CodeNode->val.str, delete the old value first
 
-    `
+```
     elif_stmt_function {ODEBUG("multi_elif_stmt_function -> else_stmt_function");
                                 CodeNode *elif = $1;
                                 stringstream ss;
@@ -43,11 +43,11 @@
                                 elif->val.str = new string(ss.str());
                                 $$=elif;}
                         ;
-    `
+```
 
-    ## if a node type is using val.str, you need to add the type to code_node.hpp in there
+## if a node type is using val.str, you need to add the type to code_node.hpp below
 
-    `
+```
      void CodeNode::freeUnionVal(){
         switch(type){
             //if the codenode type used the val.str, we need to add a case here to free the memory
@@ -60,4 +60,4 @@
                 delete val.str;
                 val.str = nullptr;
                 break;
-    `
+```
