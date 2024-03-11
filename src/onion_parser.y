@@ -805,6 +805,24 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $$ = node;
                 
         }
+        | function_code_block CONTINUE SEMICOLON {
+                ODEBUG( "function_code_block ->function_code_block CONTINUE");
+                CodeNode * node =  $1;
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+        }
         |  BREAK SEMICOLON {ODEBUG( "function_code_block -> BREAK");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
 
@@ -823,7 +841,24 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 
                 }
                 $$=node;
-         };
+         }| CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
+                CodeNode * node =  new CodeNode(O_CODE_BLOCK);
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+         }
+         ;
 
 control_flow_stmt_function:  while_stmt_function {
                 ODEBUG("control_flow_stmt_function -> while_stmt");
