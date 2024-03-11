@@ -926,6 +926,8 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         /*assert(popLoopTag()!= nullptr); */
         $$=newNode;
 
+       
+      
 
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
