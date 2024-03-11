@@ -813,11 +813,12 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }else{
                                 
                                 CodeNode *currentLoop = currentLoopTag();
-                                if(currentLoop->type == O_WHILE_STMT){
+                                if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
                                         node->printIR();
                                         $$ = node;
-                                }else{
+                                }
+                                else{
                                         OERROR("break statement not in loop");
                                 }
                                 
@@ -894,6 +895,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
@@ -920,11 +922,11 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
-        
+       
         
         newNode->IRCode = ss.str();
-        /*assert(popLoopTag()!= nullptr); */
-        $$=newNode;
+        
+        
 
        
       
@@ -933,6 +935,12 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
         newNode->addChild($10);
+        
+        pushLoopTag(newNode);
+        assert(popLoopTag()!= nullptr); 
+
+        $$=newNode;
+
         }
           ;
 
