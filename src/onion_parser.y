@@ -877,13 +877,27 @@ while_stmt_function: WHILE {
           ;
 
 
-for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+for_stmt_function: FOR 
+{
+        CodeNode *newNode = new CodeNode(O_FOR_STMT);
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
+         ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
+
+         pushLoopTag(newNode);
+         push_code_node(newNode);
+
+}
+        LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
-        CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        CodeNode *loop_control_var = $3; 
-        CodeNode *loopContinueCondition =$5;
-        CodeNode *incrementVar = $7;
+        CodeNode *newNode = pop_code_node();
+
+        CodeNode *loop_control_var = $4; 
+        CodeNode *loopContinueCondition =$6;
+        CodeNode *incrementVar = $8;
         stringstream ss;
 
         std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
@@ -892,10 +906,10 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
        
-        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
-        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
+        auto label_loop_start = newNode->val.loopTag->loopStartLabel;
+        auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
+        auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
+       
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
@@ -914,7 +928,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
-        ss<<$10->IRCode; //Code Body
+        ss<<$11->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
         
 
@@ -934,15 +948,15 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
-        newNode->addChild($10);
-        
+        newNode->addChild($11);
+
         pushLoopTag(newNode);
         assert(popLoopTag()!= nullptr); 
 
         $$=newNode;
 
         }
-          ;
+        ;
 
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
