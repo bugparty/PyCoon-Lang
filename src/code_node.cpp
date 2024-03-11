@@ -141,7 +141,9 @@
     }
     CodeNode::~CodeNode(){
         //std::cout << "destructor called at "<< this << " type: " << type << std::endl;
+        //free the memory of val's pointer
         freeUnionVal();
+        // recursively delete all the children,will call the destructor of children
         for(size_t i=0;i<children.size();i++){
             delete children[i];
         }

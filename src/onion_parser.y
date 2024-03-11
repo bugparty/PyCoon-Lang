@@ -231,19 +231,9 @@ term1 : term1 condition_op term2 {
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl;
                         ss<< ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else if($1->type == IDENTIFIER){
-                                ss << tempVar;
-                        }
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
