@@ -886,10 +886,8 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         stringstream ss;
 
         std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
-         
-        
         ss<< loop_control_var->IRCode;
-        
+
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
        
@@ -904,7 +902,7 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
 
         ss<<": "<<label_loop_start<<endl;
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
+        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         
@@ -927,6 +925,8 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         newNode->IRCode = ss.str();
         /*assert(popLoopTag()!= nullptr); */
         $$=newNode;
+
+
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
