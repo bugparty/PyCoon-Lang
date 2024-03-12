@@ -158,26 +158,21 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
+                        ss<< $1->IRVars <<$3->IRVars;
 
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $1->type);
-                        }
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+  
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss<<ariOP<< " "<<tempVar<<", ";
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $3->type);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->sourceCode = ariOP;
                         addNode->printIR();
@@ -228,14 +223,19 @@ term1 : term1 condition_op term2 {
                         $$=addNode;
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
+                        ss << $1->IRVars <<$3->IRVars;
                         ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
                         ss<< ariOP<< " "<<tempVar<<", ";
                         $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
                         $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         addNode->sourceCode = ariOP; //Sorry I need this to do for loop :(
@@ -268,8 +268,13 @@ term2 :  term2 add_op term3 {
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
+                        ss << $1->IRVars <<$3->IRVars;
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss <<ariOP<< " "<<tempVar<<", ";
                         if($1->getImmOrVariableIRCode(ss)==false){
                                 $1->debug();
                                 OERROR("unexpected type %d", $1->type);
@@ -282,7 +287,8 @@ term2 :  term2 add_op term3 {
                                 
                         }
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         $$=addNode;
@@ -318,27 +324,19 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else{
-                                $1->debug();
-                                OERROR("unexpected type %d", $1->type);
-                                
-                        }
+                        ss<< $1->IRVars <<$3->IRVars;
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss <<ariOP<< " "<<tempVar<<", ";
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $3->type);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         $$=addNode;
