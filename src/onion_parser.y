@@ -764,11 +764,12 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }else{
                                 
                                 CodeNode *currentLoop = currentLoopTag();
-                                if(currentLoop->type == O_WHILE_STMT){
+                                if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
                                         node->printIR();
                                         $$ = node;
-                                }else{
+                                }
+                                else{
                                         OERROR("break statement not in loop");
                                 }
                                 
@@ -844,26 +845,39 @@ while_stmt_function: WHILE {
           ;
 
 
-for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
-        {
-        ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+for_stmt_function: FOR 
+{
         CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        CodeNode *loop_control_var = $3; 
-        CodeNode *loopContinueCondition =$5;
-        CodeNode *incrementVar = $7;
-        stringstream ss;
-
-        std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
-         
-        
-        ss<< loop_control_var->IRCode;
-        
-        //This must be before the loopbody so we will not redeclare var
-        //Label declaration
-       
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
+         ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
+
+         pushLoopTag(newNode);
+         push_code_node(newNode);
+
+}
+        LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        {
+        ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+        CodeNode *newNode = pop_code_node();
+
+        CodeNode *loop_control_var = $4; 
+        CodeNode *loopContinueCondition =$6;
+        CodeNode *incrementVar = $8;
+        stringstream ss;
+
+        std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
+        ss<< loop_control_var->IRCode;
+
+        //This must be before the loopbody so we will not redeclare var
+        //Label declaration
+       
+        auto label_loop_start = newNode->val.loopTag->loopStartLabel;
+        auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
+        auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
+       
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
@@ -871,28 +885,39 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
 
         ss<<": "<<label_loop_start<<endl;
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
+        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
-        ss<<$10->IRCode; //Code Body
+        ss<<$11->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
 
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
+
         newNode->IRCode = ss.str();
-        /*assert(popLoopTag()!= nullptr); */
-        $$=newNode;
+        
+        
+
+       
+      
+
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
-        newNode->addChild($10);
+        newNode->addChild($11);
+
+         
+        assert(popLoopTag()!= nullptr); 
+
+        $$=newNode;
+
         }
-          ;
+        ;
 
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");

@@ -120,6 +120,7 @@
                 val.str = nullptr;
                 break;
             case O_WHILE_STMT:
+            case O_FOR_STMT:
             //case O_FOR_STMT:
                 delete val.loopTag;
                 val.loopTag=nullptr;
