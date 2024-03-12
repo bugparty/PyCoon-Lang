@@ -823,9 +823,12 @@ while_stmt_function: WHILE {
         auto label_loop_body = node->val.loopTag->loopBodyLabel;
         auto label_loop_end =   node->val.loopTag->loopEndLabel;
 
-        ss << expr_node->IRCode;
+        ss << expr_node->IRVars;
 
         ss << ": " << label_loop_start << endl;
+        ss << expr_node->IRLogics;
+
+
         ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
         ss << ":= " << label_loop_end << endl;
         ss << ": " << label_loop_body << endl;
