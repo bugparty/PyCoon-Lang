@@ -166,6 +166,7 @@
                 break;
             case O_EXPR:
             case O_FUNC_CALL:
+            //case YYSYMBOL_left_array_access_expr:
             
                 if(val.str == nullptr){
                     return false;
