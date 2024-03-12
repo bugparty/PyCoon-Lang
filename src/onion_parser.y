@@ -231,19 +231,9 @@ term1 : term1 condition_op term2 {
                         ss<< $1->IRCode <<$3->IRCode;
                         ss << ". " << tempVar<<endl;
                         ss<< ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else if($1->type == IDENTIFIER){
-                                ss << tempVar;
-                        }
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
                         addNode->IRCode = ss.str();
                         addNode->val.str = new string(tempVar);
@@ -385,7 +375,7 @@ single_variable_declartion: INT IDENTIFIER {ODEBUG("single_variable_declartion -
            }else{
                 ctx->addSymbol(identifer->sourceCode, currentFunction(),SymbolType::SYM_VAR_INT);
            }
-           ctx->debugPrint();
+
            CodeNode *variableDeclarationNode = new CodeNode(O_VAR_DECLARATION);
            stringstream ss;
            ss<<". " << identifer->sourceCode<<endl;
@@ -507,21 +497,7 @@ assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt
                 ss << ". " << identifierLeft->sourceCode<<endl;
                 ss << expr->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
-                
-                switch(expr->type){
-                        case IDENTIFIER:
-                                ss << expr->sourceCode;
-                                break;
-                        case O_INT:
-                                ss << expr->val.i;
-                                break;
-                        case O_EXPR:
-                                ss << *(expr->val.str);
-                                break;
-                        default:
-                                cout << "Invalid expr";
-                                break;
-                }
+                expr->getImmOrVariableIRCode(ss);
 
                 CodeNode *newNode = new CodeNode(O_ASSIGN_STMT);
                 ss << endl;
@@ -589,19 +565,7 @@ assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt
                 ss << $3->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
 
-                switch($3->type){
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case O_INT:
-                                ss << $3->val.i;
-                                break;
-                        case O_EXPR:
-                                ss << *($3->val.str);
-                                break;
-                        default:
-                                break;
-                }
+                $3->getImmOrVariableIRCode(ss);
 
                 CodeNode *newNode = new CodeNode(O_ASSIGN_STMT);
                 ss << endl;
@@ -728,11 +692,6 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                  }
         | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
-                ODEBUG("test1");
-                $1->debug();
-                ODEBUG("test 2");
-                $2->debug();
-                ODEBUG("test 3");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
@@ -742,20 +701,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss << $3->IRCode;
                 ss <<$1->IRCode<< "ret ";
-                switch($3->type){
-                        case O_INT:
-                                ss << $3->val.i;
-                                break;
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case O_EXPR:
-                                ss << *($3->val.str);
-                                break;
-                        default:
-                           OWARN("unexpected type");
-                           yyerror("unexpected type");
-                }
+                $3->getImmOrVariableIRCode(ss);
                 ss <<endl;
                 $1->IRCode = ss.str();
                 $1->printIR();
@@ -772,20 +718,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss << $2->IRCode;
                 ss << "ret ";
-                switch($2->type){
-                        case O_INT:
-                                ss << $2->val.i;
-                                break;
-                        case IDENTIFIER:
-                                ss << $2->sourceCode;
-                                break;
-                        case O_EXPR:
-                                ss << *($2->val.str);
-                                break;
-                        default:
-                           OWARN("unexpected type");
-                           yyerror("unexpected type");
-                }
+                $2->getImmOrVariableIRCode(ss);
                 ss <<endl;
                 node->IRCode = ss.str();
                 node->printIR();
@@ -805,6 +738,24 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $$ = node;
                 
         }
+        | function_code_block CONTINUE SEMICOLON {
+                ODEBUG( "function_code_block ->function_code_block CONTINUE");
+                CodeNode * node =  $1;
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+        }
         |  BREAK SEMICOLON {ODEBUG( "function_code_block -> BREAK");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
 
@@ -823,7 +774,24 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 
                 }
                 $$=node;
-         };
+         }| CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
+                CodeNode * node =  new CodeNode(O_CODE_BLOCK);
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+         }
+         ;
 
 control_flow_stmt_function:  while_stmt_function {
                 ODEBUG("control_flow_stmt_function -> while_stmt");
@@ -900,30 +868,22 @@ for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assign
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
         ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
-        
 
         ss<<": "<<label_loop_start<<endl;
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
         ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
-        
-        
-        
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
         ss<<$10->IRCode; //Code Body
         ss<<incrementVar->IRCode; //increment, like i++
-        
-
 
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
-        
-        
         newNode->IRCode = ss.str();
         /*assert(popLoopTag()!= nullptr); */
         $$=newNode;
@@ -1097,7 +1057,6 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         node->genFunctionCallIRCode(ss);
                         node->IRCode = ss.str();
                         node->printIR();
-                        node->debug();
                         $$=node;
                         
                         }
