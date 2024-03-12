@@ -158,26 +158,21 @@ arithmetic_expr : arithmetic_expr logical_op term1 {
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
+                        ss<< $1->IRVars <<$3->IRVars;
 
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $1->type);
-                        }
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+  
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss<<ariOP<< " "<<tempVar<<", ";
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $3->type);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->sourceCode = ariOP;
                         addNode->printIR();
@@ -228,24 +223,19 @@ term1 : term1 condition_op term2 {
                         $$=addNode;
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
+                        ss << $1->IRVars <<$3->IRVars;
                         ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
                         ss<< ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else if($1->type == IDENTIFIER){
-                                ss << tempVar;
-                        }
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         addNode->sourceCode = ariOP; //Sorry I need this to do for loop :(
@@ -278,8 +268,13 @@ term2 :  term2 add_op term3 {
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
+                        ss << $1->IRVars <<$3->IRVars;
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss <<ariOP<< " "<<tempVar<<", ";
                         if($1->getImmOrVariableIRCode(ss)==false){
                                 $1->debug();
                                 OERROR("unexpected type %d", $1->type);
@@ -292,7 +287,8 @@ term2 :  term2 add_op term3 {
                                 
                         }
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         $$=addNode;
@@ -328,27 +324,19 @@ term3 : term3 multiply_op factor {ODEBUG("term3 -> term3 multiply_op factor");
                         
                         string tempVar = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
                         stringstream ss;
-                        ss<< $1->IRCode <<$3->IRCode;
-                        ss << ". " << tempVar<<endl<<ariOP<< " "<<tempVar<<", ";
-                        if($1->type == O_INT){
-                                ss << $1->val.i;
-                        }else if ($1->type == O_EXPR){
-                                ss << *($1->val.str);
-                        }else{
-                                $1->debug();
-                                OERROR("unexpected type %d", $1->type);
-                                
-                        }
+                        ss<< $1->IRVars <<$3->IRVars;
+                        ss << ". " << tempVar<<endl;
+                        addNode->IRVars = ss.str();
+                        ss.str("");
+                        ss.clear();
+                        ss << $1->IRLogics <<$3->IRLogics;
+                        ss <<ariOP<< " "<<tempVar<<", ";
+                        $1->getImmOrVariableIRCode(ss);
                         ss <<", ";
-                        if($3->type == O_INT){
-                                ss << $3->val.i;
-                        }else if ($3->type == O_EXPR){
-                                ss << *($3->val.str);
-                        }else{
-                                OERROR("unexpected type %d", $3->type);
-                        }
+                        $3->getImmOrVariableIRCode(ss);
                         ss << endl;
-                        addNode->IRCode = ss.str();
+                        addNode->IRLogics = ss.str();
+                        addNode->IRCode = addNode->IRVars + addNode->IRLogics;
                         addNode->val.str = new string(tempVar);
                         addNode->printIR();
                         $$=addNode;
@@ -385,7 +373,7 @@ single_variable_declartion: INT IDENTIFIER {ODEBUG("single_variable_declartion -
            }else{
                 ctx->addSymbol(identifer->sourceCode, currentFunction(),SymbolType::SYM_VAR_INT);
            }
-           ctx->debugPrint();
+
            CodeNode *variableDeclarationNode = new CodeNode(O_VAR_DECLARATION);
            stringstream ss;
            ss<<". " << identifer->sourceCode<<endl;
@@ -507,21 +495,7 @@ assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt
                 ss << ". " << identifierLeft->sourceCode<<endl;
                 ss << expr->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
-                
-                switch(expr->type){
-                        case IDENTIFIER:
-                                ss << expr->sourceCode;
-                                break;
-                        case O_INT:
-                                ss << expr->val.i;
-                                break;
-                        case O_EXPR:
-                                ss << *(expr->val.str);
-                                break;
-                        default:
-                                cout << "Invalid expr";
-                                break;
-                }
+                expr->getImmOrVariableIRCode(ss);
 
                 CodeNode *newNode = new CodeNode(O_ASSIGN_STMT);
                 ss << endl;
@@ -589,19 +563,7 @@ assignment_stmt: array_access_stmt {ODEBUG("assignment_stmt -> array_access_stmt
                 ss << $3->IRCode;
                 ss << "= " << identifierLeft->sourceCode << ", ";
 
-                switch($3->type){
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case O_INT:
-                                ss << $3->val.i;
-                                break;
-                        case O_EXPR:
-                                ss << *($3->val.str);
-                                break;
-                        default:
-                                break;
-                }
+                $3->getImmOrVariableIRCode(ss);
 
                 CodeNode *newNode = new CodeNode(O_ASSIGN_STMT);
                 ss << endl;
@@ -728,11 +690,6 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                  }
         | function_code_block control_flow_stmt_function {
                 ODEBUG( "function_code_block -> function_code_block control_flow_stmt_function");
-                ODEBUG("test1");
-                $1->debug();
-                ODEBUG("test 2");
-                $2->debug();
-                ODEBUG("test 3");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
@@ -742,20 +699,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss << $3->IRCode;
                 ss <<$1->IRCode<< "ret ";
-                switch($3->type){
-                        case O_INT:
-                                ss << $3->val.i;
-                                break;
-                        case IDENTIFIER:
-                                ss << $3->sourceCode;
-                                break;
-                        case O_EXPR:
-                                ss << *($3->val.str);
-                                break;
-                        default:
-                           OWARN("unexpected type");
-                           yyerror("unexpected type");
-                }
+                $3->getImmOrVariableIRCode(ss);
                 ss <<endl;
                 $1->IRCode = ss.str();
                 $1->printIR();
@@ -772,20 +716,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 stringstream ss;
                 ss << $2->IRCode;
                 ss << "ret ";
-                switch($2->type){
-                        case O_INT:
-                                ss << $2->val.i;
-                                break;
-                        case IDENTIFIER:
-                                ss << $2->sourceCode;
-                                break;
-                        case O_EXPR:
-                                ss << *($2->val.str);
-                                break;
-                        default:
-                           OWARN("unexpected type");
-                           yyerror("unexpected type");
-                }
+                $2->getImmOrVariableIRCode(ss);
                 ss <<endl;
                 node->IRCode = ss.str();
                 node->printIR();
@@ -805,6 +736,24 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $$ = node;
                 
         }
+        | function_code_block CONTINUE SEMICOLON {
+                ODEBUG( "function_code_block ->function_code_block CONTINUE");
+                CodeNode * node =  $1;
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+        }
         |  BREAK SEMICOLON {ODEBUG( "function_code_block -> BREAK");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
 
@@ -813,17 +762,36 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }else{
                                 
                                 CodeNode *currentLoop = currentLoopTag();
-                                if(currentLoop->type == O_WHILE_STMT){
+                                if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
                                         node->printIR();
                                         $$ = node;
-                                }else{
+                                }
+                                else{
                                         OERROR("break statement not in loop");
                                 }
                                 
                 }
                 $$=node;
-         };
+         }
+         | CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
+                CodeNode * node =  new CodeNode(O_CODE_BLOCK);
+                if(currentLoopTag()==nullptr){
+                                OERROR("continue statement not in loop");
+                }else{
+                                CodeNode *currentLoop = currentLoopTag();
+                                if((currentLoop->type == O_WHILE_STMT)||(currentLoop->type == O_FOR_STMT)){
+                                        node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
+                                        node->printIR();
+                                        $$ = node;
+                                }else{
+                                        OERROR("continue statement not in loop");
+                                }
+                                
+                }
+                $$=node;
+         }
+         ;
 
 control_flow_stmt_function:  while_stmt_function {
                 ODEBUG("control_flow_stmt_function -> while_stmt");
@@ -856,9 +824,12 @@ while_stmt_function: WHILE {
         auto label_loop_body = node->val.loopTag->loopBodyLabel;
         auto label_loop_end =   node->val.loopTag->loopEndLabel;
 
-        ss << expr_node->IRCode;
+        ss << expr_node->IRVars;
 
         ss << ": " << label_loop_start << endl;
+        ss << expr_node->IRLogics;
+
+
         ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
         ss << ":= " << label_loop_end << endl;
         ss << ": " << label_loop_body << endl;
@@ -876,63 +847,84 @@ while_stmt_function: WHILE {
           ;
 
 
-for_stmt_function: FOR LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+for_stmt_function: FOR 
+{
+        CodeNode *newNode = new CodeNode(O_FOR_STMT);
+        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start_forIncrement, label_loop_body, label_loop_end);
+         ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
+
+         pushLoopTag(newNode);
+         push_code_node(newNode);
+
+}
+        LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
-        CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        CodeNode *loop_control_var = $3; 
-        CodeNode *loopContinueCondition =$5;
-        CodeNode *incrementVar = $7;
+        CodeNode *newNode = pop_code_node();
+
+        CodeNode *loop_control_var = $4; 
+        CodeNode *loopContinueCondition =$6;
+        CodeNode *incrementVar = $8;
         stringstream ss;
 
         std::string loop_control_variable = loop_control_var->children.at(0)->sourceCode;
-         
-        
         ss<< loop_control_var->IRCode;
-        
+
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
        
+        auto label_loop_start_forIncrement = newNode->val.loopTag->loopStartLabel;
         auto label_loop_start = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
+        auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
         ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
-        
 
         ss<<": "<<label_loop_start<<endl;
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(1)->sourceCode<<endl;
+        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
-        
-        
-        
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
-        ss<<$10->IRCode; //Code Body
-        ss<<incrementVar->IRCode; //increment, like i++
+
         
+        ss<<$11->IRCode; //Code Body
+        //increment, like i++
 
 
+        ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
+        ss<<incrementVar->IRCode;
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
-        
-        
+
         newNode->IRCode = ss.str();
-        /*assert(popLoopTag()!= nullptr); */
-        $$=newNode;
+        
+        
+
+       
+      
+
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
-        newNode->addChild($10);
+        newNode->addChild($11);
+
+         
+        assert(popLoopTag()!= nullptr); 
+
+        $$=newNode;
+
         }
-          ;
+        ;
 
 ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_function {
                         ODEBUG("ifElse_stmt_function -> if_stmt_function multi_elif_stmt_function");
@@ -1097,7 +1089,6 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         node->genFunctionCallIRCode(ss);
                         node->IRCode = ss.str();
                         node->printIR();
-                        node->debug();
                         $$=node;
                         
                         }
