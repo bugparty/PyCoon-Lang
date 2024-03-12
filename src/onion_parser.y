@@ -950,7 +950,7 @@ for_stmt_function: FOR
         newNode->addChild(incrementVar);
         newNode->addChild($11);
 
-        pushLoopTag(newNode);
+         
         assert(popLoopTag()!= nullptr); 
 
         $$=newNode;
