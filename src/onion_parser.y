@@ -743,7 +743,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 OERROR("continue statement not in loop");
                 }else{
                                 CodeNode *currentLoop = currentLoopTag();
-                                if(currentLoop->type == O_WHILE_STMT){
+                                if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
                                         node->printIR();
                                         $$ = node;
@@ -773,13 +773,14 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 
                 }
                 $$=node;
-         }| CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
+         }
+         | CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
                 if(currentLoopTag()==nullptr){
                                 OERROR("continue statement not in loop");
                 }else{
                                 CodeNode *currentLoop = currentLoopTag();
-                                if(currentLoop->type == O_WHILE_STMT){
+                                if((currentLoop->type == O_WHILE_STMT)||(currentLoop->type == O_FOR_STMT)){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
                                         node->printIR();
                                         $$ = node;
@@ -849,10 +850,10 @@ while_stmt_function: WHILE {
 for_stmt_function: FOR 
 {
         CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = SymbolManager::getInstance()->allocate_label();
         auto label_loop_end = SymbolManager::getInstance()->allocate_label();
-        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start, label_loop_body, label_loop_end);
+        newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start_forIncrement, label_loop_body, label_loop_end);
          ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
 
          pushLoopTag(newNode);
@@ -875,10 +876,10 @@ for_stmt_function: FOR
         //This must be before the loopbody so we will not redeclare var
         //Label declaration
        
-        auto label_loop_start = newNode->val.loopTag->loopStartLabel;
+        auto label_loop_start_forIncrement = newNode->val.loopTag->loopStartLabel;
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
         auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
         auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
-       
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
@@ -893,9 +894,14 @@ for_stmt_function: FOR
         ss << ":= " << label_loop_end << endl;
 
         ss<<": "<<label_loop_body<<endl;
-        ss<<$11->IRCode; //Code Body
-        ss<<incrementVar->IRCode; //increment, like i++
 
+        
+        ss<<$11->IRCode; //Code Body
+        //increment, like i++
+
+
+        ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
+        ss<<incrementVar->IRCode;
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
