@@ -22,4 +22,4 @@ fi
 #cat ../doc/language_samples/IR_test_case/if03.onion | ./onion
 #cat tests/IR_auto_tests/2expr.onion | ./onion
 #cat ../doc/language_samples/IR_test_case/while_break.onion | ./onion
-cat tests/IR_auto_tests/if04.onion | ./onion
+cat tests/IR_auto_tests/while03.onion | ./onion
