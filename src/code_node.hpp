@@ -47,6 +47,8 @@ if target type is O_EXPR, store the temp variable name in val.str*/
 struct CodeNode{
     std::string IRCode;
     std::string sourceCode;
+    std::string IRVars;
+    std::string IRLogics;
     int lineno;
     union OnionVal{
     int i;
