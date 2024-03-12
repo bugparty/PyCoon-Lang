@@ -1,0 +1,8 @@
+fun f1(){
+    continue;
+}
+fun main(){
+    while(1){}
+    f1();
+    while(1){}
+}
