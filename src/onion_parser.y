@@ -860,7 +860,7 @@ for_stmt_function: FOR
          push_code_node(newNode);
 
 }
-        LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = pop_code_node();
@@ -883,9 +883,10 @@ for_stmt_function: FOR
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
-        ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
+        ss<<loopContinueCondition->IRVars;
 
         ss<<": "<<label_loop_start<<endl;
+         ss<< ". "<<loopContinueCondition->IRLogics;
         ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
         ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
