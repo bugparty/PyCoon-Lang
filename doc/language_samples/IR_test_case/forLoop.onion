@@ -1,14 +1,6 @@
 fun main(){
-
-
-
-       for(int x = 5; x < 10; x = x + 1)
-       {
-            print(x);
-       }
-    
-    
-
-
-
+     for(int x = 5; x < 10; x = x + 1)
+     {
+          print(x);
+     }
 }
