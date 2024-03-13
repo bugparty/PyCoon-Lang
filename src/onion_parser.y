@@ -886,9 +886,7 @@ for_stmt_function: FOR
         ss<<loopContinueCondition->IRVars;
 
         ss<<": "<<label_loop_start<<endl;
-         ss<< ". "<<loopContinueCondition->IRLogics;
-        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
+        ss<<loopContinueCondition->IRLogics;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
