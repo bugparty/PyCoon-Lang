@@ -850,9 +850,9 @@ while_stmt_function: WHILE {
 for_stmt_function: FOR 
 {
         CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label("loop_start_for_increment");
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label("loop_body");
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label("loop_end");
         newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start_forIncrement, label_loop_body, label_loop_end);
          ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
 
@@ -860,7 +860,7 @@ for_stmt_function: FOR
          push_code_node(newNode);
 
 }
-        LEFT_PAR assignment_stmt SEMICOLON term1 SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = pop_code_node();
@@ -877,17 +877,16 @@ for_stmt_function: FOR
         //Label declaration
        
         auto label_loop_start_forIncrement = newNode->val.loopTag->loopStartLabel;
-        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label("loop_start");
         auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
         auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
 
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT); //Borrowed from ifelse
         ss << ". " << tempCond <<endl;
-        ss<< ". "<< loopContinueCondition->getImmOrVariableIRCode()<<endl;
+        ss<<loopContinueCondition->IRVars;
 
         ss<<": "<<label_loop_start<<endl;
-        ss<<"= "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loop_control_variable<<endl;
-        ss <<loopContinueCondition->sourceCode<<" "<< loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->getImmOrVariableIRCode()<<", "<<loopContinueCondition->children.at(2)->sourceCode<<endl;
+        ss<<loopContinueCondition->IRLogics;
         ss << "> " << tempCond << " , " << loopContinueCondition->getImmOrVariableIRCode() << ", 0" << endl;
 
         ss << "?:= " << label_loop_body << ", " << tempCond << endl;
