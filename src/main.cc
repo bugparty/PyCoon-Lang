@@ -22,7 +22,6 @@ int main(int argc, char **argv)
   
   yyparse();
   if(root!=nullptr){
-    root->debug();
     delete root;
   }
 

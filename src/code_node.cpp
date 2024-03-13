@@ -1,15 +1,16 @@
     #include "code_node.hpp"
     #include "symbol_table.hpp"
     #include "tok.h"
-#define ENABLE_CODE_NODE_PRINTF 1
+#define ENABLE_CODE_NODE_PRINTF 0
 #if ENABLE_CODE_NODE_PRINTF
 #define ODEBUG( ...) \
     do{printf("CodeNode: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\n",__FILE__,__LINE__);}while(0)
-#else
-    #define ODEBUG( ...)
-#endif
 #define OWARN( ...) \
     do{fprintf(stderr, "\e[35mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);}while(0)
+#else
+    #define ODEBUG( ...)
+    #define OWARN( ...)
+#endif
 
 #define OERROR( ...) \
     do{fprintf(stderr, "\e[31mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);yyerror("error");}while(0)
