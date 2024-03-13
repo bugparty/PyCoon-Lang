@@ -1,0 +1,10 @@
+fun main(){
+     for(int x = 0; x <= 8; x = x + 1)
+     {  
+        print(x);     
+        for(int a = 5; a <=10; a = a + 1)
+        {
+         print(a);
+        }    
+     }
+}
