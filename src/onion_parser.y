@@ -850,9 +850,9 @@ while_stmt_function: WHILE {
 for_stmt_function: FOR 
 {
         CodeNode *newNode = new CodeNode(O_FOR_STMT);
-        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_body = SymbolManager::getInstance()->allocate_label();
-        auto label_loop_end = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_start_forIncrement = SymbolManager::getInstance()->allocate_label("loop_start_for_increment");
+        auto label_loop_body = SymbolManager::getInstance()->allocate_label("loop_body");
+        auto label_loop_end = SymbolManager::getInstance()->allocate_label("loop_end");
         newNode->val.loopTag = new LoopTag(++loopCounter, label_loop_start_forIncrement, label_loop_body, label_loop_end);
          ODEBUG("while_stmt -> WHILE LOOPID %d", loopCounter);
 
@@ -877,7 +877,7 @@ for_stmt_function: FOR
         //Label declaration
        
         auto label_loop_start_forIncrement = newNode->val.loopTag->loopStartLabel;
-        auto label_loop_start = SymbolManager::getInstance()->allocate_label();
+        auto label_loop_start = SymbolManager::getInstance()->allocate_label("loop_start");
         auto label_loop_body = newNode->val.loopTag->loopBodyLabel;
         auto label_loop_end =   newNode->val.loopTag->loopEndLabel;
 
