@@ -898,28 +898,19 @@ for_stmt_function: FOR
         ss<<$11->IRCode; //Code Body
         //increment, like i++
 
-
         ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
         ss<<incrementVar->IRCode;
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
-
         newNode->IRCode = ss.str();
         
-        
-
-       
-      
-
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
         newNode->addChild($11);
-
          
         assert(popLoopTag()!= nullptr); 
-
         $$=newNode;
 
         }

@@ -88,6 +88,30 @@
         this->children = right.children;
         //std::cout << "copy constructor"<<std::endl;
     }
+    CodeNode::CodeNode(int type):type(type),subType(0){initDefaultUnionVal();}
+    CodeNode::CodeNode(char* sourceCode,int type):sourceCode(std::string(sourceCode)),type(type){
+         initDefaultUnionVal();
+        std::string s = std::string(sourceCode);
+        switch(type){
+            case O_INT:
+                val.i = std::stoi(sourceCode);
+                break;
+            case BINARY_NUMBER:
+                
+                val.i = stoul(s.substr(2),0,2);
+                break;
+            case HEX_NUMBER:
+                val.i = stoul(s.substr(2),0,16);
+                break;
+            default:
+                break;
+        }
+       
+    }
+    void CodeNode::initDefaultUnionVal(){
+        val.str=nullptr;
+        
+    }
     void CodeNode::printIR(){
         std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
     }

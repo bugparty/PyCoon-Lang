@@ -60,25 +60,9 @@ struct CodeNode{
     int type;
     int subType;
     std::vector<CodeNode*> children;
-    CodeNode(int type):type(type),subType(0){}
+    CodeNode(int type);
     CodeNode(const CodeNode& right);
-    CodeNode(char* sourceCode,int type):sourceCode(std::string(sourceCode)),type(type){
-        std::string s = std::string(sourceCode);
-        switch(type){
-            case O_INT:
-                val.i = std::stoi(sourceCode);
-                break;
-            case BINARY_NUMBER:
-                
-                val.i = stoul(s.substr(2),0,2);
-                break;
-            case HEX_NUMBER:
-                val.i = stoul(s.substr(2),0,16);
-                break;
-            default:
-                break;
-        }
-    }
+    CodeNode(char* sourceCode,int type);
     virtual ~CodeNode();
     /*get the immediate value or variable name
     return false if the type is not immediate value or variable name
@@ -103,4 +87,5 @@ struct CodeNode{
     void printIR();
     private:
        void freeUnionVal();
+       void initDefaultUnionVal();
 };
