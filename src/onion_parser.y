@@ -719,7 +719,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $2->getImmOrVariableIRCode(ss);
                 ss <<endl;
                 node->IRCode = ss.str();
-                node->printIR();
+                //node->printIR();
                 node->addChild($1);
                 node->addChild($2);
                 $$=node;
@@ -732,7 +732,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 ODEBUG( "function_code_block ->function_code_block BREAK");
                 CodeNode * node =  $1;
                 node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
-                node->printIR();
+                //node->printIR();
                 $$ = node;
                 
         }
@@ -745,7 +745,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 CodeNode *currentLoop = currentLoopTag();
                                 if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
-                                        node->printIR();
+                                        //node->printIR();
                                         $$ = node;
                                 }else{
                                         OERROR("continue statement not in loop");
@@ -764,7 +764,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 CodeNode *currentLoop = currentLoopTag();
                                 if(currentLoop->type == O_WHILE_STMT||currentLoop->type == O_FOR_STMT){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
-                                        node->printIR();
+                                        //node->printIR();
                                         $$ = node;
                                 }
                                 else{
@@ -782,7 +782,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                                 CodeNode *currentLoop = currentLoopTag();
                                 if((currentLoop->type == O_WHILE_STMT)||(currentLoop->type == O_FOR_STMT)){
                                         node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopStartLabel + std::string("\n");
-                                        node->printIR();
+                                        //node->printIR();
                                         $$ = node;
                                 }else{
                                         OERROR("continue statement not in loop");
@@ -898,28 +898,19 @@ for_stmt_function: FOR
         ss<<$11->IRCode; //Code Body
         //increment, like i++
 
-
         ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
         ss<<incrementVar->IRCode;
         ss << ":= " << label_loop_start << endl;
         ss << ": " << label_loop_end << endl;
 
-
         newNode->IRCode = ss.str();
         
-        
-
-       
-      
-
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
         newNode->addChild($11);
-
          
         assert(popLoopTag()!= nullptr); 
-
         $$=newNode;
 
         }
@@ -1067,7 +1058,7 @@ function_arguments  : function_arguments COMMA function_argument {
                         CodeNode *node = new CodeNode(O_FUNC_ARGS);
                         node->IRCode = $1->IRCode;
                         node->addChild($1);
-                        node->printIR();
+                        //node->printIR();
                         $$=node;}
                   | %empty {ODEBUG("function_arguments -> %%empty");
                         CodeNode *node = new CodeNode(O_FUNC_ARGS);
@@ -1087,7 +1078,7 @@ function_call_stmt : IDENTIFIER LEFT_PAR function_arguments RIGHT_PAR {
                         ss << $3->IRCode;
                         node->genFunctionCallIRCode(ss);
                         node->IRCode = ss.str();
-                        node->printIR();
+                        //node->printIR();
                         $$=node;
                         
                         }
@@ -1113,7 +1104,7 @@ read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
           node->addChild($1);
           node->addChild($3);
           node->IRCode = std::string(".< ") + ($1->sourceCode) + std::string("\n");
-          node->printIR();
+          //node->printIR();
 
           $$ = node; 
         }
