@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 declare -a failed_tests
 declare -a passing_tests
 actual_output_dir="./actual_outputs"
@@ -11,7 +13,7 @@ run_e2e_test() {
   # Print the file name
   echo -e "\e[34mFile name: $filename \e[0m "
 
-  cat $1 | ./onion
+  ./onion < "$1"
   error=$?
   if [ "$error" -ne 0 ]; then
     echo -e "\e[31mError found in: $filename ,stop testing. \e[0m"
@@ -87,4 +89,4 @@ if [ ${#failed_tests[@]} -gt 0 ]; then
     echo "${failed_tests[*]}" 
     exit -2
 fi
-rm -rf "$actual_output_dir"
+#rm -rf "$actual_output_dir"
