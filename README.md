@@ -1,11 +1,366 @@
-# Orion Programming Language
+# 🦝 PyCoon  Programming Language
 Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
 
 ## CI Test Result
 
-[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
+[![CI WorkFLow](https://github.com/bugparty/PyCoon-Lang/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/bugparty/PyCoon-Lang/actions)
 
-[![CI WorkFLow](https://github.com/fuyuze123/CS152_Project/actions/workflows/unittest.yml/badge.svg 'CI Workflow')](https://github.com/fuyuze123/CS152_Project/actions)
+[![CI WorkFLow](https://github.com/bugparty/PyCoon-Lang/actions/workflows/unittest.yml/badge.svg 'CI Workflow')](https://github.com/bugparty/PyCoon-Lang/actions)
+
+**“Steals Python’s syntax. Fights crime with C logic.”**
+
+*A toy language that looks Pythonic… but acts like C.*
+
+
+---
+
+
+## 🧁 Overview
+
+
+**PyCoon** is a mischievous little programming language:
+
+it **borrows** Python’s clean syntax but **runs** with C’s semantics and execution model.
+
+
+Think of it as a raccoon in a Python costume — cute indentation on the outside, raw C metal inside.
+
+
+### Core ideas
+
+
+- 🐍 **Python-style syntax** (indentation, `def`, `for`, `:`)
+- ⚙️ **C-style semantics** (static types, values-as-lvalues, C ABI)
+- 🚀 **Compiled** into C or LLVM IR
+- 😂 **Funny but functional** toy language
+- 🦝 **Raccoon-coded**: steals syntax, keeps the shiny bits, throws away the rest
+
+
+Use PyCoon when you want to:
+
+
+- Build compiler assignments / toy interpreters
+- Prototype DSLs
+- Write Python but secretly want C
+- Add chaos to your project
+- Pay tribute to *South Park’s* Coon
+
+
+---
+
+
+## 🦝 Lore (The Language Backstory)
+
+
+Legend says a raccoon once broke into the Python warehouse at night.
+
+
+It stole:
+
+
+- indentation
+- `def`
+- `return`
+- colons
+- `for` loops
+- the entire “pythonic vibe”
+
+
+But it ignored Python’s runtime — because raccoons like **metal**, not virtual machines.
+
+
+So it stitched everything onto a pure C engine.
+
+
+And thus, **PyCoon** was born:
+
+
+>
+> **Python on the outside. C in the heart. Raccoon in the soul.**
+>
+>
+>
+
+
+---
+
+
+## 🚀 Installation
+
+
+*(Assumes you have a simple compiler implementation in the repository.)*
+
+
+### Clone
+
+
+```bash
+git clone https://github.com/bugparty/PyCoon-Lang.git
+cd PyCoon-Lang
+
+```
+
+
+### Build
+
+
+```bash
+make
+
+```
+
+
+### Run
+
+
+```bash
+./pyc main.pcn
+
+```
+
+
+We use `.pcn` as the official file extension
+
+(**P**y**C**oo**N**).
+
+
+---
+
+
+## 🧪 Hello World
+
+
+### PyCoon source
+
+
+```python
+def main():
+    print("Hello from PyCoon!")
+
+```
+
+
+### Generated C (example)
+
+
+```c
+int main() {
+    printf("Hello from PyCoon!\n");
+    return 0;
+}
+
+```
+
+
+---
+
+
+## 📘 Language Basics
+
+
+### ✔️ Variables are statically typed
+
+
+Even though syntax looks Pythonic, PyCoon enforces C-style types.
+
+
+```python
+let x: int = 5
+let y: float = 3.14
+
+```
+
+
+### ✔️ Functions look Pythonic
+
+
+But types behave like C.
+
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+```
+
+
+### ✔️ Blocks use indentation
+
+
+Because the raccoon really liked that part.
+
+
+```python
+if x > 3:
+    print("big")
+else:
+    print("small")
+
+```
+
+
+### ✔️ Loops look like Python
+
+
+But compile down to classic `for(;;)`.
+
+
+```python
+for i in range(0, 10):
+    print(i)
+
+```
+
+
+---
+
+
+## 🔧 Under the Hood
+
+
+PyCoon’s pipeline:
+
+
+1. **Tokenize** Python-like syntax
+2. **Parse** into a simple AST
+3. **Type-check** with C-style rules
+4. **Lower** into a minimal IR
+5. **Emit**:
+
+
+   - C code
+   - or LLVM IR
+
+
+No garbage collector.
+
+No dynamic typing.
+
+No magic.
+
+Just raccoon-powered C semantics.
+
+
+---
+
+
+## 🦝 Mascot
+
+
+**The Coon**
+
+
+- Wears a cape
+- Writes C in the shadows
+- Steals Python syntax during the night
+- Loves garbage cans, hates garbage collectors
+
+
+Optional ASCII mascot:
+
+
+```arduino
+  (\_/)   <- raccoon
+ ( •_•)  "pythonic enough"
+ / >🦝>   cape mode activated
+
+```
+
+
+---
+
+
+## 📦 Example Program
+
+
+```python
+def fib(n: int) -> int:
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+
+def main():
+    print(fib(10))
+
+```
+
+
+Generated C skeleton:
+
+
+```c
+int fib(int n) {
+    if (n < 2) return n;
+    return fib(n-1) + fib(n-2);
+}
+
+int main() {
+    printf("%d\n", fib(10));
+}
+
+```
+
+
+---
+
+
+## 🛣️ Roadmap
+
+
+- Basic parser & AST
+- C code generator
+- LLVM IR backend
+- Simple type system
+- Modules
+- `class` syntax that compiles to C structs
+- Raccoon-mode optimizations
+- Official PyCoon Cape (merch 🤓)
+
+
+---
+
+
+## 📝 License
+
+
+You may choose any license you want. Default suggestion:
+
+
+```vbnet
+MIT License
+
+Do whatever you want, but don't blame the raccoon.
+
+```
+
+
+---
+
+
+## 🎉 Final Note
+
+
+PyCoon is not meant to be serious —
+
+but it *is* meant to be **fun**, hackable, understandable, and surprisingly powerful.
+
+
+If you'd like, I can also generate:
+
+
+✅ a PyCoon **logo** (vector-style text or ASCII)
+
+✅ a PyCoon **syntax reference manual**
+
+✅ the **first compiler pass** (lexer, parser)
+
+✅ example **unit tests**
+
+✅ a GitHub-style **CONTRIBUTING.md**
+
+
+Just tell me!
 
 ## How to run the tokizer
 
