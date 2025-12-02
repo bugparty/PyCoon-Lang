@@ -259,7 +259,7 @@ Just raccoon-powered C semantics.
 Optional ASCII mascot:
 
 
-```arduino
+```text
   (\_/)   <- raccoon
  ( •_•)  "pythonic enough"
  / >🦝>   cape mode activated
