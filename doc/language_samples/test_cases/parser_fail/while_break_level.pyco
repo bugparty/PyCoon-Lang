@@ -1,0 +1,8 @@
+fun f1():
+    break;
+fun main():
+    while(1):
+        pass
+    f1();
+    while(1):
+        pass

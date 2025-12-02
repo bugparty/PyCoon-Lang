@@ -11,7 +11,7 @@ lex.o:	lex.c onion_lang.lex
 		$(CC) $(CFLAGS) -c lex.c -o lex.o
 
 lex.c:	onion_lang.lex  code_node.hpp
-		flex -l onion_lang.lex
+		flex -l -o lex.yy.c onion_lang.lex
 		cp lex.yy.c lex.c
 
 bison.o:	bison.c

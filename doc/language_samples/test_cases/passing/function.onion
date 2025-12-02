@@ -1,6 +1,0 @@
-fun muliply(int a){
-    return a*b;
-}
-int c;
-c = muliply(2,5);
-print(c);

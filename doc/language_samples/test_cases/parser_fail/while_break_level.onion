@@ -1,8 +1,0 @@
-fun f1(){
-    break;
-}
-fun main(){
-    while(1){}
-    f1();
-    while(1){}
-}
