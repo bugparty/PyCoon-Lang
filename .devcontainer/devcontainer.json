@@ -2,7 +2,7 @@
 
   "image": "mcr.microsoft.com/devcontainers/cpp:debian12",
   "features": {
-    "ghcr.io/akhildevelops/devcontainer-features/apt:0": {"PACKAGES":"flex-old,libbison-dev,bison"}
+    "ghcr.io/akhildevelops/devcontainer-features/apt:0": {"PACKAGES":"flex,libbison-dev,bison"}
   },
   "postCreateCommand": "wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run && chmod +x mil_run && sudo mv mil_run /usr/local/bin"
   ,
