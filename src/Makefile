@@ -5,13 +5,13 @@ CC	= g++
 CFLAGS	=-ansi -std=c++20 -g -Wall  -pedantic -fpermissive -Wno-register -Wno-unused-function  -Wno-write-strings 
 CFLAGS +=  -fsanitize=address -static-libasan
 onion:		$(OBJS)
-		$(CC) $(CFLAGS) $(OBJS) -o onion -lfl
+		$(CC) $(CFLAGS) $(OBJS) -o onion
 
 lex.o:	lex.c onion_lang.lex
 		$(CC) $(CFLAGS) -c lex.c -o lex.o
 
 lex.c:	onion_lang.lex  code_node.hpp
-		flex onion_lang.lex
+		flex -l onion_lang.lex
 		cp lex.yy.c lex.c
 
 bison.o:	bison.c

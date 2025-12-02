@@ -3,6 +3,7 @@ The Onion Lang lexizier
  */
 %option yylineno
 %option prefix="onion_"
+%option noyywrap
 %{
 /* you can include anything here, will be insert to head */
 #include <stdio.h>
