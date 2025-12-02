@@ -336,17 +336,26 @@ int  {
     if(indent > current_indent){
         indent_stack.push_back(indent);
         indent_tokens.push(INDENT);
-    }else{
-        while(indent < current_indent){
-            indent_stack.pop_back();
-            current_indent = indent_stack.back();
-            indent_tokens.push(DEDENT);
-        }
-        if(indent != current_indent){
-            fprintf(stderr, "Indentation error at line %d\n", current_line);
-            exit(-1);
-        }
+        return NEWLINE;
     }
+
+    while(indent < current_indent){
+        indent_stack.pop_back();
+        current_indent = indent_stack.back();
+        indent_tokens.push(DEDENT);
+    }
+
+    if(indent != current_indent){
+        fprintf(stderr, "Indentation error at line %d\n", current_line);
+        exit(-1);
+    }
+
+    if(!indent_tokens.empty()){
+        int tok = indent_tokens.front();
+        indent_tokens.pop();
+        return tok;
+    }
+
     return NEWLINE;
 }
 ; {

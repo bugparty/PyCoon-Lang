@@ -1,5 +1,4 @@
-fun main(){
+fun main():
     int a;
     int b;
     int a;
-}

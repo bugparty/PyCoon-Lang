@@ -1,12 +1,9 @@
-fun transposeMatrix(int matrix[3][3], int transposed[3][3]) {
+fun transposeMatrix(int matrix[3][3], int transposed[3][3]):
     int i;
     int j;
-    for (i = 0; i < 3; i = i + 1) {
-        for (j = 0; j < 3; j = j + 1) {
+    for (i = 0; i < 3; i = i + 1):
+        for (j = 0; j < 3; j = j + 1):
             transposed[j][i] = matrix[i][j];
-        }
-    }
-}
 
 int original[3][3] =  {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
 int transposed[3][3];
@@ -14,8 +11,6 @@ transposeMatrix(original, transposed);
 
 int x;
 int y;
-for (x = 0; x < 3; x = x + 1) {
-    for (y = 0; y < 3; y = y + 1) {
+for (x = 0; x < 3; x = x + 1):
+    for (y = 0; y < 3; y = y + 1):
         print(transposed[x][y]);
-    }
-}

@@ -1,16 +1,12 @@
-fun multiplyMatrices(int matA[2][2], int matB[2][2], int result[2][2]) {
+fun multiplyMatrices(int matA[2][2], int matB[2][2], int result[2][2]):
     int i;
     int j;
     int k;
-    for (i = 0; i < 2; i = i + 1) {
-        for (j = 0; j < 2; j = j + 1) {
+    for (i = 0; i < 2; i = i + 1):
+        for (j = 0; j < 2; j = j + 1):
             result[i][j] = 0;
-            for (k = 0; k < 2; k = k + 1) {
+            for (k = 0; k < 2; k = k + 1):
                 result[i][j] = result[i][j] + matA[i][k] * matB[k][j];
-            }
-        }
-    }
-}
 int matA[2][2];
 matA[0][0] = 1;
 matA[0][1] = 2;
@@ -26,8 +22,6 @@ multiplyMatrices(matA, matB, result);
 
 int x;
 int y;
-for (x = 0; x < 2; x = x + 1) {
-    for (y = 0; y < 2; y = y + 1) {
+for (x = 0; x < 2; x = x + 1):
+    for (y = 0; y < 2; y = y + 1):
         print(result[x][y]);
-    }
-}
