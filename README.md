@@ -362,7 +362,7 @@ If you'd like, I can also generate:
 
 Just tell me!
 
-## How to run the tokizer
+## How to run the tokenizer
 
 ```
 cd src
