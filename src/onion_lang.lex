@@ -368,6 +368,7 @@ int  {
 }
 %%
 
+#undef yylex
 int yylex(void){
     if(!indent_tokens.empty()){
         int tok = indent_tokens.front();

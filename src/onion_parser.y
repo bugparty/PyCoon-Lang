@@ -1176,11 +1176,11 @@ entry: functions {
 
 int yyerror(string s)
 {
-  extern int yylineno;	// defined and maintained in lex.c
-  extern char *yytext;	// defined and maintained in lex.c
+  extern int onion_lineno;	// defined and maintained in lex.c
+  extern char onion_text[];	// defined and maintained in lex.c
   
-  cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  cerr << "\" on line " << yylineno << endl;
+  cerr << "ERROR: " << s << " at symbol \"" << onion_text;
+  cerr << "\" on line " << onion_lineno << endl;
   exit(1);
 }
 
