@@ -11,8 +11,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
-        - name: install flex-old 
-          run: sudo apt install -y flex-old
+        - name: install flex
+          run: sudo apt install -y flex bison
         - name: install mil
           run: wget -O mil_run https://www.cs.ucr.edu/~dtan004/prac3/mil_run && chmod +x mil_run && sudo mv mil_run /usr/local/bin
         - name: make
