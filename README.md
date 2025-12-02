@@ -327,7 +327,7 @@ int main() {
 You may choose any license you want. Default suggestion:
 
 
-```vbnet
+```text
 MIT License
 
 Do whatever you want, but don't blame the raccoon.
