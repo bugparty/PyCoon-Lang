@@ -53,7 +53,7 @@ use ./onion -p to enable parser tracing
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
 %token ASSIGNMENT
-%token SEMICOLON COMMA
+%token SEMICOLON COMMA NEWLINE INDENT DEDENT
 %token IF ELSE WHILE FOR ELIF
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
@@ -636,14 +636,14 @@ function_declartion : FUN IDENTIFIER {
                 //push the identifier to the stack, it will be used in the next half of the function_declartion
                 push_code_node($2);
                 pushFunction($2->sourceCode);
-                } 
-        LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY {
+                }
+        LEFT_PAR function_arguments_declartion RIGHT_PAR NEWLINE INDENT function_code_block DEDENT {
                 ODEBUG( "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY");
                 //pop the identifier from the stack
                 CodeNode* identifer = pop_code_node();
                 assert(identifer!=nullptr);
-                CodeNode* arguments = $5;   
-                CodeNode* codes = $8;
+                CodeNode* arguments = $5;
+                CodeNode* codes = $9;
  
                 CodeNode* func = new CodeNode(YYSYMBOL_function_declartion);
                 
@@ -683,7 +683,7 @@ function_declartion : FUN IDENTIFIER {
                 }
           ;
 
-function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function_code_block -> function_code_block  statement SEMICOLON");
+function_code_block: function_code_block  statement terminator {ODEBUG( "function_code_block -> function_code_block  statement SEMICOLON");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
@@ -694,7 +694,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($2);
                 $$=$1;
                 }
-        | function_code_block RETURN expr SEMICOLON {
+        | function_code_block RETURN expr terminator {
                 ODEBUG( "function_code_block -> function_code_block RETURN expr SEMICOLON");
                 stringstream ss;
                 ss << $3->IRCode;
@@ -707,10 +707,10 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 $1->addChild($3);
                 $$=$1;
         }
-        | statement SEMICOLON {ODEBUG( "function_code_block ->  statement SEMICOLON");
+        | statement terminator {ODEBUG( "function_code_block ->  statement SEMICOLON");
                 $$=$1;
                  }
-        | RETURN expr SEMICOLON {
+        | RETURN expr terminator {
                 ODEBUG( "function_code_block -> RETURN expr SEMICOLON");
                 CodeNode *node = new CodeNode(O_FUNC_RETURN);
                 stringstream ss;
@@ -728,15 +728,15 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 ODEBUG( "function_code_block -> control_flow_stmt_function");
                 $$=$1;
                 }
-        | function_code_block BREAK SEMICOLON{
+        | function_code_block BREAK terminator{
                 ODEBUG( "function_code_block ->function_code_block BREAK");
                 CodeNode * node =  $1;
                 node->IRCode += std::string(":= ") + currentLoopTag()->val.loopTag->loopEndLabel + std::string("\n");
                 //node->printIR();
                 $$ = node;
-                
+
         }
-        | function_code_block CONTINUE SEMICOLON {
+        | function_code_block CONTINUE terminator {
                 ODEBUG( "function_code_block ->function_code_block CONTINUE");
                 CodeNode * node =  $1;
                 if(currentLoopTag()==nullptr){
@@ -754,7 +754,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }
                 $$=node;
         }
-        |  BREAK SEMICOLON {ODEBUG( "function_code_block -> BREAK");
+        |  BREAK terminator {ODEBUG( "function_code_block -> BREAK");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
 
                 if(currentLoopTag()==nullptr){
@@ -774,7 +774,7 @@ function_code_block: function_code_block  statement SEMICOLON {ODEBUG( "function
                 }
                 $$=node;
          }
-         | CONTINUE SEMICOLON { ODEBUG("function_code_block -> CONTINUE");
+         | CONTINUE terminator { ODEBUG("function_code_block -> CONTINUE");
                 CodeNode * node =  new CodeNode(O_CODE_BLOCK);
                 if(currentLoopTag()==nullptr){
                                 OERROR("continue statement not in loop");
@@ -813,11 +813,11 @@ while_stmt_function: WHILE {
                 pushLoopTag(node);
                 push_code_node(node);
                 
-} LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY {
+} LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function  DEDENT {
         ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *node = pop_code_node();
         CodeNode *expr_node =$4;
-        CodeNode *loop_block_node = $7;
+        CodeNode *loop_block_node = $8;
 
         stringstream ss;
         auto label_loop_start = node->val.loopTag->loopStartLabel;
@@ -860,7 +860,7 @@ for_stmt_function: FOR
          push_code_node(newNode);
 
 }
-        LEFT_PAR assignment_stmt SEMICOLON expr SEMICOLON assignment_stmt RIGHT_PAR LEFT_CURLEY loop_block_function  RIGHT_CURLEY
+        LEFT_PAR assignment_stmt terminator expr terminator assignment_stmt RIGHT_PAR NEWLINE INDENT loop_block_function  DEDENT
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = pop_code_node();
@@ -895,7 +895,7 @@ for_stmt_function: FOR
         ss<<": "<<label_loop_body<<endl;
 
         
-        ss<<$11->IRCode; //Code Body
+        ss<<$12->IRCode; //Code Body
         //increment, like i++
 
         ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
@@ -908,7 +908,7 @@ for_stmt_function: FOR
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
-        newNode->addChild($11);
+        newNode->addChild($12);
          
         assert(popLoopTag()!= nullptr); 
         $$=newNode;
@@ -948,11 +948,11 @@ ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_functi
                                 node->addChild(else_stmt);
                                 $$=node;}
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function DEDENT {
         ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");
         CodeNode *node = new CodeNode(O_IF_STMT);
         CodeNode *expr = $3;
-        CodeNode *loop_block = $6;
+        CodeNode *loop_block = $7;
         stringstream ss;
         ss << expr->IRCode;
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
@@ -976,11 +976,11 @@ if_stmt_function: IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIG
         node->addChild(loop_block);
         }
         ;
-elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function DEDENT {
         ODEBUG("elif_stmt_function -> ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY ");
         CodeNode *node = new CodeNode(O_ELIF_STMT);
         CodeNode *expr = $3;
-        CodeNode *loop_block = $6;
+        CodeNode *loop_block = $7;
         stringstream ss;
         ss << expr->IRCode;
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
@@ -1030,11 +1030,11 @@ multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {
                                 $$=elif;}
                         ;
 
-else_stmt_function: ELSE LEFT_CURLEY loop_block_function RIGHT_CURLEY {
+else_stmt_function: ELSE NEWLINE INDENT loop_block_function DEDENT {
         ODEBUG("else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");
         CodeNode *node = new CodeNode(O_ELSE_STMT);
-        node->IRCode = $3->IRCode;
-        node->addChild($3);
+        node->IRCode = $4->IRCode;
+        node->addChild($4);
         $$=node;
         }       
         | %empty {
@@ -1094,6 +1094,10 @@ loop_block_function_non_empty:  function_code_block {
                         $$=$1;
                   }
                   ;
+
+terminator: SEMICOLON
+          | NEWLINE
+          ;
 
 
 read_stmt: IDENTIFIER ASSIGNMENT READ LEFT_PAR RIGHT_PAR {
