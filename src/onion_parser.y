@@ -683,7 +683,7 @@ function_declartion : FUN IDENTIFIER {
                 }
           ;
 
-function_code_block: function_code_block  statement terminator {ODEBUG( "function_code_block -> function_code_block  statement SEMICOLON");
+function_code_block: function_code_block  statement terminator {ODEBUG( "function_code_block -> function_code_block  statement terminator");
                 $1->IRCode+=$2->IRCode;
                 $1->addChild($2);
                 $$=$1;
