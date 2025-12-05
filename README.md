@@ -346,22 +346,6 @@ PyCoon is not meant to be serious —
 but it *is* meant to be **fun**, hackable, understandable, and surprisingly powerful.
 
 
-If you'd like, I can also generate:
-
-
-✅ a PyCoon **logo** (vector-style text or ASCII)
-
-✅ a PyCoon **syntax reference manual**
-
-✅ the **first compiler pass** (lexer, parser)
-
-✅ example **unit tests**
-
-✅ a GitHub-style **CONTRIBUTING.md**
-
-
-Just tell me!
-
 ## How to run the tokenizer
 
 ```
