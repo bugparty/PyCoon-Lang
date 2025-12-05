@@ -348,6 +348,7 @@ but it *is* meant to be **fun**, hackable, understandable, and surprisingly powe
 
 ## How to run the tokenizer
 
+To run the PyCoon tokenizer, navigate to the `src` directory, build the project, and execute the `onion` binary. You can then input code to test the tokenizer interactively:
 ```
 cd src
 make
