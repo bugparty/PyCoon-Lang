@@ -1,5 +1,6 @@
-fun main()
-    if(1+2)
+fun main():
+    if(1+2):
         print(3);
-    else
+    else:
         print(4);
+

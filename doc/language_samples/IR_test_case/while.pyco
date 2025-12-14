@@ -1,3 +1,8 @@
-fun main()
-    while(1)
-        break;
+fun main():
+    int cond = 1;
+    int aa = 0;
+    while(cond):
+        aa = 2;
+        cond = cond-1;
+
+    print(aa);
