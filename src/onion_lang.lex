@@ -2,6 +2,7 @@
 The Onion Lang lexizier
  */
 %option yylineno
+%option prefix="onion_"
 %option noyywrap
 %{
 /* you can include anything here, will be insert to head */
@@ -10,6 +11,8 @@ The Onion Lang lexizier
 #include <unistd.h>
 #include <cstring>
 #include <set>
+#include <vector>
+#include <queue>
 #include "tok.h"
 #include "code_node.hpp"
 using namespace std;
@@ -38,6 +41,9 @@ string error_lexeme;
 bool in_error = false;
 int error_begin_row;
 int error_begin_col;
+std::vector<int> indent_stack = {0};
+std::queue<int> indent_tokens;
+int yylex(void);
 %}
 /*define your symbols here*/
 DIGIT          [0-9]
@@ -307,18 +313,41 @@ int  {
     return COMMA;}
 
 
-{COMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
+{COMMENT} {ONION_PATTERN;ODEBUG("comment\n");++current_line;current_col=1;}
 
 {MTLCOMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
-[ \t] {
+[ \t]+ {
     ONION_PATTERN_HANDLE_ERROR;
-    white_spaces++;
     if(in_error){ODEBUG("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());exit(-1);}
 }
-[\n\r] {
-    ONION_PATTERN_HANDLE_ERROR;
-    ++current_line;
-    current_col=1;
+\n[ \t]* {
+    current_line++;
+    current_col = 1;
+    int indent = 0;
+    for(int i = 1; i < yyleng; ++i){
+        indent += (yytext[i] == '\t') ? 4 : 1;
+    }
+    int next_char = yyinput();
+    if(next_char != EOF) unput(next_char);
+    if(next_char == '\n' || next_char == '#'){
+        continue;
+    }
+    int current_indent = indent_stack.back();
+    if(indent > current_indent){
+        indent_stack.push_back(indent);
+        indent_tokens.push(INDENT);
+    }else{
+        while(indent < current_indent){
+            indent_stack.pop_back();
+            current_indent = indent_stack.back();
+            indent_tokens.push(DEDENT);
+        }
+        if(indent != current_indent){
+            fprintf(stderr, "Indentation error at line %d\n", current_line);
+            exit(-1);
+        }
+    }
+    return NEWLINE;
 }
 ; {
     ONION_PATTERN;
@@ -339,3 +368,17 @@ int  {
 }
 %%
 
+#undef yylex
+int yylex(void){
+    if(!indent_tokens.empty()){
+        int tok = indent_tokens.front();
+        indent_tokens.pop();
+        return tok;
+    }
+    int token = onion_lex();
+    if(token == 0 && indent_stack.size() > 1){
+        indent_stack.pop_back();
+        return DEDENT;
+    }
+    return token;
+}
