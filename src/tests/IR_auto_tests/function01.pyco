@@ -1,0 +1,9 @@
+fun add(int a, int b)
+    return a + b;
+fun main()
+    int a;
+    int b;
+    a = read();
+    b = read();
+    int sum = add(a, b);
+    print(sum);

@@ -1,0 +1,5 @@
+fun multiply(int a, int b)
+    return a * b;
+
+fun main()
+    int c = multiply(2, 5); print(c);

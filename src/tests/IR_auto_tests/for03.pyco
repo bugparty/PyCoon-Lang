@@ -1,0 +1,14 @@
+fun main()
+    print(110);
+    for(int a = 1; a < 99; a = a + 1)
+        print(111);
+        for(int b = 22; b < 99; b = b + 1)
+            print(112);
+            for(int c = 1; c < 99; c = c + 1)
+                print(113);
+                break;
+            break;
+            print(33);
+        break;
+        print(22);
+    print(666);

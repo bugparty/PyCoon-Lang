@@ -1,0 +1,4 @@
+fun main()
+    int b = 7;
+    for(int x = 5; x < b; x = x + 1)
+        print(x);

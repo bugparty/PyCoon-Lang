@@ -1,0 +1,19 @@
+int count=0;
+int num1 = 0x01001;
+int num2 = 1*2+3-4/2+5%2;
+/*
+I think We lack of array definition
+/*
+#loop example
+for(int i=0;i<10;i++):
+    count = count + 1;
+    if(count >9):
+        break;
+/*while test*/
+while(count > 0):
+    count = count -1;
+/*some
+  prints
+*/
+print("count value is ");
+print(count);
