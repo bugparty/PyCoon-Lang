@@ -1,5 +1,2 @@
-int a00 = 02;
-int a10 = a00;
-a10 = a10 + 1;
-a10 = 1 + a10;
-a10 = a10 + a00 + 1;
+fun main():
+    int x = (1 + 2) * 3; int y = x - 2; print(y);

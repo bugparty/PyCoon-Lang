@@ -58,7 +58,7 @@ error=$?
 if [ "$error" -ne 0 ]; then
   echo -e "\e[31mError found in making,stop testing. \e[0m"
 fi
-for PASSINGFILE in tests/IR_auto_tests/*.onion; do run_e2e_test $PASSINGFILE; done;
+for PASSINGFILE in tests/IR_auto_tests/*.pyco; do run_e2e_test $PASSINGFILE; done;
 
 # for FAILINGFILE in ../doc/language_samples/test_cases/failing/*; do expect_fail $FAILINGFILE; done;
 

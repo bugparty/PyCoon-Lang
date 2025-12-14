@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 declare -a failed_tests
 declare -a passing_tests
@@ -72,7 +72,7 @@ expect_fail() {
 }
 make
 for PASSINGFILE in ../doc/language_samples/IR_test_case/*; do run_test $PASSINGFILE; done;
-for PASSINGFILE in tests/IR_auto_tests/*.onion; do run_e2e_test $PASSINGFILE; done;
+for PASSINGFILE in tests/IR_auto_tests/*.pyco; do run_e2e_test $PASSINGFILE; done;
 for FAILINGFILE in ../doc/language_samples/test_cases/parser_fail/*; do expect_fail $FAILINGFILE; done;
 
 echo ""

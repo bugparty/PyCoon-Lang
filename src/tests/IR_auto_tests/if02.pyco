@@ -1,0 +1,7 @@
+fun main():
+    if(0)
+        print(1);
+    elif(3)
+        print(11);
+    else
+        print(21);

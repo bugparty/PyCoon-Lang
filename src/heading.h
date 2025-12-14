@@ -11,3 +11,6 @@ using namespace std;
 #include "code_node.hpp"
 #include "symbol_table.hpp"
 #include "states.hpp"
+
+// Global flag to control whether to stop on first error
+extern bool stop_on_error;

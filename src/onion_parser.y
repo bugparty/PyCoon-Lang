@@ -1177,10 +1177,15 @@ int yyerror(string s)
 {
   extern int onion_lineno;	// defined and maintained in lex.c
   extern char onion_text[];	// defined and maintained in lex.c
+  extern bool stop_on_error;
   
   cerr << "ERROR: " << s << " at symbol \"" << onion_text;
   cerr << "\" on line " << onion_lineno << endl;
-  exit(1);
+  
+  if (stop_on_error) {
+    exit(1);
+  }
+  return 0;
 }
 
 int yyerror(char *s)

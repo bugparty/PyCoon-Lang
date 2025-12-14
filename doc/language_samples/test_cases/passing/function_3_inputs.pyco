@@ -1,5 +1,5 @@
-fun muliply(int a, int b, int c):
-    return a*b*c;
-int c;
-c = muliply(2,5);
-print(c);
+fun sum3(int a, int b, int c)
+    return a + b + c;
+
+fun main():
+    int d = sum3(1, 2, 3); print(d);
