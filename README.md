@@ -1,6 +1,5 @@
 # 🦝 PyCoon Programming Language
-Author: [Bowen Han](https://github.com/bugparty), [Yuze Fu](https://github.com/fuyuze123), [Kevin Qu](https://github.com/KevinDevs), [Haosheng Long](https://github.com/hlonglhs).
-
+ 
 ## CI Test Result
 
 [![CI WorkFLow](https://github.com/bugparty/PyCoon-Lang/actions/workflows/ci.yml/badge.svg 'CI Workflow')](https://github.com/bugparty/PyCoon-Lang/actions)
