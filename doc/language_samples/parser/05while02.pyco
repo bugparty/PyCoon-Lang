@@ -1,0 +1,6 @@
+int a1 = 0;
+int a2 = 0;
+int a3 = 0;
+while(a2+10)
+    i=i+1;
+    break;

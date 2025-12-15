@@ -1,0 +1,8 @@
+fun f1():
+    pass
+
+fun f1():
+    pass
+
+fun main():
+    int a;
