@@ -1,6 +1,9 @@
     #include "code_node.hpp"
     #include "symbol_table.hpp"
     #include "tok.h"
+
+bool CodeNode::enable_ir_debug = false;
+
 #define ENABLE_CODE_NODE_PRINTF 0
 #if ENABLE_CODE_NODE_PRINTF
 #define ODEBUG( ...) \
@@ -113,7 +116,9 @@
         
     }
     void CodeNode::printIR(){
-        std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
+        if(enable_ir_debug){
+            std::cout<<"IRCode:"<<std::endl << IRCode <<"end of IRCode"<<std::endl;
+        }
     }
     void CodeNode::debug(bool recursive){
         std::cout << "sourceCode: " << sourceCode << std::endl;

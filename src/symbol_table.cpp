@@ -57,7 +57,7 @@ std::string SymbolManager::allocate_label(std::string prefix){
     std::lock_guard<std::mutex> lock(mutex_);
     if(instance == nullptr){
         instance = new SymbolManager();
-        std::cout << "create new symbol manager" << std::endl;
+        // std::cout << "create new symbol manager" << std::endl;
     }
     return instance;
 }

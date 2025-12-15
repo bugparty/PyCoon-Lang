@@ -1,7 +1,0 @@
-int a;
-int b;
-int c;
-read(a,b,c);
-read(a);
-print(a,b,c);
-print(a);

@@ -1,0 +1,12 @@
+fun main():
+    while(1):
+        print(123);
+        break;
+        print(456);
+    int a = 4;
+    while(a):
+        a = a - 1;
+        if(a == 2):
+            break;
+        print(a);
+    print(a);

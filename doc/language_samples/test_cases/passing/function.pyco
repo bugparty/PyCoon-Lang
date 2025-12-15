@@ -1,0 +1,4 @@
+    return a*b;
+int c;
+fun main():
+print(c);

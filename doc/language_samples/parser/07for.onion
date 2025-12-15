@@ -1,7 +1,0 @@
-int a1 = 0;
-int a2 = 0;
-int a3 = 0;
-for(int a=1;a;a+1){
-    i=i+1;
-    break;
-}
