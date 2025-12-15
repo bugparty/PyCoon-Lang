@@ -14,15 +14,15 @@ int loopCounter = 0;
 CodeNode* root = nullptr;
 #if ENABLE_BISON_PRINTF
     #define ODEBUG( ...) \
-    do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\n",__FILE__,__LINE__);}while(0)
+    do{printf("BISON: ");printf( __VA_ARGS__ );printf("\t\t %s:%d:0\n",__FILE__,__LINE__);}while(0)
 #else
     #define ODEBUG( ...)
 #endif
 #define OWARN( ...) \
-    do{fprintf(stderr, "\e[35mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);}while(0)
+    do{fprintf(stderr, "\e[35mBISON: ");printf( __VA_ARGS__ );printf("\t\t %s:%d:0\e[0m\n",__FILE__,__LINE__);}while(0)
 
 #define OERROR( ...) \
-    do{fprintf(stderr, "\e[31mBISON: ");printf( __VA_ARGS__ );printf("\t\tFile:%s:%d:0\e[0m\n",__FILE__,__LINE__);yyerror("error");}while(0)
+    do{fprintf(stderr, "\e[31mBISON: ");printf( __VA_ARGS__ );printf("\t\t %s:%d:0\e[0m\n",__FILE__,__LINE__);yyerror("error");}while(0)
 %}
 
 
@@ -52,14 +52,13 @@ use ./onion -p to enable parser tracing
 %token <codeNode> INT PRINT READ RETURN
 %token LEFT_PAR RIGHT_PAR LEFT_CURLEY RIGHT_CURLEY
 %token LEFT_BRAC RIGHT_BRAC
-%token SEMICOLON COMMA NEWLINE INDENT DEDENT
+%token SEMICOLON COLON COMMA NEWLINE INDENT DEDENT
 %token IF ELSE WHILE FOR ELIF
 %token BREAK CONTINUE
 %token LOGICAL_ADD LOGICAL_OR
 %token LEFT_BOX_BRAC RIGHT_BOX_BRAC
 %token  <codeNode> LEQ GEQ LE GE EQ NEQ
 %token  <codeNode> ADDING SUBTRACTING MULTIPLYING DIVISION MODULE
-
 %left NUMBER
 %left BINARY_NUMBER
 %left HEX_NUMBER
@@ -112,7 +111,7 @@ number: NUMBER {ODEBUG("number -> NUMBER -> %i",$1->val.i );
                 $$= $1;}
       ;
       
-expr: arithmetic_expr {ODEBUG("expr -> arithmetic_expr");$$ = $1;}
+expr: arithmetic_expr {ODEBUG("expr -> arithmetic_expr %s",$1->sourceCode.c_str());$$ = $1;}
     ;
 
 multiply_op: MULTIPLYING {ODEBUG("multiply_op-> MULTIPLYING");$$ = $1;}
@@ -631,18 +630,18 @@ function_arguments_declartion_non_empty  : function_arguments_declartion_non_emp
                                         $$=newNode;}
                   ;
 function_declartion : FUN IDENTIFIER {
-                ODEBUG( "function_declartion -> FUN IDENTIFIER");
+                ODEBUG( "function_declartion -> FUN IDENTIFIER : %s", $2->sourceCode.c_str());
                 //push the identifier to the stack, it will be used in the next half of the function_declartion
                 push_code_node($2);
                 pushFunction($2->sourceCode);
                 }
-        LEFT_PAR function_arguments_declartion RIGHT_PAR NEWLINE INDENT function_code_block DEDENT {
+        LEFT_PAR function_arguments_declartion RIGHT_PAR  COLON NEWLINE INDENT function_code_block DEDENT {
                 ODEBUG( "function -> FUN IDENTIFIER LEFT_PAR function_arguments_declartion RIGHT_PAR LEFT_CURLEY function_code_block RIGHT_CURLEY");
                 //pop the identifier from the stack
                 CodeNode* identifer = pop_code_node();
                 assert(identifer!=nullptr);
                 CodeNode* arguments = $5;
-                CodeNode* codes = $9;
+                CodeNode* codes = $10;
  
                 CodeNode* func = new CodeNode(YYSYMBOL_function_declartion);
                 
@@ -812,11 +811,11 @@ while_stmt_function: WHILE {
                 pushLoopTag(node);
                 push_code_node(node);
                 
-} LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function  DEDENT {
+} LEFT_PAR expr RIGHT_PAR COLON NEWLINE INDENT loop_block_function  DEDENT {
         ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *node = pop_code_node();
         CodeNode *expr_node =$4;
-        CodeNode *loop_block_node = $8;
+        CodeNode *loop_block_node = $9;
 
         stringstream ss;
         auto label_loop_start = node->val.loopTag->loopStartLabel;

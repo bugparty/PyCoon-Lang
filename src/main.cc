@@ -7,7 +7,7 @@ extern CodeNode* root;
 int yyparse();
 
 // Global flag to control whether to stop on first error (default: true)
-bool stop_on_error = true;
+bool stop_on_error = false;
 
 int main(int argc, char **argv)
 {

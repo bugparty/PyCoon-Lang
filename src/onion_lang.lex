@@ -22,7 +22,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_LEX_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_LEX_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_LEX_PRINTF
     #define ODEBUG( ...) \
@@ -35,7 +35,7 @@ int white_spaces = 0;
 //this variable tracks which line in current state
 int current_line = 1;
 int current_col = 1;
-set<string> keywords = {"if","else","for","while","and","or","fun","break","continue","int",
+set<string> keywords = {"if","else","for","while","and","or","fun","def","break","continue","int",
 "elif","return","read","print"};
 string error_lexeme;
 bool in_error = false;
@@ -44,8 +44,34 @@ int error_begin_col;
 std::vector<int> indent_stack = {0};
 std::queue<int> indent_tokens;
 int yylex(void);
+static int keyword_to_token(const char* s) {
+    // 你仍然可以保留 keywords set 用于快速判断
+    // 但真正返回 token 需要映射到 bison 的 token 值
+    if (strcmp(s, "if") == 0) return IF;
+    if (strcmp(s, "elif") == 0) return ELIF;
+    if (strcmp(s, "else") == 0) return ELSE;
+    if (strcmp(s, "for") == 0) return FOR;
+    if (strcmp(s, "while") == 0) return WHILE;
+
+    if (strcmp(s, "and") == 0) return LOGICAL_ADD;
+    if (strcmp(s, "or") == 0) return LOGICAL_OR;
+
+    if (strcmp(s, "fun") == 0 || strcmp(s, "def") == 0) return FUN;
+
+    if (strcmp(s, "break") == 0) return BREAK;
+    if (strcmp(s, "continue") == 0) return CONTINUE;
+
+    if (strcmp(s, "int") == 0) return INT;
+    if (strcmp(s, "return") == 0) return RETURN;
+    if (strcmp(s, "read") == 0) return READ;
+    if (strcmp(s, "print") == 0) return PRINT;
+
+    return 0; // not a keyword
+}
+
 %}
 /*define your symbols here*/
+ID [a-zA-Z][a-zA-Z0-9]*
 DIGIT          [0-9]
 WRONG_ID [0-9_]+[a-zA-Z0-9]+
 ARITHMETIC [+\-*/]
@@ -53,17 +79,51 @@ COMPARISON (>=|<=|>|<|==|!=)
 COMMENT #.*\n
 MTLCOMMENT "/*"([^*]|\*+[^*/])*\*+"/"
 BINARY [0b]+[0-1]+
-HEX [0x]+[0-9a-eA-E]*
-ID [a-zA-Z][a-zA-Z0-9_]*
-END_OF_ID  [ \t\r\n;\[\]=\+\-\*\%\/\)\(\,]
+HEX  0[xX][0-9a-fA-F]+
 END_OF_NUMBER [ \t\r\n\]\)\;\,\}\%\+\-\/\*\>\<\=\!]
 WHITE_SPACE_OR_END [ \t;,\n]
 NOT_WHITE_SPACE_OR_END [^ \t;\n]
 WRONG_SYMBOL_CHAR [^ \t;\n\[\]]
 LEFT_BOX_BRAC [\[]
 RIGHT_BOX_BRAC [\]]
-
 %%
+
+{ID} {
+    ONION_PATTERN;
+    ODEBUG("protential ID : %s\n", yytext);
+    int tok = 0;
+    std::string yytext_str(yytext);
+    if(keywords.find(yytext_str)!= keywords.end()){
+        tok = keyword_to_token(yytext);
+    }
+    if (tok != 0) {
+        ODEBUG("Keyword: %s\n", yytext);
+
+        // 这里“要不要设置 yylval”取决于你 bison 里 token 是否声明了 <codeNode>
+        // 你之前有的关键字 token 写了 <codeNode>，有的写 tokenStr，非常不一致
+        // 我建议：关键字一律不需要 codeNode；但为了兼容你现状，给几个常用的也塞 node
+        switch (tok) {
+            case RETURN: case READ: case PRINT: case INT:
+            case IF: case LOGICAL_ADD: case LOGICAL_OR:
+                yylval.codeNode = new CodeNode(yytext, tok);
+                break;
+            case WHILE: case FOR:
+                yylval.tokenStr = yytext;
+                break;
+            default:
+                // 其他关键字如果你 yacc 没要求语义值，可以不赋
+                ODEBUG("No yylval set for token %d\n", tok);
+                yylval.codeNode = new CodeNode(yytext, tok);
+                break;
+        }
+        return tok;
+    }
+    
+    ODEBUG("Identifier: %s\n", yytext);
+    yylval.codeNode = new CodeNode(yytext, IDENTIFIER);
+    return IDENTIFIER;
+    
+}
 {DIGIT}+/{END_OF_NUMBER}    {
     ONION_PATTERN;
     CodeNode* node = new CodeNode(yytext, CodeNodeType::O_INT);
@@ -85,96 +145,7 @@ RIGHT_BOX_BRAC [\]]
     ODEBUG("HEX_NUMBER:%d\n", node->val.i);
     return HEX_NUMBER;
 }
-return {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, RETURN);
-    yylval.codeNode = node;
-    return RETURN;
-}
-read {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, READ);
-    yylval.codeNode = node;
-    return READ;
-}
-print {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, PRINT);
-    yylval.codeNode = node;
-    return PRINT;
-}
-fun {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    return FUN;
-}
-break {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    return BREAK;
-}
-continue {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    return CONTINUE;
-}
 
-and {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, LOGICAL_ADD);
-    yylval.codeNode = node;
-    return LOGICAL_ADD;
-}
-or {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, LOGICAL_OR);
-    yylval.codeNode = node;
-    return LOGICAL_OR;
-}
-if {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, IF);
-    yylval.codeNode = node;
-    return IF;
-}
-elif {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    return ELIF;
-}
-else {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    return ELSE;
-}
-
-while {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    yylval.tokenStr = yytext;
-    return WHILE;
-}
-for {
-    ONION_PATTERN;
-    ODEBUG( "Keyword: %s\n", yytext);
-    yylval.tokenStr = yytext;
-    return FOR;
-}
-
-int  {
-   ONION_PATTERN;
-   ODEBUG("INT TYPE\n");
-   CodeNode* node = new CodeNode(yytext, INT);
-   yylval.codeNode = node;
-   return INT;
-
-}
 {LEFT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("LEFT BOX BRAC\n");
@@ -272,26 +243,8 @@ int  {
 
 }
 
-{ID}/{END_OF_ID} {
-    ONION_PATTERN;
-    if(keywords.find(yytext)!= keywords.end()){
-        REJECT;
-    }else{
-        ODEBUG("Identifier: %s\n", yytext);
-        
-        CodeNode* node = new CodeNode(yytext, IDENTIFIER);
-        yylval.codeNode = node;
-        return IDENTIFIER;
-    }
-    
-}
-{ID}/{COMPARISON} {
-    ONION_PATTERN;
-    ODEBUG("Identifier: %s\n", yytext);
-    CodeNode* node = new CodeNode(yytext, IDENTIFIER);
-    yylval.codeNode = node;
-    return IDENTIFIER;
-}
+
+
 {WRONG_ID} {
     ONION_PATTERN;
     ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
@@ -317,8 +270,13 @@ int  {
 
 {MTLCOMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
 [ \t]+ {
-    ONION_PATTERN_HANDLE_ERROR;
-    if(in_error){ODEBUG("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());exit(-1);}
+    ONION_PATTERN;
+    if (in_error) {
+        fprintf(stderr, "LEX ERROR at line %d col %d: %s\n",
+                error_begin_row, error_begin_col, error_lexeme.c_str());
+        in_error = false;
+        error_lexeme.clear();
+    }
 }
 \n[ \t]* {
     current_line++;
@@ -364,8 +322,15 @@ int  {
     yylval.tokenStr = yytext;
     return SEMICOLON;
 }
-
+: {
+    ONION_PATTERN;
+    ODEBUG("Colon\n");
+    yylval.tokenStr = yytext;
+    return COLON;
+}
 . {
+    ODEBUG("DEBUG: Unmatched char: '%c' (0x%02x) at %d:%d\n", 
+            yytext[0], (unsigned char)yytext[0], current_line, current_col);
     if(!in_error){
         error_begin_col = current_col;
         error_begin_row = current_line;
