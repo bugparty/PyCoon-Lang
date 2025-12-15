@@ -1,33 +1,33 @@
 fun main():
-    if(0)
+    if(0):
         print(1);
-    elif(0)
+    elif(0):
         print(11);
-    elif(1)
+    elif(1):
         print(21);
-    else
+    else:
         print(31);
-    if(0)
+    if(0):
         print(41);
-    elif(0)
+    elif(0):
         print(51);
-    elif(0)
+    elif(0):
         print(61);
-    else
+    else:
         print(71);
-    if(1)
+    if(1):
         print(81);
-    elif(0)
+    elif(0):
         print(91);
-    elif(0)
+    elif(0):
         print(101);
-    else
+    else:
         print(111);
-    if(0)
+    if(0):
         print(121);
-    elif(1)
+    elif(1):
         print(131);
-    elif(1)
+    elif(1):
         print(141);
-    else
+    else:
         print(151);

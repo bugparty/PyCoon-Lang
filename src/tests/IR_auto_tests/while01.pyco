@@ -1,7 +1,7 @@
 fun main():
     int cond = 5;
     int aa = 0;
-    while(cond)
+    while(cond):
         aa = 2;
         cond = cond - 1;
         print(aa);

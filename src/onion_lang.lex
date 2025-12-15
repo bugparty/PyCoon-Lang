@@ -22,7 +22,7 @@ using namespace std;
         printf("unexptected word found at line %d col %d: %s\n",error_begin_row, error_begin_col, error_lexeme.c_str());\
         exit(-1);\
     }
-#define ENABLE_LEX_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_LEX_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
 
 #if ENABLE_LEX_PRINTF
     #define ODEBUG( ...) \
@@ -73,7 +73,6 @@ static int keyword_to_token(const char* s) {
 /*define your symbols here*/
 ID [a-zA-Z][a-zA-Z0-9]*
 DIGIT          [0-9]
-WRONG_ID [0-9_]+[a-zA-Z0-9]+
 ARITHMETIC [+\-*/]
 COMPARISON (>=|<=|>|<|==|!=)
 COMMENT #.*\n
@@ -145,7 +144,6 @@ RIGHT_BOX_BRAC [\]]
     ODEBUG("HEX_NUMBER:%d\n", node->val.i);
     return HEX_NUMBER;
 }
-
 {LEFT_BOX_BRAC} {
     ONION_PATTERN;
     ODEBUG("LEFT BOX BRAC\n");
@@ -206,7 +204,6 @@ RIGHT_BOX_BRAC [\]]
     yylval.codeNode = node;
     return GEQ;
 }
-
 ">" { 
     ONION_PATTERN;
     ODEBUG("COMPARISON Op :%s\n",yytext);
@@ -242,26 +239,28 @@ RIGHT_BOX_BRAC [\]]
     return ASSIGNMENT;
 
 }
-
-
-
-{WRONG_ID} {
-    ONION_PATTERN;
-    ODEBUG("WrongIdentifier: %s at line %d column %d\n", yytext,current_line, current_col);
-}
 "(" {ONION_PATTERN;
     yylval.tokenStr = yytext;
     return LEFT_PAR;}
 ")" {ONION_PATTERN;
     yylval.tokenStr = yytext;
     return RIGHT_PAR;}
-"{" {ONION_PATTERN;ODEBUG("LEFT CURLEY\n");
+":" {
+    ONION_PATTERN;
+    ODEBUG("Colon\n");
+    yylval.tokenStr = yytext;
+    return COLON;
+}
+"{" {ONION_PATTERN;
+    ODEBUG("LEFT CURLEY\n");
     yylval.tokenStr = yytext;
     return LEFT_CURLEY;}
-"}" {ONION_PATTERN;ODEBUG("RIGHT CURLEY\n");
+"}" {ONION_PATTERN;
+    ODEBUG("RIGHT CURLEY\n");
     yylval.tokenStr = yytext;
     return RIGHT_CURLEY;}
 "," {ONION_PATTERN;
+    ODEBUG("COMMA\n");
     yylval.tokenStr = yytext;
     return COMMA;}
 
@@ -269,15 +268,7 @@ RIGHT_BOX_BRAC [\]]
 {COMMENT} {ONION_PATTERN;ODEBUG("comment\n");++current_line;current_col=1;}
 
 {MTLCOMMENT} {ONION_PATTERN;ODEBUG("comment\n");}
-[ \t]+ {
-    ONION_PATTERN;
-    if (in_error) {
-        fprintf(stderr, "LEX ERROR at line %d col %d: %s\n",
-                error_begin_row, error_begin_col, error_lexeme.c_str());
-        in_error = false;
-        error_lexeme.clear();
-    }
-}
+
 \n[ \t]* {
     current_line++;
     current_col = 1;
@@ -288,13 +279,59 @@ RIGHT_BOX_BRAC [\]]
     int next_char = yyinput();
     if(next_char != EOF) unput(next_char);
     if(next_char == '\n' || next_char == '#'){
+        ODEBUG("Blank line at line %d\n", current_line);
         continue;
     }
     int current_indent = indent_stack.back();
     if(indent > current_indent){
         indent_stack.push_back(indent);
+        ODEBUG("Indent increased to %d at line %d\n", indent, current_line);
         indent_tokens.push(INDENT);
         return NEWLINE;
+    }
+
+    while(indent < current_indent){
+        indent_stack.pop_back();
+        ODEBUG("Indent decreased to %d at line %d\n", indent_stack.back(), current_line);
+        current_indent = indent_stack.back();
+        indent_tokens.push(DEDENT);
+    }
+
+    if(indent != current_indent){
+        ODEBUG("Indentation error at line %d\n", current_line);
+        exit(-1);
+    }
+
+    ODEBUG("Newline at or before line %d col %d\n", current_line, current_col);
+    return NEWLINE;
+}
+
+;[ \t\r]*\n[ \t]* {
+    current_line++;
+    current_col = 1;
+    int indent = 0;
+    // Count indentation after the newline
+    for(int i = yyleng - 1; i >= 0 && (yytext[i] == ' ' || yytext[i] == '\t'); --i){
+        indent += (yytext[i] == '\t') ? 4 : 1;
+    }
+    // Check next character to see if it's another newline or comment
+    int next_char = yyinput();
+    if(next_char != EOF) unput(next_char);
+    
+    if(next_char == '\n' || next_char == '#'){
+        ODEBUG("Semicolon followed by blank line at line %d\n", current_line);
+        yylval.tokenStr = ";";
+        return SEMICOLON;
+    }
+    
+    int current_indent = indent_stack.back();
+    ODEBUG("Terminator ; followed by newline, indent=%d, current_indent=%d\n", indent, current_indent);
+    
+    if(indent > current_indent){
+        indent_stack.push_back(indent);
+        indent_tokens.push(INDENT);
+        yylval.tokenStr = ";";
+        return SEMICOLON;
     }
 
     while(indent < current_indent){
@@ -308,25 +345,26 @@ RIGHT_BOX_BRAC [\]]
         exit(-1);
     }
 
-    if(!indent_tokens.empty()){
-        int tok = indent_tokens.front();
-        indent_tokens.pop();
-        return tok;
-    }
-
-    return NEWLINE;
+    yylval.tokenStr = ";";
+    return SEMICOLON;
 }
+
 ; {
     ONION_PATTERN;
     ODEBUG("Terminator\n");
     yylval.tokenStr = yytext;
     return SEMICOLON;
 }
-: {
+
+[ \t\r]+ {
     ONION_PATTERN;
-    ODEBUG("Colon\n");
-    yylval.tokenStr = yytext;
-    return COLON;
+    ODEBUG("WHITESPACE\n");
+    if (in_error) {
+        fprintf(stderr, "LEX ERROR at line %d col %d: %s\n",
+                error_begin_row, error_begin_col, error_lexeme.c_str());
+        in_error = false;
+        error_lexeme.clear();
+    }
 }
 . {
     ODEBUG("DEBUG: Unmatched char: '%c' (0x%02x) at %d:%d\n", 
@@ -337,7 +375,6 @@ RIGHT_BOX_BRAC [\]]
         in_error = true;
     }
     ONION_PATTERN;
-    
     error_lexeme += yytext;
 }
 %%

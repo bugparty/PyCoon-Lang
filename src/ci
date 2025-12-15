@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-
 declare -a failed_tests
 declare -a passing_tests
 actual_output_dir="./actual_outputs"
@@ -26,9 +25,9 @@ run_e2e_test() {
     # Execute the program with the input file and save the output
     "$executable_path" "a.mil" < "$input_file" > "$actual_output_file"
     # Compare the actual output with the expected output
-    if cmp -s "$expected_output_file" "$actual_output_file"; then
+    if diff -B -b "$expected_output_file" "$actual_output_file" > /dev/null; then
        echo -e "\e[32mTest succees in : $filename \e[0m"
-        passing_tests+=("$filename")
+      passing_tests+=("$filename")
     else
       echo -e "\e[31mTest case $filename: FAIL \e[0m"
       failed_tests+=("$filename")

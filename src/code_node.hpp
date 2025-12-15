@@ -85,6 +85,7 @@ struct CodeNode{
     }
     void debug(bool recursive = false);
     void printIR();
+    static bool enable_ir_debug;
     private:
        void freeUnionVal();
        void initDefaultUnionVal();

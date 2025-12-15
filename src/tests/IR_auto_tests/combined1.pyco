@@ -1,17 +1,17 @@
 fun main():
     int a = 0;
-    while(a < 5)
+    while(a < 5):
         print(a);
         a = a + 1;
-        if(a == 3)
+        if(a == 3):
             break;
-        if(a == 2)
+        if(a == 2):
             continue;
-        for(int b = 0; b < 5; b = b + 1)
-            for(int c = 0; c < 5; c = c + 1)
+        for(int b = 0; b < 5; b = b + 1):
+            for(int c = 0; c < 5; c = c + 1):
                 break;
                 print(66);
-            while(0)
+            while(0):
                 print(66);
             break;
             print(66);

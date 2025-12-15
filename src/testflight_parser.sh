@@ -22,4 +22,4 @@ fi
 #cat ../doc/language_samples/IR_test_case/if03.pyco | ./onion
 #cat tests/IR_auto_tests/2expr.pyco | ./onion
 #cat ../doc/language_samples/IR_test_case/while_break.pyco | ./onion
-cat tests/IR_auto_tests/while04.pyco | ./onion
+cat tests/IR_auto_tests/2expr.pyco | ./onion

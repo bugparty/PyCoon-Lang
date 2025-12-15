@@ -9,7 +9,7 @@
 #include <cassert>
 int yyerror(char *s);
 int yylex(void);
-#define ENABLE_BISON_PRINTF 1  // Set this flag to 1 to enable printf, or 0 to disable it
+#define ENABLE_BISON_PRINTF 0  // Set this flag to 1 to enable printf, or 0 to disable it
 int loopCounter = 0;
 CodeNode* root = nullptr;
 #if ENABLE_BISON_PRINTF
@@ -793,7 +793,6 @@ function_code_block: function_code_block  statement terminator {ODEBUG( "functio
 
 control_flow_stmt_function:  while_stmt_function {
                 ODEBUG("control_flow_stmt_function -> while_stmt");
-        
                 $$ = $1;
         }
         | for_stmt_function {ODEBUG("control_flow_stmt_function -> for_stmt");}
@@ -810,39 +809,37 @@ while_stmt_function: WHILE {
                 
                 pushLoopTag(node);
                 push_code_node(node);
-                
-} LEFT_PAR expr RIGHT_PAR COLON NEWLINE INDENT loop_block_function  DEDENT {
-        ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
-        CodeNode *node = pop_code_node();
-        CodeNode *expr_node =$4;
-        CodeNode *loop_block_node = $9;
+                } LEFT_PAR expr[cond] RIGHT_PAR COLON NEWLINE INDENT loop_block_function[body]  DEDENT {
+                        ODEBUG("while_stmt -> WHILE LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
+                        CodeNode *node = pop_code_node();
+                        CodeNode *expr_node =$cond;
+                        CodeNode *loop_block_node = $body;
 
-        stringstream ss;
-        auto label_loop_start = node->val.loopTag->loopStartLabel;
-        auto label_loop_body = node->val.loopTag->loopBodyLabel;
-        auto label_loop_end =   node->val.loopTag->loopEndLabel;
+                        stringstream ss;
+                        auto label_loop_start = node->val.loopTag->loopStartLabel;
+                        auto label_loop_body = node->val.loopTag->loopBodyLabel;
+                        auto label_loop_end =   node->val.loopTag->loopEndLabel;
 
-        ss << expr_node->IRVars;
+                        ss << expr_node->IRVars;
 
-        ss << ": " << label_loop_start << endl;
-        ss << expr_node->IRLogics;
+                        ss << ": " << label_loop_start << endl;
+                        ss << expr_node->IRLogics;
 
 
-        ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
-        ss << ":= " << label_loop_end << endl;
-        ss << ": " << label_loop_body << endl;
+                        ss << "?:= " << label_loop_body << ", " << expr_node->getImmOrVariableIRCode() << endl;
+                        ss << ":= " << label_loop_end << endl;
+                        ss << ": " << label_loop_body << endl;
 
-        ss << loop_block_node->IRCode;
-        ss << ":= " << label_loop_start << endl;
-        ss << ": " << label_loop_end << endl;
-        node->IRCode = ss.str();
-        assert(popLoopTag()!= nullptr);
-        $$=node;
-        node->addChild(expr_node);
-        node->addChild(loop_block_node);
+                        ss << loop_block_node->IRCode;
+                        ss << ":= " << label_loop_start << endl;
+                        ss << ": " << label_loop_end << endl;
+                        node->IRCode = ss.str();
+                        assert(popLoopTag()!= nullptr);
+                        $$=node;
+                        node->addChild(expr_node);
+                        node->addChild(loop_block_node);
 
-        }
-          ;
+        };
 
 
 for_stmt_function: FOR 
@@ -858,7 +855,7 @@ for_stmt_function: FOR
          push_code_node(newNode);
 
 }
-        LEFT_PAR assignment_stmt terminator expr terminator assignment_stmt RIGHT_PAR NEWLINE INDENT loop_block_function  DEDENT
+        LEFT_PAR assignment_stmt terminator expr terminator assignment_stmt RIGHT_PAR  COLON NEWLINE INDENT loop_block_function[body]  DEDENT
         {
         ODEBUG("for_stmt -> FOR LEFT_PAR statement SEMICOLON statement SEMICOLON statement RIGHT_PAR LEFT_CURLEY loop_block  RIGHT_CURLEY");
         CodeNode *newNode = pop_code_node();
@@ -893,7 +890,7 @@ for_stmt_function: FOR
         ss<<": "<<label_loop_body<<endl;
 
         
-        ss<<$12->IRCode; //Code Body
+        ss<<$body->IRCode; //Code Body
         //increment, like i++
 
         ss<<": "<<label_loop_start_forIncrement<<endl; //Continue will jump to this
@@ -906,7 +903,7 @@ for_stmt_function: FOR
         newNode->addChild(loop_control_var);
         newNode->addChild(loopContinueCondition);
         newNode->addChild(incrementVar);
-        newNode->addChild($12);
+        newNode->addChild($body);
          
         assert(popLoopTag()!= nullptr); 
         $$=newNode;
@@ -946,11 +943,11 @@ ifElse_stmt_function: if_stmt_function multi_elif_stmt_function else_stmt_functi
                                 node->addChild(else_stmt);
                                 $$=node;}
                     ;
-if_stmt_function: IF LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function DEDENT {
+if_stmt_function: IF LEFT_PAR expr RIGHT_PAR COLON NEWLINE INDENT loop_block_function DEDENT {
         ODEBUG("if_stmt_function -> IF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY");
         CodeNode *node = new CodeNode(O_IF_STMT);
         CodeNode *expr = $3;
-        CodeNode *loop_block = $7;
+        CodeNode *loop_block = $8;
         stringstream ss;
         ss << expr->IRCode;
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
@@ -974,11 +971,11 @@ if_stmt_function: IF LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function 
         node->addChild(loop_block);
         }
         ;
-elif_stmt_function: ELIF LEFT_PAR expr RIGHT_PAR NEWLINE INDENT loop_block_function DEDENT {
+elif_stmt_function: ELIF LEFT_PAR expr[cond] RIGHT_PAR COLON NEWLINE INDENT loop_block_function[body] DEDENT {
         ODEBUG("elif_stmt_function -> ELIF LEFT_PAR expr RIGHT_PAR LEFT_CURLEY loop_block_function RIGHT_CURLEY ");
         CodeNode *node = new CodeNode(O_ELIF_STMT);
-        CodeNode *expr = $3;
-        CodeNode *loop_block = $7;
+        CodeNode *expr = $cond;
+        CodeNode *loop_block = $body;
         stringstream ss;
         ss << expr->IRCode;
         auto tempCond = SymbolManager::getInstance()->allocate_temp(SymbolType::SYM_VAR_INT);
@@ -1028,11 +1025,11 @@ multi_elif_stmt_function: multi_elif_stmt_function elif_stmt_function {
                                 $$=elif;}
                         ;
 
-else_stmt_function: ELSE NEWLINE INDENT loop_block_function DEDENT {
+else_stmt_function: ELSE COLON NEWLINE INDENT loop_block_function[body] DEDENT {
         ODEBUG("else_stmt_function -> ELSE LEFT_CURLEY loop_block RIGHT_CURLEY");
         CodeNode *node = new CodeNode(O_ELSE_STMT);
-        node->IRCode = $4->IRCode;
-        node->addChild($4);
+        node->IRCode = $body->IRCode;
+        node->addChild($body);
         $$=node;
         }       
         | %empty {
@@ -1154,18 +1151,19 @@ functions: functions function_declartion {
                 $$=node;
         }
         ;
+
 entry: functions {
         ODEBUG("entry -> functions");
-        puts("\e[36m");
+        // puts("\e[36m");
         ODEBUG("full program mil code");
-        puts("\e[32m");
+        // puts("\e[32m");
         fstream fout("a.mil", ios::out);
         for(int i=0;i<$1->children.size();i++){
                 assert($1->children[i]!=nullptr);
                 cout << $1->children[i]->IRCode;
                 fout << $1->children[i]->IRCode;
         }
-        puts("\e[0m");
+        // puts("\e[0m");
         fout.close();
         root=$1;
 }

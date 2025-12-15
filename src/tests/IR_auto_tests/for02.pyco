@@ -1,7 +1,7 @@
 fun main():
-    for(int x = 5; x < 99; x = x + 1)
-        if(x <= 6)
+    for(int x = 5; x < 99; x = x + 1):
+        if(x <= 6):
             continue;
-        if(x >= 10)
+        if(x >= 10):
             break;
         print(x);
